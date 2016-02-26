@@ -20,9 +20,9 @@ install:
     - composer self-update
     - composer update --prefer-source
 
-script: bin/phpunit --coverage-clover clover.xml
+script: vendor/bin/phpunit --coverage-clover clover.xml
 
-after_script: bin/coveralls -v
+after_script: vendor/bin/coveralls -v
 
 matrix:
     include:
