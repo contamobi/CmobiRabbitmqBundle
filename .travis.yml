@@ -20,9 +20,12 @@ install:
     - composer self-update
     - composer update --prefer-source
 
-script: vendor/bin/phpunit --coverage-clover clover.xml
+script: 
+    - mkdir -p build/logs
+    - php vendor/bin/phpunit -c phpunit.xml.dist
 
-after_script: vendor/bin/coveralls -v
+after_script: 
+    - travis_retry php vendor/bin/coveralls -v
 
 matrix:
     include:
