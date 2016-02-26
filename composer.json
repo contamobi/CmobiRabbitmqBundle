@@ -1,0 +1,25 @@
+{
+    "name": "cmobi/rabbitmq-bundle",
+    "type": "symfony-bundle",
+    "license": "proprietary",
+    "autoload": {
+        "psr-4": {
+            "Cmobi\\RabbitmqBundle\\": ""
+        }
+    },
+    "require": {
+        "php": ">=5.5.9",
+        "symfony/http-kernel": "~2.8",
+        "php-amqplib/php-amqplib": "2.5.*",
+        "symfony/console": "^3.0"
+    },
+    "require-dev": {
+        "symfony/framework-bundle": "~2.8",
+        "phpunit/phpunit": "5.0"
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "1.0-dev"
+        }
+    }
+}

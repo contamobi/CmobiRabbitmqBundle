@@ -1,0 +1,23 @@
+framework:
+    secret: "Three can keep a secret, if two of them are dead."
+
+cmobi_rabbitmq:
+    connections:
+        default:
+            host: localhost
+            port: 5672
+            user:     'guest'
+            password: 'guest'
+            vhost:    '/'
+            lazy:     false
+            connection_timeout: 3
+            read_write_timeout: 3
+            # requires php-amqplib v2.4.1+ and PHP5.4+
+            keepalive: false
+            # requires php-amqplib v2.4.1+
+            heartbeat: 0
+    rpc_servers:
+        default:
+            queue: { name: 'default_queue' }
+            class: Cmobi\RabbitmqBundle\Tests\Rpc\RpcServiceMock
+            arguments: []

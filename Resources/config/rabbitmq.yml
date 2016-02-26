@@ -1,0 +1,18 @@
+parameters:
+    cmobi_rabbitmq.connection.class: PhpAmqpLib\Connection\AMQPConnection
+    cmobi_rabbitmq.lazy.connection.class: PhpAmqpLib\Connection\AMQPLazyConnection
+    cmobi_rabbitmq.connection.factory.class: Cmobi\RabbitmqBundle\Amqp\ConnectionFactory
+
+services:
+    cmobi_rabbitmq.connection.manager:
+        class: Cmobi\RabbitmqBundle\Amqp\ConnectionManager
+        arguments: ['%cmobi_rabbitmq.connections%']
+        calls:
+            - [setContainer, ["@service_container"]]
+
+    cmobi_rabbitmq.rpc_server:
+        class: Cmobi\RabbitmqBundle\Rpc\RpcServer
+        arguments: ['%cmobi_rabbitmq.rpc_services%']
+        calls:
+            - [setContainer, ["@service_container"]]
+            - [buildChannel]
