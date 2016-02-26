@@ -1,0 +1,35 @@
+language: php
+
+php:
+    - 5.5
+    - 5.6
+    - hhvm
+    - hhvm-nightly
+
+env:
+    global:
+        - COMPOSER_PREFER_LOWEST=false
+        - SYMFONY_VERSION=2.8.*
+
+cache:
+    directories:
+        - vendor
+        - $HOME/.composer/cache
+
+install:
+    - composer self-update
+    - composer update --prefer-source
+
+script: bin/phpunit --coverage-clover clover.xml
+
+after_script: bin/coveralls -v
+
+matrix:
+    include:
+        - php: 5.6
+          env: SYMFONY_VERSION=2.8.*
+    allow_failures:
+        - php: hhvm-nightly
+
+notifications:
+    email: daniel.oliveira@conta.mobi
