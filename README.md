@@ -1,7 +1,7 @@
 ## CmobiRabbitmqBundle ##
 
 [![Build Status](https://travis-ci.org/contamobi/CmobiRabbitmqBundle.svg?branch=master)](http://travis-ci.org/contamobi/CmobiRabbitmqBundle)
-[![Coverage Status](https://coveralls.io/repos/contamobi/CmobiRabbitmqBundle/badge.png?branch=master)](https://coveralls.io/r/contamobi/CmobiRabbitmqBundle?branch=master)
+[![Coverage Status](https://coveralls.io/repos/github/contamobi/CmobiRabbitmqBundle/badge.svg?branch=master)](https://coveralls.io/github/contamobi/CmobiRabbitmqBundle?branch=master)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/contamobi/CmobiRabbitmqBundle/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/contamobi/CmobiRabbitmqBundle/?branch=master)
 [![Dependency Status](https://www.versioneye.com/user/projects/56d0b268157a690037bbb6e8/badge.svg?style=flat)](https://www.versioneye.com/user/projects/56d0b268157a690037bbb6e8)
 
