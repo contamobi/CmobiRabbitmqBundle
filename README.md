@@ -5,9 +5,9 @@
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/contamobi/CmobiRabbitmqBundle/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/contamobi/CmobiRabbitmqBundle/?branch=master)
 [![Dependency Status](https://www.versioneye.com/user/projects/56d0b268157a690037bbb6e8/badge.svg?style=flat)](https://www.versioneye.com/user/projects/56d0b268157a690037bbb6e8)
 
-[![Latest Stable Version](https://poser.pugx.org/cmobi/rabbitmq-bundle/v/stable)](https://packagist.org/packages/cmobi/rabbitmq-bundle)  
+[![Latest Stable Version](https://poser.pugx.org/cmobi/rabbitmq-bundle/v/stable)](https://packagist.org/packages/cmobi/rabbitmq-bundle)
 [![Latest Unstable Version](https://poser.pugx.org/cmobi/rabbitmq-bundle/v/unstable)](https://packagist.org/packages/cmobi/rabbitmq-bundle)
-[![Total Downloads](https://poser.pugx.org/cmobi/rabbitmq-bundle/downloads)](https://packagist.org/packages/cmobi/rabbitmq-bundle) 
+[![Total Downloads](https://poser.pugx.org/cmobi/rabbitmq-bundle/downloads)](https://packagist.org/packages/cmobi/rabbitmq-bundle)
 [![License](https://poser.pugx.org/cmobi/rabbitmq-bundle/license)](https://packagist.org/packages/cmobi/rabbitmq-bundle)
 
 The bundle provides a [RabbitMq](http://rabbitmq.com/) integration for your Symfony2 Project base on [php-amqplib](https://github.com/php-amqplib/php-amqplib).
