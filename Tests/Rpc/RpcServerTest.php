@@ -9,7 +9,12 @@ class RpcServerTest extends BaseTestCase
 {
     public function testServiceExists()
     {
-        $service = $this->getContainer()->get('cmobi_rabbitmq.rpc_server');
-        $this->assertInstanceOf(RpcServer::class, $service);
+        $service = $this->getMockBuilder(RpcServer::class)
+            ->disableOriginalConstructor()
+            ->getMock()
+        ;
+        $this->getContainer()->set('cmobi_rabbitmq.rpc_server', $service);
+        $rpcService = $this->getContainer()->get('cmobi_rabbitmq.rpc_server');
+        $this->assertInstanceOf(RpcServer::class, $rpcService);
     }
 }
