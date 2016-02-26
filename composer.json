@@ -1,5 +1,6 @@
 {
     "name": "cmobi/rabbitmq-bundle",
+    "description": "Bundle to manager RabbitMQ message broker using phpamqplib",
     "type": "symfony-bundle",
     "license": "proprietary",
     "autoload": {
