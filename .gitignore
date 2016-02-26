@@ -2,3 +2,6 @@
 /Tests/app/logs
 /vendor
 /composer.lock
+/phpunit.xml
+/clover.xml
+/coveralls.json

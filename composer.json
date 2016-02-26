@@ -3,6 +3,12 @@
     "description": "Bundle to manager RabbitMQ message broker using phpamqplib",
     "type": "symfony-bundle",
     "license": "proprietary",
+    "authors": [
+        {
+            "name": "Daniel Oliveira",
+            "email": "daniel.oliveira@conta.mobi"
+        }
+    ],
     "autoload": {
         "psr-4": {
             "Cmobi\\RabbitmqBundle\\": ""
@@ -19,6 +25,9 @@
         "symfony/framework-bundle": "~2.8",
         "phpunit/phpunit": "5.0",
         "satooshi/php-coveralls": "^1.0"
+    },
+    "config": {
+        "bin-dir": "bin/"
     },
     "extra": {
         "branch-alias": {
