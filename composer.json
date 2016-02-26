@@ -13,7 +13,7 @@
         "php": ">=5.5.9",
         "symfony/http-kernel": "2.8.*",
         "php-amqplib/php-amqplib": "2.5.*",
-        "symfony/console": "^3.0"
+        "symfony/console": "^2.8"
     },
     "require-dev": {
         "symfony/framework-bundle": "~2.8",
