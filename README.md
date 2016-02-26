@@ -10,7 +10,7 @@
 [![Total Downloads](https://poser.pugx.org/cmobi/rabbitmq-bundle/downloads)](https://packagist.org/packages/cmobi/rabbitmq-bundle)
 [![License](https://poser.pugx.org/cmobi/rabbitmq-bundle/license)](https://packagist.org/packages/cmobi/rabbitmq-bundle)
 
-The bundle provides a [RabbitMq](http://rabbitmq.com/) integration for your Symfony2 Project base on [php-amqplib](https://github.com/php-amqplib/php-amqplib).
+The bundle provides a [RabbitMq](http://rabbitmq.com/) integration for your Symfony2 Project. Based on [php-amqplib](https://github.com/php-amqplib/php-amqplib).
 
 ## Instalation ##
 
