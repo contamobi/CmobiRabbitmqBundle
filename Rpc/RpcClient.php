@@ -4,6 +4,7 @@ namespace Cmobi\RabbitmqBundle\Rpc;
 
 use Cmobi\RabbitmqBundle\ConnectionManagerInterface;
 use PhpAmqpLib\Channel\AbstractChannel;
+use PhpAmqpLib\Connection\AMQPStreamConnection;
 use PhpAmqpLib\Message\AMQPMessage;
 
 abstract class RpcClient
@@ -22,14 +23,6 @@ abstract class RpcClient
         $this->queue = $queueName;
         $this->connection = $manager->getConnection();
         $this->channel = $this->connection->channel();
-        list($callbackQueue, ,) = $this->channel->queue_declare(
-            '', false, false, true, false
-        );
-        $this->callbackQueue = $callbackQueue;
-        $this->channel->basic_consume(
-            $this->callbackQueue, '', false, false, false, false,
-            [$this, 'onResponse']
-        );
     }
 
     /**
@@ -47,6 +40,14 @@ abstract class RpcClient
      */
     public function call()
     {
+        list($callbackQueue, ,) = $this->getChannel()->queue_declare(
+            '', false, false, true, false
+        );
+        $this->callbackQueue = $callbackQueue;
+        $this->getChannel()->basic_consume(
+            $this->callbackQueue, '', false, false, false, false,
+            [$this, 'onResponse']
+        );
         $this->response = null;
         $this->correlationId = uniqid();
 
@@ -68,7 +69,7 @@ abstract class RpcClient
     /**
      * @param string $body
      */
-    public function setMessage($body)
+    public function declareMessage($body)
     {
         $this->body = (string)$body;
     }
@@ -111,5 +112,13 @@ abstract class RpcClient
     public function getConnection()
     {
         return $this->connection;
+    }
+
+    /**
+     * @param \PhpAmqpLib\Connection\AMQPStreamConnection $connection
+     */
+    public function setConnection(AMQPStreamConnection $connection)
+    {
+        $this->connection = $connection;
     }
 }
