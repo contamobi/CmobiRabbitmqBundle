@@ -41,7 +41,7 @@ abstract class RpcClient
     public function call()
     {
         list($callbackQueue, ,) = $this->getChannel()->queue_declare(
-            '', false, false, true, false
+            '', false, false, false, true
         );
         $this->callbackQueue = $callbackQueue;
         $this->getChannel()->basic_consume(
@@ -63,13 +63,16 @@ abstract class RpcClient
         while(!$this->response) {
             $this->getChannel()->wait();
         }
+        $this->getChannel()->close();
+        $this->getConnection()->close();
+        
         return $this->response;
     }
 
     /**
      * @param string $body
      */
-    public function declareMessage($body)
+    public function setMessage($body)
     {
         $this->body = (string)$body;
     }
@@ -107,7 +110,7 @@ abstract class RpcClient
     }
 
     /**
-     * @return ConnectionManagerInterface
+     * @return AMQPStreamConnection
      */
     public function getConnection()
     {

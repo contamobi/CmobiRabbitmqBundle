@@ -13,9 +13,9 @@ abstract class RpcBaseService implements RpcServiceInterface
     protected $queueOptions = [
         'name'                  => null,
         'passive'               => false,
-        'durable'               => false,
+        'durable'               => true,
         'exclusive'             => false,
-        'auto_delete'           => true,
+        'auto_delete'           => false, //Em caso de falha no serviço a filha se mantém para que outro processe.
         'nowait'                => false,
         'arguments'             => null,
         'ticket'                => null
