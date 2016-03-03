@@ -28,10 +28,12 @@ abstract class RpcBaseService implements RpcServiceInterface
     }
 
     /**
+     * Build response for rpc server
+     *
      * @return string
      */
-    protected abstract function buildService();
-    
+    protected abstract function buildResponse();
+
     /**
      * @return \Closure
      * @throws InvalidBodyAMQPMessageException
@@ -40,7 +42,7 @@ abstract class RpcBaseService implements RpcServiceInterface
     {
         $callback = function (AMQPMessage $request) use ($this) {
 
-            $body = $this->buildService();
+            $body = $this->buildResponse();
 
             if (!is_string($body) || is_null($body)) {
                 throw new InvalidBodyAMQPMessageException('Invalid Body: Content should be string and not null.');
