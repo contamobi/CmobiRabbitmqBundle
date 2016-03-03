@@ -35,6 +35,12 @@ abstract class RpcClient
         }
     }
 
+    public function refreshChannel()
+    {
+        $connection = $this->getConnection();
+        $this->channel = $connection->channel();
+    }
+
     /**
      * @return null|string
      */
@@ -65,7 +71,7 @@ abstract class RpcClient
         }
         $this->getChannel()->close();
         $this->getConnection()->close();
-        
+
         return $this->response;
     }
 

@@ -2,12 +2,12 @@
 
 namespace Cmobi\RabbitmqBundle\Rpc;
 
+use Cmobi\RabbitmqBundle\Rpc\Exception\InvalidBodyAMQPMessageException;
 use PhpAmqpLib\Message\AMQPMessage;
 
 abstract class RpcBaseService implements RpcServiceInterface
 {
     private $queueName;
-    private $content;
 
     /** @var array */
     protected $queueOptions = [
@@ -27,21 +27,31 @@ abstract class RpcBaseService implements RpcServiceInterface
         $this->queueOptions = array_merge($this->queueOptions, $queueOptions);
     }
 
-
     /**
-     * Should be Override
+     * @return string
+     */
+    protected abstract function buildService();
+    
+    /**
      * @return \Closure
+     * @throws InvalidBodyAMQPMessageException
      */
     public function createCallback()
     {
-        $callback = function (AMQPMessage $request) {
-            $this->content = new AMQPMessage(
-                $request->body,
+        $callback = function (AMQPMessage $request) use ($this) {
+
+            $body = $this->buildService();
+
+            if (!is_string($body) || is_null($body)) {
+                throw new InvalidBodyAMQPMessageException('Invalid Body: Content should be string and not null.');
+            }
+            $message = new AMQPMessage(
+                $body,
                 ['correlation_id' => $request->get('correlation_id')]
             );
 
             $request->delivery_info['channel']->basic_publish(
-                $this->content,
+                $message,
                 '',
                 $request->get('reply_to')
             );
