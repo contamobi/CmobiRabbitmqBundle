@@ -2,9 +2,9 @@
 
 namespace Cmobi\RabbitmqBundle\Tests\Rpc;
 
-use Cmobi\RabbitmqBundle\Rpc\RpcBaseService;
+use Cmobi\RabbitmqBundle\Rpc\BaseService;
 
-class RpcServiceMock extends RpcBaseService
+class RpcServiceMock extends BaseService
 {
     /**
      * @return array

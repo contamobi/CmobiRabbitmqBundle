@@ -4,6 +4,14 @@ parameters:
     cmobi_rabbitmq.connection.factory.class: Cmobi\RabbitmqBundle\Amqp\ConnectionFactory
 
 services:
+    cmobi_rabbitmq.routing_loader:
+        class: Cmobi\CmobiRabbitmqBundle\Routing\MethodLoader
+        tags:
+            - { name: routing.loader }
+
+    cmobi_rabbitmq.rpc.handler:
+        class: Cmobi\RabbitmqBundle\Rpc\Handler
+
     cmobi_rabbitmq.connection.manager:
         class: Cmobi\RabbitmqBundle\Amqp\ConnectionManager
         arguments: ['%cmobi_rabbitmq.connections%']

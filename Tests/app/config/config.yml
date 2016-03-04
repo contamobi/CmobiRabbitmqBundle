@@ -19,5 +19,3 @@ cmobi_rabbitmq:
     rpc_servers:
         default:
             queue: { name: 'default_queue' }
-            class: Cmobi\RabbitmqBundle\Tests\Rpc\RpcServiceMock
-            arguments: []

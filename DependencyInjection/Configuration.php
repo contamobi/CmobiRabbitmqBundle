@@ -2,6 +2,7 @@
 
 namespace Cmobi\RabbitmqBundle\DependencyInjection;
 
+use Cmobi\RabbitmqBundle\Rpc\BaseService;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 
@@ -58,8 +59,8 @@ class Configuration implements ConfigurationInterface
                                          ->end()
                                      ->end()
                             ->end()
-                            ->scalarNode('class')->end()
-                            ->arrayNode('arguments')->end()
+                            ->scalarNode('class')->defaultValue(BaseService::class)->end()
+                            ->arrayNode('arguments')->canBeDisabled()->end()
                         ->end()
                     ->end()
                 ->end()

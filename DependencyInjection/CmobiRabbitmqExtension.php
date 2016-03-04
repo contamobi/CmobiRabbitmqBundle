@@ -2,8 +2,9 @@
 
 namespace Cmobi\RabbitmqBundle\DependencyInjection;
 
+use Cmobi\RabbitmqBundle\DependencyInjection\Compiler\RpcServicePass;
 use Cmobi\RabbitmqBundle\Rpc\Exception\InvalidRpcServerClassException;
-use Cmobi\RabbitmqBundle\Rpc\RpcBaseService;
+use Cmobi\RabbitmqBundle\Rpc\RpcServiceInterface;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
@@ -60,20 +61,19 @@ class CmobiRabbitmqExtension extends Extension
         foreach ($this->config['rpc_servers'] as $server => $params) {
             $serviceClass = $params['class'];
 
-            if (!is_subclass_of($serviceClass, RpcBaseService::class)) {
+            if (!is_subclass_of($serviceClass, RpcServiceInterface::class)) {
                 throw new InvalidRpcServerClassException(
                     sprintf('server (%s) is not class of RpcBaseService', $server)
                 );
             }
-            $definition = new Definition(
-                $serviceClass,
-                [
-                    'queueOptions' => $params['queue'],
-                    'parameters' => $params['arguments']
-                ]
-            );
+
+            if (!isset($params['arguments'])) {
+                $params['arguments'] = [];
+            }
             $serviceName = sprintf('cmobi_rabbitmq.rpc_service.%s', $server);
-            $this->getContainer()->setDefinition($serviceName, $definition);
+            $this->getContainer()->addCompilerPass(
+                new RpcServicePass($serviceName, $serviceClass, $params['queue'], $params['arguments'])
+            );
             $rpcServers[$server] = $serviceName;
         }
         $this->getContainer()->setParameter('cmobi_rabbitmq.rpc_services', $rpcServers);

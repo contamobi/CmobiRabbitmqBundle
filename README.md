@@ -68,14 +68,7 @@ cmobi_rabbitmq:
     rpc_servers:
         primary_server:
             queue: { name: 'primary_queue' }
-            class: AppBundle\Rpc\PrimaryService
-            arguments: []
         second_server:
             queue: { name: 'second_queue' }
-            class: AppBundle\Rpc\SecondService
-            arguments: []
 ```
-
-The `class` file is automatic declared as service on project load, and `arguments` is attributed to service. `queue` parameters inform how qeue should be created with exemple queue `name`.
-
 
