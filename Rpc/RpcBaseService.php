@@ -40,7 +40,7 @@ abstract class RpcBaseService implements RpcServiceInterface
      */
     public function createCallback()
     {
-        $callback = function (AMQPMessage $request) use ($this) {
+        $callback = function (AMQPMessage $request) {
 
             $body = $this->buildResponse();
 
