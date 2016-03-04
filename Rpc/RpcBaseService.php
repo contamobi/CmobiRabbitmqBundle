@@ -7,6 +7,7 @@ use PhpAmqpLib\Message\AMQPMessage;
 
 abstract class RpcBaseService implements RpcServiceInterface
 {
+    private $request;
     private $queueName;
 
     /** @var array */
@@ -42,6 +43,7 @@ abstract class RpcBaseService implements RpcServiceInterface
     {
         $callback = function (AMQPMessage $request) {
 
+            $this->request = $request;
             $body = $this->buildResponse();
 
             if (!is_string($body) || is_null($body)) {
@@ -68,5 +70,21 @@ abstract class RpcBaseService implements RpcServiceInterface
     public function getQueueName()
     {
         return $this->queueName;
+    }
+
+    /**
+     * @return array
+     */
+    public function getQueueOptions()
+    {
+        return $this->queueOptions;
+    }
+
+    /**
+     * @return AMQPMessage
+     */
+    public function getRequest()
+    {
+        return $this->request;
     }
 }
