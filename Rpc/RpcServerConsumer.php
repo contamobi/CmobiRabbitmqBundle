@@ -13,6 +13,6 @@ class RpcServerConsumer extends RpcClient
     public function call()
     {
         $this->refreshChannel();
-        parent::call();
+        return parent::call();
     }
 }
