@@ -29,13 +29,6 @@ abstract class RpcBaseService implements RpcServiceInterface
     }
 
     /**
-     * Build response for rpc server
-     *
-     * @return string
-     */
-    protected abstract function buildResponse();
-
-    /**
      * @return \Closure
      * @throws InvalidBodyAMQPMessageException
      */
