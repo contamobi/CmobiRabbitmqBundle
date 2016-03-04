@@ -13,4 +13,14 @@ class RpcServiceMock extends RpcBaseService
     {
         return $this->queueOptions;
     }
+
+    /**
+     * Build response for rpc server
+     *
+     * @return string
+     */
+    protected function buildResponse()
+    {
+        return 'RpcServiceMock';
+    }
 }
