@@ -28,8 +28,8 @@ class RpcServicePass implements CompilerPassInterface
             $this->serviceClass,
             [
                 'handler' => $rpcHandler,
-                'queueOptions' => $this->params,
-                'parameters' => $this->queueOptions
+                'queueOptions' => $this->queueOptions,
+                'parameters' => $this->params
             ]
         );
         $container->setDefinition($this->serviceName, $definition);

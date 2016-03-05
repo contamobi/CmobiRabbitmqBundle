@@ -77,6 +77,7 @@ class CmobiRabbitmqExtension extends Extension
             $rpcServers[$server] = $serviceName;
         }
         $this->getContainer()->setParameter('cmobi_rabbitmq.rpc_services', $rpcServers);
+        $this->getContainer()->compile();
     }
 
     /**
