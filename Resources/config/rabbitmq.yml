@@ -20,11 +20,15 @@ services:
         tags:
             - { name: routing.loader }
 
+    cmobi_rabbitmq.config_cache_factory:
+        class: Symfony\Component\Config\ResourceCheckerConfigCacheFactory
+        arguments: []
+
     cmobi_rabbitmq.router_rpc:
         class: Cmobi\RabbitmqBundle\Routing\MethodRouter
         arguments: ["@service_container", "%cmobi_rabbitmq.router_rpc.resource%", "%cmobi_rabbitmq.router_rpc.arguments%"]
         calls:
-            - [setConfigCacheFactory, ["@config_cache_factory"]]
+            - [setConfigCacheFactory, ["@cmobi_rabbitmq.config_cache_factory"]]
 
     cmobi_rabbitmq.router_rpc_cache_warmer:
         class: Cmobi\RabbitmqBundle\Routing\CacheWarmer\MethodRouterCacheWarmer
