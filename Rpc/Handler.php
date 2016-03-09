@@ -4,10 +4,13 @@ namespace Cmobi\RabbitmqBundle\Rpc;
 
 use Cmobi\RabbitmqBundle\Rpc\Exception\InvalidBodyAMQPMessageException;
 use PhpAmqpLib\Message\AMQPMessage;
+use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 use Symfony\Component\HttpKernel\Controller\ControllerResolver;
 
 class Handler
 {
+    use ContainerAwareTrait;
+
     private $resolver;
 
     public function __construct()
@@ -17,7 +20,6 @@ class Handler
 
     public function handle(AMQPMessage $message)
     {
-
 
         //$controller = $this->getResolver()->getController($message);
         //$arguments = $this->getResolver()->getArguments($message, $controller);
@@ -37,10 +39,18 @@ class Handler
     }
 
     /**
-     * @return ControllerResolverInterface
+     * @return ControllerResolver
      */
     public function getResolver()
     {
         return $this->resolver;
+    }
+
+    /**
+     * @return \Symfony\Component\DependencyInjection\ContainerInterface
+     */
+    public function getContainer()
+    {
+        return $this->container;
     }
 }

@@ -38,6 +38,17 @@ class Configuration implements ConfigurationInterface
                 ->end()
             ->end()
         ;
+        $rootNode
+            ->children()
+                ->arrayNode('router')
+                    ->info('router configuration')
+                    ->canBeUnset()
+                    ->children()
+                        ->scalarNode('resource')->isRequired()->end()
+                    ->end()
+                ->end()
+            ->end()
+        ;
         $rootNode->fixXmlConfig('rpc_server')
             ->children()
                 ->arrayNode('rpc_servers')

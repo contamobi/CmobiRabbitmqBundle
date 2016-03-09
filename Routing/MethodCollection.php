@@ -32,6 +32,7 @@ class MethodCollection implements IteratorAggregate, \Countable
         return $this->methods;
     }
 
+
     public function get($name)
     {
         if (isset($this->methods[$name])) {

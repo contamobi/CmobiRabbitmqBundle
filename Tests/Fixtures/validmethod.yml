@@ -1,0 +1,3 @@
+cmobi_default:
+    method: default
+    defaults: { CmobiRabbitmqBundle:Default:Index }

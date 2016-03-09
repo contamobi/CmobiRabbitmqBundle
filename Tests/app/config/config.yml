@@ -2,6 +2,8 @@ framework:
     secret: "Three can keep a secret, if two of them are dead."
 
 cmobi_rabbitmq:
+    router:
+        resource: "%kernel.root_dir%/config/rpc_routing.yml"
     connections:
         default:
             host: localhost

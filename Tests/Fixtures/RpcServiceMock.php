@@ -1,6 +1,6 @@
 <?php
 
-namespace Cmobi\RabbitmqBundle\Tests\Rpc;
+namespace Cmobi\RabbitmqBundle\Tests\Fixtures;
 
 use Cmobi\RabbitmqBundle\Rpc\BaseService;
 

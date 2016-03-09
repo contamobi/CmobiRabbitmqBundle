@@ -1,6 +1,6 @@
 <?php
 
-namespace Cmobi\CmobiRabbitmqBundle\Rpc\Controller;
+namespace Cmobi\RabbitmqBundle\Rpc\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 

@@ -8,8 +8,8 @@ use Cmobi\RabbitmqBundle\Rpc\RpcServiceInterface;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
-use Symfony\Component\DependencyInjection\Extension\Extension;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
+use Symfony\Component\HttpKernel\DependencyInjection\Extension;
 
 class CmobiRabbitmqExtension extends Extension
 {
@@ -25,6 +25,7 @@ class CmobiRabbitmqExtension extends Extension
         $configuration = $this->getConfiguration($configs, $container);
         $this->config = $this->processConfiguration($configuration, $configs);
         $this->container = $container;
+        $this->registerRouterConfiguration($configs[0]['router']);
         $this->loadConnections();
         $this->loadRpcServers();
     }
@@ -77,6 +78,20 @@ class CmobiRabbitmqExtension extends Extension
             $rpcServers[$server] = $serviceName;
         }
         $this->getContainer()->setParameter('cmobi_rabbitmq.rpc_services', $rpcServers);
+    }
+
+    public function registerRouterConfiguration($resource)
+    {
+        $this->getContainer()->setParameter('cmobi_rabbitmq.router_rpc.resource', $resource);
+        $this->getContainer()->setParameter(
+            'method.cache_class_prefix',
+            $this->getContainer()->getParameter('kernel.name')
+            . ucfirst($this->getContainer()->getParameter('kernel.environment'))
+        );
+        $this->addClassesToCompile([
+            'Cmobi\\RabbitmqBundle\\Routing\\Matcher\\MethodMatcher',
+            $this->getContainer()->findDefinition('cmobi_rabbitmq.router_rpc')->getClass(),
+        ]);
     }
 
     /**
