@@ -1,6 +1,6 @@
 <?php
 
-namespace Cmobi\RabbitmqBundle\Tests\Loader;
+namespace Cmobi\RabbitmqBundle\Tests\Routing\Loader;
 
 use Cmobi\RabbitmqBundle\Routing\Loader\YamlRpcLoader;
 use Cmobi\RabbitmqBundle\Tests\BaseTestCase;
@@ -11,7 +11,7 @@ class YamlRpcLoaderTest extends BaseTestCase
 
     public function testLoadRouteInstance()
     {
-        $loader = new YamlRpcLoader(new FileLocator(array(__DIR__.'/../Fixtures')));
+        $loader = new YamlRpcLoader(new FileLocator(array(__DIR__.'/../../Fixtures')));
         $methodCollection = $loader->load('validmethod.yml');
         $method = $methodCollection->get('cmobi_default');
 
@@ -21,7 +21,7 @@ class YamlRpcLoaderTest extends BaseTestCase
 
     public function testLoadRouteName()
     {
-        $loader = new YamlRpcLoader(new FileLocator(array(__DIR__.'/../Fixtures')));
+        $loader = new YamlRpcLoader(new FileLocator(array(__DIR__.'/../../Fixtures')));
         $methodCollection = $loader->load('validmethod.yml');
         $method = $methodCollection->get('cmobi_default');
 

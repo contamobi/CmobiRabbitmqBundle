@@ -12,6 +12,9 @@ parameters:
         matcher_class: %cmobi_rabbitmq.methodrouter.options.matcher_class%
         matcher_dumper_class: %cmobi_rabbitmq.methodrouter.options.matcher_dumper_class%
         matcher_cache_class: %cmobi_rabbitmq.methodrouter.options.matcher.cache_class%
+    cmobi_rabbitmq.router_rpc.request_factory.class: Cmobi\RabbitmqBundle\Rpc\Request\JsonRpcRequestFactory
+    cmobi_rabbitmq.router_rpc.request_collection.class: Cmobi\RabbitmqBundle\Rpc\Request\JsonRpcRequestCollection
+    cmobi_rabbitmq.router_rpc.response_collection.class: Cmobi\RabbitmqBundle\Rpc\Response\JsonRpcResponseCollection
 
 services:
     cmobi_rabbitmq.routing_loader_service:
@@ -35,6 +38,19 @@ services:
         arguments: ["@cmobi_rabbitmq.router_rpc"]
         tags:
             - { name: kernel.cache_warmer }
+
+    cmobi_rabbitmq.rpc.requests:
+        class: %cmobi_rabbitmq.router_rpc.request_collection.class%
+
+    cmobi_rabbitmq.rpc.responses:
+        class: %cmobi_rabbitmq.router_rpc.response_collection.class%
+
+    cmobi_rabbitmq.rpc.request.factory:
+       class: %cmobi_rabbitmq.router_rpc.request_factory.class%
+
+    cmobi_rabbitmq.rpc.messager:
+        class: Cmobi\RabbitmqBundle\Rpc\RpcMessager
+        arguments: ['@cmobi_rabbitmq.rpc.requests', '@cmobi_rabbitmq.rpc.responses', '@cmobi_rabbitmq.rpc.request.factory']
 
     cmobi_rabbitmq.rpc.handler:
         class: Cmobi\RabbitmqBundle\Rpc\Handler

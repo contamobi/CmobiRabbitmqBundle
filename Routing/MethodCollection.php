@@ -2,10 +2,9 @@
 
 namespace Cmobi\RabbitmqBundle\Routing;
 
-use IteratorAggregate;
 use Symfony\Component\Config\Resource\ResourceInterface;
 
-class MethodCollection implements IteratorAggregate, \Countable
+class MethodCollection implements \IteratorAggregate, \Countable
 {
     private $methods = [];
     private  $resources = [];

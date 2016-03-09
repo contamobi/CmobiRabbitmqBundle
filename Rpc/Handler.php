@@ -2,10 +2,13 @@
 
 namespace Cmobi\RabbitmqBundle\Rpc;
 
+use Cmobi\RabbitmqBundle\Rpc\Controller\RpcControllerResolver;
 use Cmobi\RabbitmqBundle\Rpc\Exception\InvalidBodyAMQPMessageException;
-use PhpAmqpLib\Message\AMQPMessage;
+use Cmobi\RabbitmqBundle\Rpc\Exception\JsonRpcInternalErrorException;
+use Cmobi\RabbitmqBundle\Rpc\Request\RpcRequestCollectionInterface;
+use Cmobi\RabbitmqBundle\Rpc\Response\JsonRpcResponse;
+use Cmobi\RabbitmqBundle\Rpc\Response\RpcResponseCollectionInterface;
 use Symfony\Component\DependencyInjection\ContainerAwareTrait;
-use Symfony\Component\HttpKernel\Controller\ControllerResolver;
 
 class Handler
 {
@@ -15,31 +18,32 @@ class Handler
 
     public function __construct()
     {
-        $this->resolver = new ControllerResolver();
+        $this->resolver = new RpcControllerResolver();
     }
 
-    public function handle(AMQPMessage $message)
+    public function handle(RpcRequestCollectionInterface $requests, RpcResponseCollectionInterface $responses)
     {
+        foreach ($requests as $request) {
+            $controller = $this->getResolver()->getController($request);
+            $arguments = $this->getResolver()->getArguments($request, $controller);
+            $response = call_user_func_array($controller, $arguments);
 
-        //$controller = $this->getResolver()->getController($message);
-        //$arguments = $this->getResolver()->getArguments($message, $controller);
-        $controller = '';
-        $arguments = [];
-        $response = call_user_func_array($controller, $arguments);
-
-        if (!is_string($response) || is_null($response)) {
-            throw new InvalidBodyAMQPMessageException('Invalid Body: Content should be string and not null.');
+            if (!is_string($response) || is_null($response)) {
+                $previous = new InvalidBodyAMQPMessageException('Invalid Body: Content should be string and not null.');
+                $exception = new JsonRpcInternalErrorException($previous);
+                $error = new JsonRpcResponse([], $exception);
+                $error->setId($request->id);
+                $error->setMethod($request->method);
+                $responses->add($request->id, $error);
+            } else {
+                $responses->add(null, $response);
+            }
         }
-        $amqpResponse = new AMQPMessage(
-            $response,
-            ['correlation_id' => $message->get('correlation_id')]
-        );
-
-        return $amqpResponse;
+        return $responses;
     }
 
     /**
-     * @return ControllerResolver
+     * @return RpcControllerResolver
      */
     public function getResolver()
     {

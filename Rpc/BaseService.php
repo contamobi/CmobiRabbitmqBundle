@@ -3,13 +3,17 @@
 namespace Cmobi\RabbitmqBundle\Rpc;
 
 use Cmobi\RabbitmqBundle\Rpc\Exception\InvalidBodyAMQPMessageException;
+use Cmobi\RabbitmqBundle\Rpc\Exception\JsonRpcInternalErrorException;
+use Cmobi\RabbitmqBundle\Rpc\Response\JsonRpcResponse;
+use Cmobi\RabbitmqBundle\Rpc\Response\RpcResponseCollectionInterface;
+use Cmobi\RabbitmqBundle\Rpc\Response\RpcResponseInterface;
 use PhpAmqpLib\Message\AMQPMessage;
 
 class BaseService implements RpcServiceInterface
 {
-    private $request;
     private $queueName;
     private $rpcHandler;
+    private $rpcMessager;
 
     /** @var array */
     protected $queueOptions = [
@@ -23,9 +27,10 @@ class BaseService implements RpcServiceInterface
         'ticket'                => null
     ];
 
-    public function __construct(Handler $handler, array $queueOptions, array $parameters = null)
+    public function __construct(Handler $handler, RpcMessager $messager, array $queueOptions, array $parameters = null)
     {
         $this->rpcHandler = $handler;
+        $this->rpcMessager = $messager;
         $this->queueName = $queueOptions['name'];
         $this->queueOptions = array_merge($this->queueOptions, $queueOptions);
     }
@@ -36,22 +41,41 @@ class BaseService implements RpcServiceInterface
      */
     public function createCallback()
     {
-        $callback = function (AMQPMessage $request) {
+        $callback = function (AMQPMessage $message) {
 
-            $this->request = $request;
-            $message = $this->getHandler()->handle($request);
+            $responseCollection = $this->rpcMessager->getResponseCollection();
+            $requestCollection = $this->rpcMessager->getRequestCollection();
+            try {
+                $this->rpcMessager->parseAMQPMessage($message);
+            } catch (\Exception $e) {
+                $exception = new JsonRpcInternalErrorException();
+                $response = new JsonRpcResponse([], $exception);
+                $responseCollection->add(null, $response);
+            }
+            $response = $this->getHandler()->handle($requestCollection, $responseCollection);
+            $messageResponse = $this->buildResponseMessage($response, $message);
 
-            $request->delivery_info['channel']->basic_publish(
-                $message,
+            $message->delivery_info['channel']->basic_publish(
+                $messageResponse,
                 '',
-                $request->get('reply_to')
+                $message->get('reply_to')
             );
-            $request->delivery_info['channel']->basic_ack(
-                $request->delivery_info['delivery_tag']
+            $message->delivery_info['channel']->basic_ack(
+                $message->delivery_info['delivery_tag']
             );
         };
 
         return $callback;
+    }
+
+    public function buildResponseMessage(RpcResponseCollectionInterface $response, AMQPMessage $requestMessage)
+    {
+        $amqpResponse = new AMQPMessage(
+            (string)$response,
+            ['correlation_id' => $requestMessage->get('correlation_id')]
+        );
+
+        return $amqpResponse;
     }
 
     public function getQueueName()
@@ -68,18 +92,18 @@ class BaseService implements RpcServiceInterface
     }
 
     /**
-     * @return AMQPMessage
-     */
-    public function getRequest()
-    {
-        return $this->request;
-    }
-
-    /**
      * @return Handler
      */
     public function getHandler()
     {
         return $this->rpcHandler;
+    }
+
+    /**
+     * @return RpcMessager
+     */
+    public function getMessager()
+    {
+        return $this->rpcMessager;
     }
 }
