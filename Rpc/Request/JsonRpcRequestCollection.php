@@ -17,11 +17,16 @@ class JsonRpcRequestCollection implements RpcRequestCollectionInterface, \Iterat
         return count($this->requests);
     }
 
-    public function add($id, RpcRequestInterface $request)
+    public function add(RpcRequestInterface $request)
     {
-        unset($this->requests[$id]);
+        $key = array_search($request, $this->requests, true);
 
-        $this->requests[$id] = $request;
+        if ($key !== false) {
+            unserialize($this->requests[$key]);
+        }
+        unset($this->requests[$key]);
+
+        $this->requests[] = $request;
     }
 
     public function all()
@@ -53,6 +58,9 @@ class JsonRpcRequestCollection implements RpcRequestCollectionInterface, \Iterat
 
     public function __toString()
     {
+        if (count($this->requests) == 1) {
+            return (string)$this->requests[0];
+        }
         $requests = [];
 
         foreach ($this->requests as $request) {

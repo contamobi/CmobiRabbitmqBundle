@@ -23,9 +23,28 @@ services:
         tags:
             - { name: routing.loader }
 
+    cmobi_rabbitmq.routing_loader.rpc:
+        class: Cmobi\RabbitmqBundle\Routing\Loader\YamlRpcLoader
+        tags:
+            - { name: routing.loader }
+
+    cmobi_rabbitmq.self_resource_checker:
+        class: Symfony\Component\Config\Resource\SelfCheckingResourceChecker
+        public: false
+        tags:
+            - { name: cmobi_rabbitmq.config_cache.resource_checker, priority: -990 }
+
+    cmobi_rabbitmq.bc_resource_checker:
+        class: Symfony\Component\Config\Resource\BCResourceInterfaceChecker
+        public: false
+        tags:
+            - { name: cmobi_rabbitmq.config_cache.resource_checker, priority: -1000 }
+
     cmobi_rabbitmq.config_cache_factory:
         class: Symfony\Component\Config\ResourceCheckerConfigCacheFactory
-        arguments: []
+        arguments:
+            - []
+        public: false
 
     cmobi_rabbitmq.router_rpc:
         class: Cmobi\RabbitmqBundle\Routing\MethodRouter
@@ -50,7 +69,7 @@ services:
 
     cmobi_rabbitmq.rpc.messager:
         class: Cmobi\RabbitmqBundle\Rpc\RpcMessager
-        arguments: ['@cmobi_rabbitmq.rpc.requests', '@cmobi_rabbitmq.rpc.responses', '@cmobi_rabbitmq.rpc.request.factory']
+        arguments: ['@cmobi_rabbitmq.router_rpc', '@cmobi_rabbitmq.rpc.requests', '@cmobi_rabbitmq.rpc.responses', '@cmobi_rabbitmq.rpc.request.factory']
 
     cmobi_rabbitmq.rpc.handler:
         class: Cmobi\RabbitmqBundle\Rpc\Handler

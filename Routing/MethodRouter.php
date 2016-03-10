@@ -22,7 +22,7 @@ class MethodRouter
     public function __construct(ContainerInterface $loader, $resource, array $options = [])
     {
         $this->loader = $loader;
-        $this->resource = $resource;
+        $this->resource = $resource['resource'];
         $this->context = new Method(null, '');
         $this->setOptions($options);
     }

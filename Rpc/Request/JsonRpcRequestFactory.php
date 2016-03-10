@@ -9,13 +9,13 @@ class JsonRpcRequestFactory
 {
     private $requiredFields = ['id', 'jsonrpc', 'method'];
 
-    public function factory(array $request)
+    public function factory(array $requestMessage)
     {
-        $this->validateRequiredFields($request);
+        $this->validateRequiredFields($requestMessage);
 
-        $request = new JsonRpcRequest($request['params']);
-        $request->setId($request['id']);
-        $request->setMethod($request['method']);
+        $request = new JsonRpcRequest($requestMessage['params']);
+        $request->setId($requestMessage['id']);
+        $request->setMethod($requestMessage['method']);
 
         return $request;
     }

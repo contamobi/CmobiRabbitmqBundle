@@ -17,12 +17,18 @@ class JsonRpcResponseCollection implements RpcResponseCollectionInterface, \Iter
         return count($this->responses);
     }
 
-    public function add($id = null, RpcResponseInterface $response)
+    public function add(RpcResponseInterface $response)
     {
-        unset($this->responses[$id]);
+        $key = array_search($response, $this->responses, true);
 
-        $this->responses[$id] = $response;
+        if ($key !== false) {
+            unserialize($this->responses[$key]);
+        }
+        unset($this->responses[$key]);
+
+        $this->responses[] = $response;
     }
+
     public function all()
     {
         return $this->responses;
@@ -53,7 +59,11 @@ class JsonRpcResponseCollection implements RpcResponseCollectionInterface, \Iter
 
     public function __toString()
     {
+        if (count($this->responses) == 1) {
+            return (string)$this->responses[0];
+        }
         $response = [];
+
         foreach ($this->responses as $response) {
             $response = json_decode($response, true);
             $response[] = $response;

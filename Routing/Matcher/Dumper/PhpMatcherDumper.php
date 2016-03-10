@@ -62,17 +62,23 @@ $code
 EOF;
     }
 
-    private function compileRoutes(MethodCollection $methods)
+    private function compileMethods(MethodCollection $methods)
     {
         $code = '';
 
         foreach ($methods as $collection) {
             if (null !== $name = $collection->getAttribute('name')) {
-                $code .= sprintf("        if (\$method === \$name)) {\n", var_export($name, true));
+                $code .= sprintf("        if (\$method === \$name) {\n", var_export($name, true));
+                $code .= rtrim($this->compileMethod($name));
             }
         }
+        $code .= "        }\n\n";
 
         return $code;
     }
 
+    private function compileMethod($name)
+    {
+        return sprintf("            return array('_method' => '%s');\n", $name);
+    }
 }

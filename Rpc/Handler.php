@@ -7,6 +7,7 @@ use Cmobi\RabbitmqBundle\Rpc\Exception\InvalidBodyAMQPMessageException;
 use Cmobi\RabbitmqBundle\Rpc\Exception\JsonRpcInternalErrorException;
 use Cmobi\RabbitmqBundle\Rpc\Request\RpcRequestCollectionInterface;
 use Cmobi\RabbitmqBundle\Rpc\Response\JsonRpcResponse;
+use Cmobi\RabbitmqBundle\Rpc\Response\JsonRpcResponseCollection;
 use Cmobi\RabbitmqBundle\Rpc\Response\RpcResponseCollectionInterface;
 use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 
@@ -34,12 +35,14 @@ class Handler
                 $error = new JsonRpcResponse([], $exception);
                 $error->setId($request->id);
                 $error->setMethod($request->method);
-                $responses->add($request->id, $error);
+                $responses->add($error);
             } else {
-                $responses->add(null, $response);
+                $response = new JsonRpcResponse($response);
+                $response->setId($request->id);
+                $response->setMethod($request->method);
+                $responses->add($response);
             }
         }
-        return $responses;
     }
 
     /**

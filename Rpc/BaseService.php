@@ -47,13 +47,13 @@ class BaseService implements RpcServiceInterface
             $requestCollection = $this->rpcMessager->getRequestCollection();
             try {
                 $this->rpcMessager->parseAMQPMessage($message);
+                $this->getHandler()->handle($requestCollection, $responseCollection);
             } catch (\Exception $e) {
                 $exception = new JsonRpcInternalErrorException();
                 $response = new JsonRpcResponse([], $exception);
-                $responseCollection->add(null, $response);
+                $responseCollection->add($response);
             }
-            $response = $this->getHandler()->handle($requestCollection, $responseCollection);
-            $messageResponse = $this->buildResponseMessage($response, $message);
+            $messageResponse = $this->buildResponseMessage($responseCollection, $message);
 
             $message->delivery_info['channel']->basic_publish(
                 $messageResponse,

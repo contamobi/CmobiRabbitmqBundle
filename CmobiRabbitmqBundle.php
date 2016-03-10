@@ -3,7 +3,6 @@
 namespace Cmobi\RabbitmqBundle;
 
 use Cmobi\RabbitmqBundle\DependencyInjection\CmobiRabbitmqExtension;
-use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 
 class CmobiRabbitmqBundle extends Bundle

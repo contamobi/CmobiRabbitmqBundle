@@ -4,6 +4,7 @@ namespace Cmobi\RabbitmqBundle\Routing\Loader;
 
 use Cmobi\RabbitmqBundle\Routing\Method;
 use Cmobi\RabbitmqBundle\Routing\MethodCollection;
+use Symfony\Component\Config\FileLocator;
 use Symfony\Component\Config\Loader\FileLoader;
 use Symfony\Component\Config\Resource\FileResource;
 use Symfony\Component\Yaml\Exception\ParseException;
@@ -16,6 +17,12 @@ class YamlRpcLoader extends FileLoader
     );
 
     private $yamlParser;
+
+    public function __construct()
+    {
+        $locator = new FileLocator('%kernel.dir_src%/Resources');
+        parent::__construct($locator);
+    }
 
     public function load($file, $type = null)
     {

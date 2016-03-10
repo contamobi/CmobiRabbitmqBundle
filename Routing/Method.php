@@ -183,6 +183,22 @@ class Method implements \Serializable
         return $this;
     }
 
+    public function getAttribute($key)
+    {
+        $attributes = [
+            'id' => $this->id,
+            'name' => $this->name,
+            'params' => $this->params,
+            'defaults' => $this->defaults,
+            'options' => $this->options
+        ];
+
+        if (!array_key_exists($key, $attributes)) {
+            return false;
+        }
+        return $attributes[$key];
+    }
+
     public function compile()
     {
         if (null !== $this->compiled) {

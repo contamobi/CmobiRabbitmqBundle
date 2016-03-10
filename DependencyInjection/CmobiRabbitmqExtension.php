@@ -2,6 +2,7 @@
 
 namespace Cmobi\RabbitmqBundle\DependencyInjection;
 
+use Cmobi\RabbitmqBundle\DependencyInjection\Compiler\ConfigCachePass;
 use Cmobi\RabbitmqBundle\DependencyInjection\Compiler\RpcServicePass;
 use Cmobi\RabbitmqBundle\Rpc\Exception\InvalidRpcServerClassException;
 use Cmobi\RabbitmqBundle\Rpc\RpcServiceInterface;
@@ -28,6 +29,12 @@ class CmobiRabbitmqExtension extends Extension
         $this->registerRouterConfiguration($configs[0]['router']);
         $this->loadConnections();
         $this->loadRpcServers();
+
+        if ($container->getParameter('kernel.debug')) {
+            $container->addCompilerPass(new ConfigCachePass());
+        }
+        /* Compile and lock container */
+        $container->compile();
     }
 
     protected function loadConnections()
@@ -78,7 +85,6 @@ class CmobiRabbitmqExtension extends Extension
             $rpcServers[$server] = $serviceName;
         }
         $this->getContainer()->setParameter('cmobi_rabbitmq.rpc_services', $rpcServers);
-        $this->getContainer()->compile();
     }
 
     public function registerRouterConfiguration($resource)
