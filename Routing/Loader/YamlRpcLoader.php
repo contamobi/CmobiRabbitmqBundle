@@ -7,16 +7,20 @@ use Cmobi\RabbitmqBundle\Routing\MethodCollection;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\Config\Loader\FileLoader;
 use Symfony\Component\Config\Resource\FileResource;
+use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Parser as YamlParser;
 
 class YamlRpcLoader extends FileLoader
 {
+    use ContainerAwareTrait;
+
     private static $availableKeys = array(
         'method', 'type', 'defaults', 'resource'
     );
 
     private $yamlParser;
+    private $controllerParser;
 
     public function __construct()
     {
@@ -26,6 +30,7 @@ class YamlRpcLoader extends FileLoader
 
     public function load($file, $type = null)
     {
+        $this->controllerParser = $this->getContainer()->get('controller_name_converter');
         $path = $this->locator->locate($file);
 
         if (!stream_is_local($path)) {
@@ -100,6 +105,17 @@ class YamlRpcLoader extends FileLoader
             $defaults = $config['defaults'];
         }
         $route = new Method(null, $config['method'], $defaults);
+
+        if ($controller = $route->getDefault('_controller')) {
+            try {
+                $controller = $this->controllerParser->parse($controller);
+            } catch (\Exception $e) {
+                // unable to optimize unknown notation
+            }
+
+            $route->setDefault('_controller', $controller);
+        }
+
         $collection->add($name, $route);
     }
 
@@ -137,5 +153,13 @@ class YamlRpcLoader extends FileLoader
     public function supports($resource, $type = null)
     {
         return is_string($resource) && in_array(pathinfo($resource, PATHINFO_EXTENSION), array('yml', 'yaml'), true) && (!$type || 'yaml' === $type);
+    }
+
+    /**
+     * @return \Symfony\Component\DependencyInjection\ContainerInterface
+     */
+    public function getContainer()
+    {
+        return $this->container;
     }
 }

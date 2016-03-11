@@ -67,6 +67,7 @@ class RpcMessager
     {
         try {
             $request = $this->requestFactory->factory($request);
+            $this->router->setContext($request);
 
             if (!$request->attributes->has('_controller')) {
                 $parameters = $this->router->match($request->getMethod());

@@ -25,6 +25,8 @@ services:
 
     cmobi_rabbitmq.routing_loader.rpc:
         class: Cmobi\RabbitmqBundle\Routing\Loader\YamlRpcLoader
+        calls:
+            - { setContainer, ["@service_container"]}
         tags:
             - { name: routing.loader }
 

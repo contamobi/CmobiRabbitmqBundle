@@ -3,11 +3,11 @@
 namespace Cmobi\RabbitmqBundle\Routing;
 
 use Cmobi\RabbitmqBundle\Routing\Matcher\MethodMatcherInterface;
+use Cmobi\RabbitmqBundle\Rpc\Request\JsonRpcRequest;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Config\ConfigCacheInterface;
 use Symfony\Component\Config\ConfigCacheFactoryInterface;
 use Symfony\Component\Config\ConfigCacheFactory;
-use Symfony\Component\Routing\RequestContext;
 
 class MethodRouter
 {
@@ -23,7 +23,7 @@ class MethodRouter
     {
         $this->loader = $loader;
         $this->resource = $resource['resource'];
-        $this->context = new Method(null, '');
+        $this->context = new JsonRpcRequest();
         $this->setOptions($options);
     }
 
@@ -35,7 +35,7 @@ class MethodRouter
             'matcher_class' => 'Cmobi\\RabbitmqBundle\\Routing\\Matcher\\MethodMatcher',
             'matcher_dumper_class' => 'Cmobi\\RabbitmqBundle\\Routing\\Matcher\\Dumper\\PhpMatcherDumper',
             'matcher_cache_class' => 'ProjectMethodMatcher',
-            'resource_type' => null,
+            'resource_type' => 'rpc',
             'strict_requirements' => true,
         ];
         $invalid = [];
@@ -78,7 +78,7 @@ class MethodRouter
     public function getMethodCollection()
     {
         if (null === $this->collection) {
-            $this->collection = $this->loader->get('routing.loader')->load($this->resource, $this->options['resource_type']);
+            $this->collection = $this->loader->get('cmobi_rabbitmq.routing_loader.rpc')->load($this->resource, $this->options['resource_type']);
         }
 
         return $this->collection;
@@ -87,7 +87,7 @@ class MethodRouter
     /**
      * {@inheritdoc}
      */
-    public function setContext(RequestContext $context)
+    public function setContext(JsonRpcRequest $context)
     {
         $this->context = $context;
 
@@ -160,7 +160,7 @@ class MethodRouter
 
         require_once $cache->getPath();
 
-        return $this->matcher = new $class($this->context);
+        return $this->matcher = new $class($this->getMethodCollection(), $this->context);
     }
 
     public function getGeneratorDumperInstance()

@@ -2,6 +2,7 @@
 
 namespace Cmobi\RabbitmqBundle\Routing\Matcher\Dumper;
 
+use Cmobi\RabbitmqBundle\Routing\Method;
 use Cmobi\RabbitmqBundle\Routing\MethodCollection;
 
 class PhpMatcherDumper extends MatcherDumper
@@ -32,13 +33,6 @@ use Cmobi\RabbitmqBundle\Routing\Method;
  */
 class {$options['class']} extends {$options['base_class']}
 {
-    /**
-     * Constructor.
-     */
-    public function __construct(Method \$context)
-    {
-        \$this->context = \$context;
-    }
 
 {$this->generateMatchMethod()}
 }
@@ -48,7 +42,7 @@ EOF;
 
     private function generateMatchMethod()
     {
-        $code = rtrim($this->compileRoutes($this->getMethods()), "\n");
+        $code = rtrim($this->compileMethods($this->getMethods()), "\n");
 
         return <<<EOF
     public function match(\$name)
@@ -68,17 +62,25 @@ EOF;
 
         foreach ($methods as $collection) {
             if (null !== $name = $collection->getAttribute('name')) {
-                $code .= sprintf("        if (\$method === \$name) {\n", var_export($name, true));
-                $code .= rtrim($this->compileMethod($name));
+                $code .= sprintf("        if (\$context->getMethod() === %s) {\n", var_export($name, true));
+                $code .= rtrim($this->compileMethod($collection));
+                $code .= "\n\n        }\n\n";
             }
         }
-        $code .= "        }\n\n";
 
         return $code;
     }
 
-    private function compileMethod($name)
+    private function compileMethod(Method $method)
     {
-        return sprintf("            return array('_method' => '%s');\n", $name);
+        $code = '';
+
+        if ($method->getDefaults()) {
+            $code .= sprintf("            return %s;\n", str_replace("\n", '', var_export(array_replace($method->getDefaults(), ['_method' => $method->getName()]), true)));
+        } else {
+            $code .= sprintf("            return ['_method' => '%s'];\n", $method->getName());
+        }
+
+        return $code;
     }
 }
