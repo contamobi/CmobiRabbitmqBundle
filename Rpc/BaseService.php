@@ -4,7 +4,9 @@ namespace Cmobi\RabbitmqBundle\Rpc;
 
 use Cmobi\RabbitmqBundle\Rpc\Exception\InvalidBodyAMQPMessageException;
 use Cmobi\RabbitmqBundle\Rpc\Exception\JsonRpcInternalErrorException;
+use Cmobi\RabbitmqBundle\Rpc\Request\JsonRpcRequestCollection;
 use Cmobi\RabbitmqBundle\Rpc\Response\JsonRpcResponse;
+use Cmobi\RabbitmqBundle\Rpc\Response\JsonRpcResponseCollection;
 use Cmobi\RabbitmqBundle\Rpc\Response\RpcResponseCollectionInterface;
 use Cmobi\RabbitmqBundle\Rpc\Response\RpcResponseInterface;
 use PhpAmqpLib\Message\AMQPMessage;
@@ -43,8 +45,11 @@ class BaseService implements RpcServiceInterface
     {
         $callback = function (AMQPMessage $message) {
 
-            $responseCollection = $this->rpcMessager->getResponseCollection();
-            $requestCollection = $this->rpcMessager->getRequestCollection();
+            $requestCollection = new JsonRpcRequestCollection();
+            $responseCollection = new JsonRpcResponseCollection();
+            $this->rpcMessager->addRequestCollection($requestCollection);
+            $this->rpcMessager->addResponseCollection($responseCollection);
+
             try {
                 $this->rpcMessager->parseAMQPMessage($message);
                 $this->getHandler()->handle($requestCollection, $responseCollection);

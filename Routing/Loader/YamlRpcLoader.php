@@ -4,33 +4,41 @@ namespace Cmobi\RabbitmqBundle\Routing\Loader;
 
 use Cmobi\RabbitmqBundle\Routing\Method;
 use Cmobi\RabbitmqBundle\Routing\MethodCollection;
+use Symfony\Bundle\FrameworkBundle\Controller\ControllerNameParser;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\Config\Loader\FileLoader;
 use Symfony\Component\Config\Resource\FileResource;
-use Symfony\Component\DependencyInjection\ContainerAwareTrait;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Parser as YamlParser;
 
 class YamlRpcLoader extends FileLoader
 {
-    use ContainerAwareTrait;
 
-    private static $availableKeys = array(
+    private static $availableKeys = [
         'method', 'type', 'defaults', 'resource'
-    );
+    ];
 
     private $yamlParser;
     private $controllerParser;
 
-    public function __construct()
+    public function __construct(ContainerInterface $container, $path = null, ControllerNameParser $controllerNameConverser = null)
     {
-        $locator = new FileLocator('%kernel.dir_src%/Resources');
+        $this->controllerParser = $controllerNameConverser;
+
+        if (is_null($controllerNameConverser)) {
+            $this->controllerParser = $container->get('controller_name_converter');
+        }
+
+        if (is_null($path)) {
+            $path = '%kernel.dir_src%/Resources';
+        }
+        $locator = new FileLocator($path);
         parent::__construct($locator);
     }
 
     public function load($file, $type = null)
     {
-        $this->controllerParser = $this->getContainer()->get('controller_name_converter');
         $path = $this->locator->locate($file);
 
         if (!stream_is_local($path)) {
@@ -153,13 +161,5 @@ class YamlRpcLoader extends FileLoader
     public function supports($resource, $type = null)
     {
         return is_string($resource) && in_array(pathinfo($resource, PATHINFO_EXTENSION), array('yml', 'yaml'), true) && (!$type || 'yaml' === $type);
-    }
-
-    /**
-     * @return \Symfony\Component\DependencyInjection\ContainerInterface
-     */
-    public function getContainer()
-    {
-        return $this->container;
     }
 }

@@ -59,7 +59,7 @@ class JsonRpcResponseCollection implements RpcResponseCollectionInterface, \Iter
 
     public function __toString()
     {
-        if (count($this->responses) == 1) {
+        if (count($this->responses) == 1 && isset($this->responses[0])) {
             return (string)$this->responses[0];
         }
         $response = [];

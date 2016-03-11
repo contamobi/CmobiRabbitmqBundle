@@ -1,4 +1,3 @@
 cmobi_rabbitmq:
-    method: version
-    type: rpc
-    defaults: { _controller: InfrastructureBundle:DefaultRpc:version }
+    method: default
+    defaults: { _controller: FooBundle:DefaultRpc:default }

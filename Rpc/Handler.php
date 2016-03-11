@@ -29,8 +29,8 @@ class Handler
             $arguments = $this->getResolver()->getArguments($request, $controller);
             $response = call_user_func_array($controller, $arguments);
 
-            if (!is_string($response) || is_null($response)) {
-                $previous = new InvalidBodyAMQPMessageException('Invalid Body: Content should be string and not null.');
+            if (!is_array($response)) {
+                $previous = new InvalidBodyAMQPMessageException('Invalid Body: Content should be array.');
                 $exception = new JsonRpcInternalErrorException($previous);
                 $error = new JsonRpcResponse([], $exception);
                 $error->setId($request->id);

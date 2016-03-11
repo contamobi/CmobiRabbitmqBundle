@@ -63,6 +63,16 @@ class RpcMessager
         $this->responseCollection->add($response);
     }
 
+    public function addRequestCollection(RpcRequestCollectionInterface $collection)
+    {
+        $this->requestCollection = $collection;
+    }
+
+    public function addResponseCollection(RpcResponseCollectionInterface $collection)
+    {
+        $this->responseCollection = $collection;
+    }
+
     private function buildRequest($request)
     {
         try {

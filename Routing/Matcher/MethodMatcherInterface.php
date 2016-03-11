@@ -2,9 +2,9 @@
 
 namespace Cmobi\RabbitmqBundle\Routing\Matcher;
 
-use Symfony\Component\Routing\RequestContextAwareInterface;
+use Cmobi\RabbitmqBundle\Rpc\Request\JsonRpcRequest;
 
-interface MethodMatcherInterface extends RequestContextAwareInterface
+interface MethodMatcherInterface
 {
     /**
      * Tries to match METHOD with a set of routes.
@@ -13,4 +13,18 @@ interface MethodMatcherInterface extends RequestContextAwareInterface
      * @return array
      */
     public function match($path);
+
+    /**
+     * Sets the request context.
+     *
+     * @param JsonRpcRequest $context The context
+     */
+    public function setContext(JsonRpcRequest $context);
+
+    /**
+     * Gets the request context.
+     *
+     * @return JsonRpcRequest The context
+     */
+    public function getContext();
 }

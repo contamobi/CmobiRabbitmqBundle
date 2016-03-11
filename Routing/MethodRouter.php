@@ -21,8 +21,11 @@ class MethodRouter
 
     public function __construct(ContainerInterface $loader, $resource, array $options = [])
     {
+        if (is_array($resource)) {
+            $resource = $resource['resource'];
+        }
         $this->loader = $loader;
-        $this->resource = $resource['resource'];
+        $this->resource = $resource;
         $this->context = new JsonRpcRequest();
         $this->setOptions($options);
     }
