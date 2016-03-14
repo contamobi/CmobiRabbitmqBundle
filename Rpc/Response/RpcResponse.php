@@ -123,9 +123,8 @@ class RpcResponse implements RpcResponseInterface
     public function validate(array $response)
     {
         if (
-            !array_key_exists(['id', 'jsonrpc'], $response)
-            || (!isset($response['result'])
-                && !isset($response['error']))
+            (!isset($response['id']) || !isset($response['jsonrpc']))
+            || (!isset($response['result']) && !isset($response['error']))
         ) {
             throw new RpcInvalidResponseException();
         }

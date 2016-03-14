@@ -104,7 +104,7 @@ class RpcRequest implements RpcRequestInterface
     public function validate(array $request)
     {
         if (
-            !array_key_exists(['id', 'jsonrpc', 'method', 'params'], $request)
+            (!isset($request['id']) || !isset($request['method']) || !isset($request['params']))
             || self::VERSION !== $request['jsonrpc']
             || !is_array($request['params'])
         ) {
