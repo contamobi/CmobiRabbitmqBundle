@@ -82,7 +82,7 @@ class RpcResponse implements RpcResponseInterface
         ];
 
         if ($this->error instanceof RpcGenericErrorException) {
-            $rpc['error'] = $this->error;
+            $rpc['error'] = json_decode((string)$this->error);
             unset($rpc['result']);
         }
 

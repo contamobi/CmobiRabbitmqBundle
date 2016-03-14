@@ -31,7 +31,7 @@ class Handler
 
         foreach ($requests as $request) {
 
-            if (!$request->attributes->get('error')) {
+            if (!$request->attributes->has('error')) {
 
                 $controller = $this->getResolver()->getController($request);
                 $arguments = $this->getResolver()->getArguments($request, $controller);

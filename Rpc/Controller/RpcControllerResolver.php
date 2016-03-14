@@ -2,7 +2,7 @@
 
 namespace Cmobi\RabbitmqBundle\Rpc\Controller;
 
-use Cmobi\RabbitmqBundle\Rpc\Request\JsonRpcRequest;
+use Cmobi\RabbitmqBundle\Rpc\Request\RpcRequest;
 use Psr\Log\LoggerInterface;
 
 class RpcControllerResolver
@@ -14,7 +14,7 @@ class RpcControllerResolver
         $this->logger = $logger;
     }
 
-    public function getController(JsonRpcRequest $request)
+    public function getController(RpcRequest $request)
     {
         if (!$controller = $request->attributes->get('_controller')) {
             if (null !== $this->logger) {
@@ -53,7 +53,7 @@ class RpcControllerResolver
         return $callable;
     }
 
-    public function getArguments(JsonRpcRequest $request, $controller)
+    public function getArguments(RpcRequest $request, $controller)
     {
         if (is_array($controller)) {
             $r = new \ReflectionMethod($controller[0], $controller[1]);
@@ -67,7 +67,7 @@ class RpcControllerResolver
         return $this->doGetArguments($request, $controller, $r->getParameters());
     }
 
-    protected function doGetArguments(JsonRpcRequest $request, $controller, array $parameters)
+    protected function doGetArguments(RpcRequest $request, $controller, array $parameters)
     {
         $attributes = $request->attributes->all();
         $arguments = [];
