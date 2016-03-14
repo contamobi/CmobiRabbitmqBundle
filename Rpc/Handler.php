@@ -45,7 +45,6 @@ class Handler
                 } else {
                     $response = new RpcResponse($response);
                     $response->setId($request->id);
-                    $response->setMethod($request->method);
                     $responses->add($response);
                 }
             } else {
