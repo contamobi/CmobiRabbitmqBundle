@@ -3,7 +3,7 @@
 namespace Cmobi\RabbitmqBundle\Routing;
 
 use Cmobi\RabbitmqBundle\Routing\Matcher\MethodMatcherInterface;
-use Cmobi\RabbitmqBundle\Rpc\Request\JsonRpcRequest;
+use Cmobi\RabbitmqBundle\Rpc\Request\RpcRequest;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Config\ConfigCacheInterface;
 use Symfony\Component\Config\ConfigCacheFactoryInterface;
@@ -26,7 +26,7 @@ class MethodRouter
         }
         $this->loader = $loader;
         $this->resource = $resource;
-        $this->context = new JsonRpcRequest();
+        $this->context = new RpcRequest();
         $this->setOptions($options);
     }
 
@@ -90,7 +90,7 @@ class MethodRouter
     /**
      * {@inheritdoc}
      */
-    public function setContext(JsonRpcRequest $context)
+    public function setContext(RpcRequest $context)
     {
         $this->context = $context;
 

@@ -4,10 +4,9 @@ namespace Cmobi\RabbitmqBundle\Routing\Matcher;
 
 use Cmobi\RabbitmqBundle\Routing\Method;
 use Cmobi\RabbitmqBundle\Routing\MethodCollection;
-use Cmobi\RabbitmqBundle\Rpc\Request\JsonRpcRequest;
+use Cmobi\RabbitmqBundle\Rpc\Request\RpcRequest;
 use Symfony\Component\Routing\Exception\MethodNotAllowedException;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
-use Symfony\Component\Routing\RequestContext;
 
 class MethodMatcher implements MethodMatcherInterface
 {
@@ -15,7 +14,7 @@ class MethodMatcher implements MethodMatcherInterface
     protected $methods;
     protected $allow = [];
 
-    public function __construct(MethodCollection $methods, JsonRpcRequest $context)
+    public function __construct(MethodCollection $methods, RpcRequest $context)
     {
         $this->methods = $methods;
         $this->context = $context;
@@ -59,7 +58,7 @@ class MethodMatcher implements MethodMatcherInterface
     /**
      * {@inheritdoc}
      */
-    public function setContext(JsonRpcRequest $context)
+    public function setContext(RpcRequest $context)
     {
         $this->context = $context;
     }

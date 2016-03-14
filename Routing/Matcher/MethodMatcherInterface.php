@@ -2,7 +2,7 @@
 
 namespace Cmobi\RabbitmqBundle\Routing\Matcher;
 
-use Cmobi\RabbitmqBundle\Rpc\Request\JsonRpcRequest;
+use Cmobi\RabbitmqBundle\Rpc\Request\RpcRequest;
 
 interface MethodMatcherInterface
 {
@@ -17,14 +17,14 @@ interface MethodMatcherInterface
     /**
      * Sets the request context.
      *
-     * @param JsonRpcRequest $context The context
+     * @param RpcRequest $context The context
      */
-    public function setContext(JsonRpcRequest $context);
+    public function setContext(RpcRequest $context);
 
     /**
      * Gets the request context.
      *
-     * @return JsonRpcRequest The context
+     * @return RpcRequest The context
      */
     public function getContext();
 }
