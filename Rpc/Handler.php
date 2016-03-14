@@ -40,18 +40,17 @@ class Handler
                 if (!is_array($response)) {
                     $previous = new InvalidBodyAMQPMessageException('Invalid Body: Content should be array.');
                     $exception = new RpcInternalErrorException($previous);
-                    $error = new RpcResponse($request->id, $request->method, $request->attributes, $exception);
+                    $error = new RpcResponse($request->id, [], $exception);
                     $responses->add($error);
                 } else {
-                    $response = new RpcResponse($response);
-                    $response->setId($request->id);
-                    $responses->add($response);
+                    $rpcResponse = new RpcResponse($request->id, $response);
+                    $responses->add($rpcResponse);
                 }
             } else {
                 $error = $request->attributes->get('error');
                 $request->attributes->remove('error');
-                $response = new RpcResponse($request->id, $request->method, $request, $error);
-                $responses->add($response);
+                $rpcResponse = new RpcResponse($request->id, [], $error);
+                $responses->add($rpcResponse);
             }
         }
 
