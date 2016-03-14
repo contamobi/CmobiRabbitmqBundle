@@ -43,6 +43,11 @@ class RpcRequestCollection implements RpcRequestCollectionInterface, \IteratorAg
         return null;
     }
 
+    public function getRequestIndex(RpcRequest $request)
+    {
+        return array_search($request, $this->requests);
+    }
+
     public function remove($id)
     {
         unset($this->requests[$id]);

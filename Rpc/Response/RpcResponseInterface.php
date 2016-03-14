@@ -11,4 +11,15 @@ interface RpcResponseInterface
      * @return mixed
      */
     public function get($key);
+
+    /**
+     * @return array
+     */
+    public function toArray();
+
+    /**
+     * @param array $response
+     * @return RpcResponseInterface
+     */
+    public function fromArray(array $response);
 }

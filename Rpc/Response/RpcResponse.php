@@ -3,6 +3,7 @@
 namespace Cmobi\RabbitmqBundle\Rpc\Response;
 
 use Cmobi\RabbitmqBundle\Rpc\Exception\RpcGenericErrorException;
+use Cmobi\RabbitmqBundle\Rpc\Exception\RpcInvalidResponseException;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
 
 class RpcResponse implements RpcResponseInterface
@@ -10,14 +11,12 @@ class RpcResponse implements RpcResponseInterface
     const VERSION = '2.0';
 
     public $id;
-    public $method;
     public $attributes;
     public $error;
 
-    public function __construct($id = null, $method = null, array $attributes = [], RpcGenericErrorException $error = null)
+    public function __construct($id = null, array $attributes = [], RpcGenericErrorException $error = null)
     {
         $this->id = $id;
-        $this->method = $method;
         $this->error = $error;
         $this->attributes = new ParameterBag($attributes);
     }
@@ -36,22 +35,6 @@ class RpcResponse implements RpcResponseInterface
     public function setId($id)
     {
         $this->id = $id;
-    }
-
-    /**
-     * @return string
-     */
-    public function getMethod()
-    {
-        return $this->method;
-    }
-
-    /**
-     * @param string $method
-     */
-    public function setMethod($method)
-    {
-        $this->method = $method;
     }
 
     /**
@@ -87,7 +70,10 @@ class RpcResponse implements RpcResponseInterface
         return $this->attributes->get($key);
     }
 
-    public function export()
+    /**
+     * @return array
+     */
+    public function toArray()
     {
         $rpc = [
             'id' => $this->id,
@@ -101,5 +87,47 @@ class RpcResponse implements RpcResponseInterface
         }
 
         return $rpc;
+    }
+
+    /**
+     * @param array $response
+     * @return $this
+     * @throws RpcInvalidResponseException
+     */
+    public function fromArray(array $response)
+    {
+        $this->validate($response);
+        $this->id = $response['id'];
+
+        if (isset($response['error'])) {
+            $this->error = $response['error'];
+        }
+
+        if (isset($response['result'])) {
+
+            $result = $response['result'];
+
+            if (!is_array($result)) {
+                $result = [$result];
+            }
+            $this->attributes = new ParameterBag($result);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param array $response
+     * @throws RpcInvalidResponseException
+     */
+    public function validate(array $response)
+    {
+        if (
+            !array_key_exists(['id', 'jsonrpc'], $response)
+            || (!isset($response['result'])
+                && !isset($response['error']))
+        ) {
+            throw new RpcInvalidResponseException();
+        }
     }
 }

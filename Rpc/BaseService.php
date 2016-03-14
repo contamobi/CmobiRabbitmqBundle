@@ -4,6 +4,7 @@ namespace Cmobi\RabbitmqBundle\Rpc;
 
 use Cmobi\RabbitmqBundle\Rpc\Exception\InvalidBodyAMQPMessageException;
 use Cmobi\RabbitmqBundle\Rpc\Exception\RpcInternalErrorException;
+use Cmobi\RabbitmqBundle\Rpc\Exception\RpcInvalidResponseException;
 use Cmobi\RabbitmqBundle\Rpc\Response\RpcResponse;
 use Cmobi\RabbitmqBundle\Rpc\Response\RpcResponseCollection;
 use Cmobi\RabbitmqBundle\Rpc\Response\RpcResponseCollectionInterface;
@@ -42,7 +43,6 @@ class BaseService implements RpcServiceInterface
     public function createCallback()
     {
         $callback = function (AMQPMessage $message) {
-
             try {
                 $requestCollection = $this->rpcMessager->parseAMQPMessage($message);
                 $responseCollection = $this->getHandler()->handle($requestCollection);
@@ -67,13 +67,32 @@ class BaseService implements RpcServiceInterface
         return $callback;
     }
 
-    public function buildResponseMessage(RpcResponseCollectionInterface $response, AMQPMessage $requestMessage)
+    /**
+     * @param RpcResponseCollectionInterface $responses
+     * @param AMQPMessage $requestMessage
+     * @return AMQPMessage
+     * @throws RpcInvalidResponseException
+     */
+    public function buildResponseMessage(RpcResponseCollectionInterface $responses, AMQPMessage $requestMessage)
     {
-        $encoder = $this->rpcMessager->getEncoder();
-        $response = $encoder->encode($response, 'json');
+        $rpcResponse = [];
+        /**
+         * @var RpcResponse $response
+         */
+        foreach ($responses->all() as $response) {
 
+            if (is_null($response->id)) {
+                $response->id = $requestMessage->get('correlation_id');
+            }
+            $rpcResponse[] = $response->toArray();
+        }
+        try {
+            $rpcResponse = json_encode($rpcResponse);
+        } catch (\Exception $e) {
+            throw new RpcInvalidResponseException($e);
+        }
         $amqpResponse = new AMQPMessage(
-            (string)$response,
+            (string)$rpcResponse,
             ['correlation_id' => $requestMessage->get('correlation_id')]
         );
 

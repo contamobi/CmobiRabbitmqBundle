@@ -3,9 +3,12 @@
 namespace Cmobi\RabbitmqBundle\Rpc;
 
 use Cmobi\RabbitmqBundle\ConnectionManagerInterface;
-use Cmobi\RabbitmqBundle\Rpc\Exception\JsonRpcInvalidRequestException;
-use Cmobi\RabbitmqBundle\Rpc\Request\JsonRpcRequest;
-use Cmobi\RabbitmqBundle\Rpc\Response\JsonRpcResponse;
+use Cmobi\RabbitmqBundle\Rpc\Exception\RpcInvalidRequestException;
+use Cmobi\RabbitmqBundle\Rpc\Exception\RpcInvalidResponseException;
+use Cmobi\RabbitmqBundle\Rpc\Request\RpcRequest;
+use Cmobi\RabbitmqBundle\Rpc\Request\RpcRequestCollection;
+use Cmobi\RabbitmqBundle\Rpc\Response\RpcResponse;
+use Cmobi\RabbitmqBundle\Rpc\Response\RpcResponseCollection;
 use PhpAmqpLib\Channel\AbstractChannel;
 use PhpAmqpLib\Connection\AMQPStreamConnection;
 use PhpAmqpLib\Message\AMQPMessage;
@@ -14,18 +17,18 @@ abstract class RpcClient
 {
     private $queue;
     private $connection;
-    private $body;
     private $channel;
     private $callbackQueue;
     private $response;
+    private $requestCollection;
     private $correlationId;
 
-    public function __construct($queueName, ConnectionManagerInterface $manager, JsonRpcRequest $request = null)
+    public function __construct($queueName, ConnectionManagerInterface $manager)
     {
-        $this->body = $request;
         $this->queue = $queueName;
         $this->connection = $manager->getConnection();
         $this->channel = $this->connection->channel();
+        $this->requestCollection = new RpcRequestCollection();
     }
 
     /**
@@ -45,61 +48,79 @@ abstract class RpcClient
     }
 
     /**
-     * @return null
-     * @throws JsonRpcInvalidRequestException
+     * @return RpcResponseCollection
+     * @throws RpcInvalidRequestException
+     * @throws RpcInvalidResponseException
      */
     public function call()
     {
-        if (!$this->body instanceof JsonRpcRequest) {
-            throw new JsonRpcInvalidRequestException();
+        if (
+            !$this->requestCollection instanceof RpcRequestCollection
+            || $this->requestCollection->count() < 1
+        ) {
+            throw new RpcInvalidRequestException();
+        }
+        $requestId = uniqid($this->queue);
+        $this->correlationId = $requestId;
+        $requests = [];
+
+        /**
+         * @var RpcRequest $request
+         */
+        foreach ($this->requestCollection as $request) {
+
+            if (is_null($request->id)) {
+                $request->id = $requestId;
+            }
+            $requests[] = $request->toArray();
         }
 
-        list($callbackQueue, ,) = $this->getChannel()->queue_declare(
-            '', false, false, false, true
-        );
-        $this->callbackQueue = $callbackQueue;
-        $this->getChannel()->basic_consume(
-            $this->callbackQueue, '', false, false, false, false,
-            [$this, 'onResponse']
-        );
-        $this->response = null;
-        $this->correlationId = $this->body->getId();
-
-        $msg = new AMQPMessage(
-            $this->getMessage(),
-            [
-                'correlation_id' => $this->correlationId,
-                'reply_to' => $this->callbackQueue
-            ]
-        );
-        $this->getChannel()->basic_publish($msg, '', $this->getQueueName());
-
-        while(!$this->response) {
-            $this->getChannel()->wait();
+        try {
+            $body = json_encode($requests);
+        } catch (\Exception $e) {
+            throw new RpcInvalidRequestException($e);
         }
-        $this->getChannel()->close();
-        $this->getConnection()->close();
+        /* Send to Message Broker */
+        $this->handleRequest($body);
+       $rpcResponse = $this->buildRpcResponseCollection();
 
-
-        $response = new JsonRpcResponse();
-
-        return $this->response;
+        return $rpcResponse;
     }
 
     /**
-     * @param JsonRpcRequest $body
+     * @param RpcRequest $request
      */
-    public function setMessage(JsonRpcRequest $body)
+    public function addRequest(RpcRequest $request)
     {
-        $this->body = (string)$body;
+        $this->requestCollection->add($request);
     }
 
     /**
-     * @return JsonRpcRequest
+     * @param RpcRequest $request
      */
-    public function getMessage()
+    public function removeRequest(RpcRequest $request)
     {
-        return $this->body;
+        $id = $this->requestCollection->getRequestIndex($request);
+
+        if (!$id) {
+            $this->requestCollection->remove($id);
+        }
+    }
+
+    /**
+     * @param RpcRequestCollection $requests
+     */
+    public function addRequestCollection(RpcRequestCollection $requests)
+    {
+        $this->requestCollection = $requests;
+    }
+
+    /**
+     * @return RpcRequestCollection
+     */
+    public function getRequestCollection()
+    {
+        return $this->requestCollection;
     }
 
     /**
@@ -140,5 +161,58 @@ abstract class RpcClient
     public function setConnection(AMQPStreamConnection $connection)
     {
         $this->connection = $connection;
+    }
+
+    /**
+     * @param $body
+     */
+    private function handleRequest($body)
+    {
+        list($callbackQueue, ,) = $this->getChannel()->queue_declare(
+            '', false, false, false, true
+        );
+        $this->callbackQueue = $callbackQueue;
+        $this->getChannel()->basic_consume(
+            $this->callbackQueue, '', false, false, false, false,
+            [$this, 'onResponse']
+        );
+
+        $msg = new AMQPMessage(
+            (string)$body,
+            [
+                'correlation_id' => $this->correlationId,
+                'reply_to' => $this->callbackQueue
+            ]
+        );
+        $this->getChannel()->basic_publish($msg, '', $this->getQueueName());
+
+        while(!$this->response) {
+            $this->getChannel()->wait();
+        }
+        $this->getChannel()->close();
+        $this->getConnection()->close();
+    }
+
+    /**
+     * @return RpcResponseCollection
+     * @throws RpcInvalidResponseException
+     */
+    private function buildRpcResponseCollection()
+    {
+        $responses = [];
+        try {
+            $responses = json_decode($this->response, true);
+        } catch (\Exception $e) {
+            throw new RpcInvalidResponseException($e);
+        }
+        $rpcResponse = new RpcResponseCollection();
+
+        foreach ($responses as $responseArr) {
+            $response = new RpcResponse();
+            $response->fromArray($responseArr);
+            $rpcResponse->add($response);
+        }
+
+        return $rpcResponse;
     }
 }

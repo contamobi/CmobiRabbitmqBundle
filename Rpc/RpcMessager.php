@@ -4,40 +4,27 @@ namespace Cmobi\RabbitmqBundle\Rpc;
 
 use Cmobi\RabbitmqBundle\Routing\MethodRouter;
 use Cmobi\RabbitmqBundle\Rpc\Exception\RpcGenericErrorException;
+use Cmobi\RabbitmqBundle\Rpc\Exception\RpcInvalidRequestException;
 use Cmobi\RabbitmqBundle\Rpc\Exception\RpcParserErrorException;
+use Cmobi\RabbitmqBundle\Rpc\Request\RpcRequest;
 use Cmobi\RabbitmqBundle\Rpc\Request\RpcRequestCollection;
 use PhpAmqpLib\Message\AMQPMessage;
-use Symfony\Component\Serializer\Encoder\JsonEncoder;
-use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
-use Symfony\Component\Serializer\Serializer;
-use Symfony\Component\Serializer\SerializerInterface;
 
 class RpcMessager
 {
     private $router;
-    private $encoder;
 
-    public function __construct(
-        MethodRouter $router,
-        SerializerInterface $encoder = null
-    )
+    public function __construct(MethodRouter $router)
     {
         $this->router = $router;
-
-        if (is_null($encoder)) {
-            $encoders = [new JsonEncoder()];
-            $normalizers = [new ObjectNormalizer()];
-            $this->encoder = new Serializer($normalizers, $encoders);
-        }
     }
 
     /**
      * @param AMQPMessage $message
-     * @param string $type
      * @return RpcRequestCollection
      * @throws RpcParserErrorException
      */
-    public function parseAMQPMessage(AMQPMessage $message, $type = 'json')
+    public function parseAMQPMessage(AMQPMessage $message)
     {
         $body = $message->body;
         $requestCollection = new RpcRequestCollection();
@@ -46,19 +33,29 @@ class RpcMessager
             /**
              * @var RpcRequestCollection $requests
              */
-            $requests = $this->encoder->deserialize($body, RpcRequestCollection::class, $type);
+            $requests = json_decode($body, true);
+
+            foreach ($requests as $requestArr) {
+
+                if (!is_array($requestArr)) {
+                    throw new RpcInvalidRequestException();
+                }
+                $request = new RpcRequest();
+                $request->fromArray($requestArr);
+                $this->buildRequest($request);
+                $requestCollection->add($request);
+            }
         } catch (\Exception $e) {
             throw new RpcParserErrorException();
-        }
-
-        foreach ($requests->all() as $request) {
-            $this->buildRequest($request);
-            $requestCollection->add($request);
         }
 
         return $requestCollection;
     }
 
+    /**
+     * @param $request
+     * @return RpcRequest
+     */
     private function buildRequest($request)
     {
         try {
@@ -73,21 +70,5 @@ class RpcMessager
         }
 
         return $request;
-    }
-
-    /**
-     * @return Serializer
-     */
-    public function getEncoder()
-    {
-        return $this->encoder;
-    }
-
-    /**
-     * @param Serializer $encoder
-     */
-    public function setEncoder($encoder)
-    {
-        $this->encoder = $encoder;
     }
 }
