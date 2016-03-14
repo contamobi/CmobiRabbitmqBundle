@@ -3,13 +3,13 @@
 namespace Cmobi\RabbitmqBundle\Rpc\Exception;
 
 
-class JsonRpcInvalidParamsException extends JsonRpcGenericErrorException
+class RpcInvalidRequestException extends RpcGenericErrorException
 {
-    const ERROR_CODE = -32602;
+    const ERROR_CODE = -32600;
 
     public function __construct(\Exception $previous = null)
     {
-        $message = 'Invalid params';
+        $message = 'Invalid Request';
         parent::__construct($message, self::ERROR_CODE, $previous);
     }
 }

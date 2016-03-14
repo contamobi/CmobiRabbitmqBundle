@@ -1,19 +1,24 @@
 <?php
 
-namespace Cmobi\RabbitmqBundle\Rpc\Request;
+namespace Cmobi\RabbitmqBundle\Rpc\Response;
 
+use Cmobi\RabbitmqBundle\Rpc\Exception\RpcGenericErrorException;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
 
-class JsonRpcRequest implements RpcRequestInterface
+class RpcResponse implements RpcResponseInterface
 {
     const VERSION = '2.0';
 
     public $id;
     public $method;
     public $attributes;
+    public $error;
 
-    public function __construct(array $attributes = [])
+    public function __construct($id = null, $method = null, array $attributes = [], RpcGenericErrorException $error = null)
     {
+        $this->id = $id;
+        $this->method = $method;
+        $this->error = $error;
         $this->attributes = new ParameterBag($attributes);
     }
 
@@ -32,7 +37,6 @@ class JsonRpcRequest implements RpcRequestInterface
     {
         $this->id = $id;
     }
-
 
     /**
      * @return string
@@ -59,6 +63,22 @@ class JsonRpcRequest implements RpcRequestInterface
     }
 
     /**
+     * @return null|array
+     */
+    public function getError()
+    {
+        return $this->error;
+    }
+
+    /**
+     * @param RpcGenericErrorException $error
+     */
+    public function setError(RpcGenericErrorException $error)
+    {
+        $this->error = $error;
+    }
+
+    /**
      * @param $key
      * @return mixed
      */
@@ -67,15 +87,19 @@ class JsonRpcRequest implements RpcRequestInterface
         return $this->attributes->get($key);
     }
 
-    public function __toString()
+    public function export()
     {
-        $jsonRpc = [
+        $rpc = [
             'id' => $this->id,
             'jsonrpc' => self::VERSION,
-            'method' => $this->method,
-            'params' => $this->attributes->all()
+            'result' => $this->attributes->all()
         ];
 
-        return json_encode($jsonRpc);
+        if ($this->error instanceof RpcGenericErrorException) {
+            $rpc['error'] = $this->error;
+            unset($rpc['result']);
+        }
+
+        return $rpc;
     }
 }

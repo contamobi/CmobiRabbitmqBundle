@@ -3,13 +3,13 @@
 namespace Cmobi\RabbitmqBundle\Rpc\Exception;
 
 
-class JsonRpcInternalErrorException extends JsonRpcGenericErrorException
+class RpcParserErrorException extends RpcGenericErrorException
 {
-    const ERROR_CODE = -32603;
+    const ERROR_CODE = -32700;
 
     public function __construct(\Exception $previous = null)
     {
-        $message = 'Internal error';
+        $message = 'Parse error';
         parent::__construct($message, self::ERROR_CODE, $previous);
     }
 }

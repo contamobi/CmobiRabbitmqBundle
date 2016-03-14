@@ -3,106 +3,91 @@
 namespace Cmobi\RabbitmqBundle\Rpc;
 
 use Cmobi\RabbitmqBundle\Routing\MethodRouter;
-use Cmobi\RabbitmqBundle\Rpc\Exception\JsonRpcGenericErrorException;
-use Cmobi\RabbitmqBundle\Rpc\Exception\JsonRpcParserErrorException;
-use Cmobi\RabbitmqBundle\Rpc\Request\JsonRpcRequestFactory;
-use Cmobi\RabbitmqBundle\Rpc\Request\RpcRequestCollectionInterface;
-use Cmobi\RabbitmqBundle\Rpc\Request\RpcRequestInterface;
-use Cmobi\RabbitmqBundle\Rpc\Response\JsonRpcResponse;
-use Cmobi\RabbitmqBundle\Rpc\Response\RpcResponseCollectionInterface;
-use Cmobi\RabbitmqBundle\Rpc\Response\RpcResponseInterface;
+use Cmobi\RabbitmqBundle\Rpc\Exception\RpcGenericErrorException;
+use Cmobi\RabbitmqBundle\Rpc\Exception\RpcParserErrorException;
+use Cmobi\RabbitmqBundle\Rpc\Request\RpcRequestCollection;
 use PhpAmqpLib\Message\AMQPMessage;
+use Symfony\Component\Serializer\Encoder\JsonEncoder;
+use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
+use Symfony\Component\Serializer\Serializer;
+use Symfony\Component\Serializer\SerializerInterface;
 
 class RpcMessager
 {
     private $router;
-    private $requestCollection;
-    private $responseCollection;
-    private $requestFactory;
+    private $encoder;
 
     public function __construct(
         MethodRouter $router,
-        RpcRequestCollectionInterface $requests,
-        RpcResponseCollectionInterface $responses,
-        JsonRpcRequestFactory $factory
+        SerializerInterface $encoder = null
     )
     {
         $this->router = $router;
-        $this->requestCollection = $requests;
-        $this->responseCollection = $responses;
-        $this->requestFactory = $factory;
+
+        if (is_null($encoder)) {
+            $encoders = [new JsonEncoder()];
+            $normalizers = [new ObjectNormalizer()];
+            $this->encoder = new Serializer($normalizers, $encoders);
+        }
     }
 
-    public function parseAMQPMessage(AMQPMessage $message)
+    /**
+     * @param AMQPMessage $message
+     * @param string $type
+     * @return RpcRequestCollection
+     * @throws RpcParserErrorException
+     */
+    public function parseAMQPMessage(AMQPMessage $message, $type = 'json')
     {
         $body = $message->body;
+        $requestCollection = new RpcRequestCollection();
 
         try {
-            $requests = json_decode($body, true);
+            /**
+             * @var RpcRequestCollection $requests
+             */
+            $requests = $this->encoder->deserialize($body, RpcRequestCollection::class, $type);
         } catch (\Exception $e) {
-            throw new JsonRpcParserErrorException();
+            throw new RpcParserErrorException();
         }
 
-        if (!isset($requests[0])) {
-            $this->buildRequest($requests);
-        } else {
-
-            foreach ($requests as $request) {
-                $this->buildRequest($request);
-            }
+        foreach ($requests->all() as $request) {
+            $this->buildRequest($request);
+            $requestCollection->add($request);
         }
-    }
 
-    public function addRequest(RpcRequestInterface $request)
-    {
-        $this->requestCollection->add($request);
-    }
-
-    public function addResponse(RpcResponseInterface $response)
-    {
-        $this->responseCollection->add($response);
-    }
-
-    public function addRequestCollection(RpcRequestCollectionInterface $collection)
-    {
-        $this->requestCollection = $collection;
-    }
-
-    public function addResponseCollection(RpcResponseCollectionInterface $collection)
-    {
-        $this->responseCollection = $collection;
+        return $requestCollection;
     }
 
     private function buildRequest($request)
     {
         try {
-            $request = $this->requestFactory->factory($request);
             $this->router->setContext($request);
 
             if (!$request->attributes->has('_controller')) {
                 $parameters = $this->router->match($request->getMethod());
                 $request->attributes->add($parameters);
             }
-            $this->requestCollection->add($request);
-        } catch (JsonRpcGenericErrorException $e) {
-            $response = new JsonRpcResponse([], $e);
-            $this->responseCollection->add($response);
+        } catch (RpcGenericErrorException $e) {
+            $request->attributes->add(['error' => $e]);
         }
+
+        return $request;
     }
 
     /**
-     * @return RpcRequestCollectionInterface
+     * @return Serializer
      */
-    public function getRequestCollection()
+    public function getEncoder()
     {
-        return $this->requestCollection;
+        return $this->encoder;
     }
 
     /**
-     * @return RpcResponseCollectionInterface
+     * @param Serializer $encoder
      */
-    public function getResponseCollection()
+    public function setEncoder($encoder)
     {
-        return $this->responseCollection;
+        $this->encoder = $encoder;
     }
 }

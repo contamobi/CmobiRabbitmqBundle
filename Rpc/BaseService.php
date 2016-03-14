@@ -3,12 +3,10 @@
 namespace Cmobi\RabbitmqBundle\Rpc;
 
 use Cmobi\RabbitmqBundle\Rpc\Exception\InvalidBodyAMQPMessageException;
-use Cmobi\RabbitmqBundle\Rpc\Exception\JsonRpcInternalErrorException;
-use Cmobi\RabbitmqBundle\Rpc\Request\JsonRpcRequestCollection;
-use Cmobi\RabbitmqBundle\Rpc\Response\JsonRpcResponse;
-use Cmobi\RabbitmqBundle\Rpc\Response\JsonRpcResponseCollection;
+use Cmobi\RabbitmqBundle\Rpc\Exception\RpcInternalErrorException;
+use Cmobi\RabbitmqBundle\Rpc\Response\RpcResponse;
+use Cmobi\RabbitmqBundle\Rpc\Response\RpcResponseCollection;
 use Cmobi\RabbitmqBundle\Rpc\Response\RpcResponseCollectionInterface;
-use Cmobi\RabbitmqBundle\Rpc\Response\RpcResponseInterface;
 use PhpAmqpLib\Message\AMQPMessage;
 
 class BaseService implements RpcServiceInterface
@@ -45,17 +43,13 @@ class BaseService implements RpcServiceInterface
     {
         $callback = function (AMQPMessage $message) {
 
-            $requestCollection = new JsonRpcRequestCollection();
-            $responseCollection = new JsonRpcResponseCollection();
-            $this->rpcMessager->addRequestCollection($requestCollection);
-            $this->rpcMessager->addResponseCollection($responseCollection);
-
             try {
-                $this->rpcMessager->parseAMQPMessage($message);
-                $this->getHandler()->handle($requestCollection, $responseCollection);
+                $requestCollection = $this->rpcMessager->parseAMQPMessage($message);
+                $responseCollection = $this->getHandler()->handle($requestCollection);
             } catch (\Exception $e) {
-                $exception = new JsonRpcInternalErrorException();
-                $response = new JsonRpcResponse([], $exception);
+                $responseCollection = new RpcResponseCollection();
+                $exception = new RpcInternalErrorException();
+                $response = new RpcResponse([], $exception);
                 $responseCollection->add($response);
             }
             $messageResponse = $this->buildResponseMessage($responseCollection, $message);
@@ -75,6 +69,9 @@ class BaseService implements RpcServiceInterface
 
     public function buildResponseMessage(RpcResponseCollectionInterface $response, AMQPMessage $requestMessage)
     {
+        $encoder = $this->rpcMessager->getEncoder();
+        $response = $encoder->encode($response, 'json');
+
         $amqpResponse = new AMQPMessage(
             (string)$response,
             ['correlation_id' => $requestMessage->get('correlation_id')]

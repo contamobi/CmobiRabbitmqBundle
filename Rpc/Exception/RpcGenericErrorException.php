@@ -2,7 +2,7 @@
 
 namespace Cmobi\RabbitmqBundle\Rpc\Exception;
 
-abstract class JsonRpcGenericErrorException extends \Exception
+abstract class RpcGenericErrorException extends \Exception
 {
     public function __construct($message = "", $code = 0, \Exception $previous = null)
     {

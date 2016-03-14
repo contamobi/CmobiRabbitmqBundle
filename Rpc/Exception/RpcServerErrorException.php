@@ -3,7 +3,7 @@
 namespace Cmobi\RabbitmqBundle\Rpc\Exception;
 
 
-abstract class JsonRpcServerErrorException extends JsonRpcGenericErrorException
+abstract class RpcServerErrorException extends RpcGenericErrorException
 {
     const ERROR_CODE = -32000;
 

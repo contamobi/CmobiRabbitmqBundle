@@ -5,7 +5,7 @@ namespace Cmobi\RabbitmqBundle\Rpc\Request;
 use Cmobi\RabbitmqBundle\Rpc\Exception\JsonRpcInvalidParamsException;
 use Cmobi\RabbitmqBundle\Rpc\Exception\JsonRpcUnsupportedProtocolException;
 
-class JsonRpcRequestFactory
+class RpcRequestFactory
 {
     private $requiredFields = ['id', 'jsonrpc', 'method'];
 
@@ -13,7 +13,7 @@ class JsonRpcRequestFactory
     {
         $this->validateRequiredFields($requestMessage);
 
-        $request = new JsonRpcRequest($requestMessage['params']);
+        $request = new RpcRequest($requestMessage['params']);
         $request->setId($requestMessage['id']);
         $request->setMethod($requestMessage['method']);
 
@@ -28,7 +28,7 @@ class JsonRpcRequestFactory
             throw new JsonRpcInvalidParamsException();
         }
 
-        if ($parameters['jsonrpc'] !== JsonRpcRequest::VERSION) {
+        if ($parameters['jsonrpc'] !== RpcRequest::VERSION) {
             throw new JsonRpcUnsupportedProtocolException();
         }
     }

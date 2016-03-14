@@ -3,6 +3,9 @@
 namespace Cmobi\RabbitmqBundle\Rpc;
 
 use Cmobi\RabbitmqBundle\ConnectionManagerInterface;
+use Cmobi\RabbitmqBundle\Rpc\Exception\JsonRpcInvalidRequestException;
+use Cmobi\RabbitmqBundle\Rpc\Request\JsonRpcRequest;
+use Cmobi\RabbitmqBundle\Rpc\Response\JsonRpcResponse;
 use PhpAmqpLib\Channel\AbstractChannel;
 use PhpAmqpLib\Connection\AMQPStreamConnection;
 use PhpAmqpLib\Message\AMQPMessage;
@@ -17,9 +20,9 @@ abstract class RpcClient
     private $response;
     private $correlationId;
 
-    public function __construct($queueName, ConnectionManagerInterface $manager)
+    public function __construct($queueName, ConnectionManagerInterface $manager, JsonRpcRequest $request = null)
     {
-        $this->body = '';
+        $this->body = $request;
         $this->queue = $queueName;
         $this->connection = $manager->getConnection();
         $this->channel = $this->connection->channel();
@@ -42,10 +45,15 @@ abstract class RpcClient
     }
 
     /**
-     * @return null|string
+     * @return null
+     * @throws JsonRpcInvalidRequestException
      */
     public function call()
     {
+        if (!$this->body instanceof JsonRpcRequest) {
+            throw new JsonRpcInvalidRequestException();
+        }
+
         list($callbackQueue, ,) = $this->getChannel()->queue_declare(
             '', false, false, false, true
         );
@@ -55,7 +63,7 @@ abstract class RpcClient
             [$this, 'onResponse']
         );
         $this->response = null;
-        $this->correlationId = uniqid();
+        $this->correlationId = $this->body->getId();
 
         $msg = new AMQPMessage(
             $this->getMessage(),
@@ -72,19 +80,22 @@ abstract class RpcClient
         $this->getChannel()->close();
         $this->getConnection()->close();
 
+
+        $response = new JsonRpcResponse();
+
         return $this->response;
     }
 
     /**
-     * @param string $body
+     * @param JsonRpcRequest $body
      */
-    public function setMessage($body)
+    public function setMessage(JsonRpcRequest $body)
     {
         $this->body = (string)$body;
     }
 
     /**
-     * @return string
+     * @return JsonRpcRequest
      */
     public function getMessage()
     {

@@ -3,13 +3,13 @@
 namespace Cmobi\RabbitmqBundle\Rpc\Exception;
 
 
-class JsonRpcUnsupportedProtocolException extends JsonRpcGenericErrorException
+class RpcInternalErrorException extends RpcGenericErrorException
 {
-    const ERROR_CODE = -32001;
+    const ERROR_CODE = -32603;
 
     public function __construct(\Exception $previous = null)
     {
-        $message = 'Unsupported protocol version';
+        $message = 'Internal error';
         parent::__construct($message, self::ERROR_CODE, $previous);
     }
 }

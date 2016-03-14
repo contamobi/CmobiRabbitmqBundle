@@ -3,13 +3,13 @@
 namespace Cmobi\RabbitmqBundle\Rpc\Exception;
 
 
-class JsonRpcMethodNotFoundException extends JsonRpcGenericErrorException
+class RpcUnsupportedProtocolException extends RpcGenericErrorException
 {
-    const ERROR_CODE = -32601;
+    const ERROR_CODE = -32001;
 
     public function __construct(\Exception $previous = null)
     {
-        $message = 'Method not found';
+        $message = 'Unsupported protocol version';
         parent::__construct($message, self::ERROR_CODE, $previous);
     }
 }

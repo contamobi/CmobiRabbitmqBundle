@@ -1,22 +1,22 @@
 <?php
 
-namespace Cmobi\RabbitmqBundle\Rpc\Response;
+namespace Cmobi\RabbitmqBundle\Rpc\Request;
 
-use Cmobi\RabbitmqBundle\Rpc\Exception\JsonRpcGenericErrorException;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
 
-class JsonRpcResponse implements RpcResponseInterface
+
+class RpcRequest implements RpcRequestInterface
 {
     const VERSION = '2.0';
 
     public $id;
     public $method;
     public $attributes;
-    public $error;
 
-    public function __construct(array $attributes = [], JsonRpcGenericErrorException $error = null)
+    public function __construct($id = null, $method = null, array $attributes = [])
     {
-        $this->error = $error;
+        $this->id = $id;
+        $this->method = $method;
         $this->attributes = new ParameterBag($attributes);
     }
 
@@ -35,6 +35,7 @@ class JsonRpcResponse implements RpcResponseInterface
     {
         $this->id = $id;
     }
+
 
     /**
      * @return string
@@ -61,22 +62,6 @@ class JsonRpcResponse implements RpcResponseInterface
     }
 
     /**
-     * @return null|array
-     */
-    public function getError()
-    {
-        return $this->error;
-    }
-
-    /**
-     * @param JsonRpcGenericErrorException $error
-     */
-    public function setError(JsonRpcGenericErrorException $error)
-    {
-        $this->error = $error;
-    }
-
-    /**
      * @param $key
      * @return mixed
      */
@@ -85,20 +70,15 @@ class JsonRpcResponse implements RpcResponseInterface
         return $this->attributes->get($key);
     }
 
-    public function __toString()
+    public function export()
     {
-        $jsonRpc = [
+        $rpc = [
             'id' => $this->id,
             'jsonrpc' => self::VERSION,
-            'result' => $this->attributes->all()
+            'method' => $this->method,
+            'params' => $this->attributes->all()
         ];
 
-        if ($this->error instanceof JsonRpcGenericErrorException) {
-            $error = json_decode((string)$this->error, true);
-            $jsonRpc['error'] = $error;
-            unset($jsonRpc['result']);
-        }
-
-        return json_encode($jsonRpc);
+        return $rpc;
     }
 }

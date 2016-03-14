@@ -3,7 +3,7 @@
 namespace Cmobi\RabbitmqBundle\Rpc\Response;
 
 
-class JsonRpcResponseCollection implements RpcResponseCollectionInterface, \IteratorAggregate, \Countable
+class RpcResponseCollection implements RpcResponseCollectionInterface, \IteratorAggregate, \Countable
 {
     public $responses = [];
 
@@ -49,26 +49,11 @@ class JsonRpcResponseCollection implements RpcResponseCollectionInterface, \Iter
         unset($this->responses[$id]);
     }
 
-    public function addCollection(JsonRpcResponseCollection $collection)
+    public function addCollection(RpcResponseCollection $collection)
     {
         foreach ($collection->all() as $id => $response) {
             unset($this->responses[$id]);
             $this->responses[$id] = $response;
         }
-    }
-
-    public function __toString()
-    {
-        if (count($this->responses) == 1 && isset($this->responses[0])) {
-            return (string)$this->responses[0];
-        }
-        $response = [];
-
-        foreach ($this->responses as $response) {
-            $response = json_decode($response, true);
-            $response[] = $response;
-        }
-
-        return json_encode($response);
     }
 }

@@ -3,7 +3,7 @@
 namespace Cmobi\RabbitmqBundle\Rpc\Request;
 
 
-class JsonRpcRequestCollection implements RpcRequestCollectionInterface, \IteratorAggregate, \Countable
+class RpcRequestCollection implements RpcRequestCollectionInterface, \IteratorAggregate, \Countable
 {
     public $requests = [];
 
@@ -48,26 +48,11 @@ class JsonRpcRequestCollection implements RpcRequestCollectionInterface, \Iterat
         unset($this->requests[$id]);
     }
 
-    public function addCollection(JsonRpcRequestCollection $collection)
+    public function addCollection(RpcRequestCollection $collection)
     {
         foreach ($collection->all() as $id => $request) {
             unset($this->requests[$id]);
             $this->requests[$id] = $request;
         }
-    }
-
-    public function __toString()
-    {
-        if (count($this->requests) == 1) {
-            return (string)$this->requests[0];
-        }
-        $requests = [];
-
-        foreach ($this->requests as $request) {
-            $request = json_decode($request, true);
-            $requests[] = $request;
-        }
-
-        return json_encode($requests);
     }
 }
