@@ -53,15 +53,7 @@ class BaseService implements RpcServiceInterface
                 $responseCollection->add($response);
             }
             $messageResponse = $this->buildResponseMessage($responseCollection, $message);
-
-            $message->delivery_info['channel']->basic_publish(
-                $messageResponse,
-                '',
-                $message->get('reply_to')
-            );
-            $message->delivery_info['channel']->basic_ack(
-                $message->delivery_info['delivery_tag']
-            );
+            $this->publish($message, $messageResponse);
         };
 
         return $callback;
@@ -97,6 +89,22 @@ class BaseService implements RpcServiceInterface
         );
 
         return $amqpResponse;
+    }
+
+    /**
+     * @param AMQPMessage $message
+     * @param $content
+     */
+    public function publish(AMQPMessage $message, $content)
+    {
+        $message->delivery_info['channel']->basic_publish(
+            $content,
+            '',
+            $message->get('reply_to')
+        );
+        $message->delivery_info['channel']->basic_ack(
+            $message->delivery_info['delivery_tag']
+        );
     }
 
     public function getQueueName()
