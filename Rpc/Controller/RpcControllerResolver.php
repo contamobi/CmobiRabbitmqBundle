@@ -4,9 +4,13 @@ namespace Cmobi\RabbitmqBundle\Rpc\Controller;
 
 use Cmobi\RabbitmqBundle\Rpc\Request\RpcRequest;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\DependencyInjection\ContainerAwareInterface;
+use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 
 class RpcControllerResolver
 {
+    use ContainerAwareTrait;
+
     private $logger;
 
     public function __construct(LoggerInterface $logger = null)
@@ -112,11 +116,17 @@ class RpcControllerResolver
             throw new \InvalidArgumentException(sprintf('Class "%s" does not exist.', $class));
         }
 
-        return array($this->instantiateController($class), $method);
+        return [$this->instantiateController($class), $method];
     }
 
     protected function instantiateController($class)
     {
-        return new $class();
+        $controller = new $class();
+
+        if ($controller instanceof ContainerAwareInterface) {
+            $controller->setContainer($this->container);
+        }
+
+        return $controller;
     }
 }

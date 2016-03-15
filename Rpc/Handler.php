@@ -62,6 +62,10 @@ class Handler
      */
     public function getResolver()
     {
+        if (is_null($this->resolver->container)) {
+            $this->resolver->container = $this->container;
+        }
+
         return $this->resolver;
     }
 
