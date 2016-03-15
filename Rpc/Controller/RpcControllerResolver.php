@@ -18,6 +18,14 @@ class RpcControllerResolver
         $this->logger = $logger;
     }
 
+    /**
+     * @return \Symfony\Component\DependencyInjection\ContainerInterface
+     */
+    public function getContainer()
+    {
+        return $this->container;
+    }
+
     public function getController(RpcRequest $request)
     {
         if (!$controller = $request->attributes->get('_controller')) {
