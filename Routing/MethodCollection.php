@@ -74,4 +74,16 @@ class MethodCollection implements \IteratorAggregate, \Countable
     {
         $this->resources[] = $resource;
     }
+
+    public function addDefaults(array $defaults)
+    {
+        if ($defaults) {
+            /**
+             * @var Method $method
+             */
+            foreach ($this->methods as $method) {
+                $method->addDefaults($defaults);
+            }
+        }
+    }
 }

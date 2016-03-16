@@ -55,6 +55,19 @@ class RpcRequest implements RpcRequestInterface
     }
 
     /**
+     * @param array $params
+     */
+    public function setParams(array $params)
+    {
+        $this->attributes = new ParameterBag($params);
+    }
+
+    public function getParams()
+    {
+        return $this->attributes->all();
+    }
+
+    /**
      * @return string
      */
     public function getVersion()
@@ -69,6 +82,15 @@ class RpcRequest implements RpcRequestInterface
     public function get($key)
     {
         return $this->attributes->get($key);
+    }
+
+    /**
+     * @param $key
+     * @param $value
+     */
+    public function add($key, $value)
+    {
+        $this->attributes->add([$key => $value]);
     }
 
     /**

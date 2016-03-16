@@ -21,10 +21,12 @@ class YamlRpcLoader extends FileLoader
 
     private $yamlParser;
     private $controllerParser;
+    private $container;
 
     public function __construct(ContainerInterface $container, $path = null, ControllerNameParser $controllerNameConverser = null)
     {
         $this->controllerParser = $controllerNameConverser;
+        $this->container = $container;
 
         if (is_null($controllerNameConverser)) {
             $this->controllerParser = $container->get('controller_name_converter');
@@ -99,7 +101,12 @@ class YamlRpcLoader extends FileLoader
             $type = $config['type'];
         }
         $this->setCurrentDir(dirname($path));
-        $subCollection = $this->import($config['resource'], $type, false, $file);
+        $resource = $config['resource'];
+
+        if (substr($resource, 0, 1) === '@') {
+            $resource = $this->container->get('kernel')->locateResource($config['resource']);
+        }
+        $subCollection = $this->import($resource, $type, false, $file);
         $subCollection->addDefaults($defaults);
 
         $collection->addCollection($subCollection);
