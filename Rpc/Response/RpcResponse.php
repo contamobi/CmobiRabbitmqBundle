@@ -4,7 +4,7 @@ namespace Cmobi\RabbitmqBundle\Rpc\Response;
 
 use Cmobi\RabbitmqBundle\Rpc\Exception\RpcGenericErrorException;
 use Cmobi\RabbitmqBundle\Rpc\Exception\RpcInvalidResponseException;
-use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
+use Symfony\Component\HttpFoundation\ParameterBag;
 
 class RpcResponse implements RpcResponseInterface
 {

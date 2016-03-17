@@ -3,7 +3,7 @@
 namespace Cmobi\RabbitmqBundle\Rpc\Request;
 
 use Cmobi\RabbitmqBundle\Rpc\Exception\RpcInvalidRequestException;
-use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
+use Symfony\Component\HttpFoundation\ParameterBag;
 
 
 class RpcRequest implements RpcRequestInterface

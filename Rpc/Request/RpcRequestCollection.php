@@ -22,10 +22,8 @@ class RpcRequestCollection implements RpcRequestCollectionInterface, \IteratorAg
         $key = array_search($request, $this->requests, true);
 
         if ($key !== false) {
-            unserialize($this->requests[$key]);
+            unset($this->requests[$key]);
         }
-        unset($this->requests[$key]);
-
         $this->requests[] = $request;
     }
 
