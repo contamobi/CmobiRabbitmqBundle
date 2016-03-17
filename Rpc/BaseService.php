@@ -12,9 +12,9 @@ use PhpAmqpLib\Message\AMQPMessage;
 
 class BaseService implements RpcServiceInterface
 {
-    private $queueName;
-    private $rpcHandler;
-    private $rpcMessager;
+    protected $queueName;
+    protected $rpcHandler;
+    protected $rpcMessager;
 
     /** @var array */
     protected $queueOptions = [
