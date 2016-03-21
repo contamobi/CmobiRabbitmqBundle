@@ -7,9 +7,11 @@ class RpcInvalidResponseException extends RpcGenericErrorException
 {
     const ERROR_CODE = -32050;
 
-    public function __construct(\Exception $previous = null)
+    public function __construct($message = null, \Exception $previous = null)
     {
-        $message = 'Invalid Response';
+        if (is_null($message)) {
+            $message = 'Invalid Response';
+        }
         parent::__construct($message, self::ERROR_CODE, $previous);
     }
 }

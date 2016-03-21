@@ -7,9 +7,11 @@ class RpcInternalErrorException extends RpcGenericErrorException
 {
     const ERROR_CODE = -32603;
 
-    public function __construct(\Exception $previous = null)
+    public function __construct($message = null, \Exception $previous = null)
     {
-        $message = 'Internal error';
+        if (is_null($message)) {
+            $message = 'Internal error';
+        }
         parent::__construct($message, self::ERROR_CODE, $previous);
     }
 }

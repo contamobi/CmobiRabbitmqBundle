@@ -7,9 +7,11 @@ class RpcInvalidRequestException extends RpcGenericErrorException
 {
     const ERROR_CODE = -32600;
 
-    public function __construct(\Exception $previous = null)
+    public function __construct($message = null,\Exception $previous = null)
     {
-        $message = 'Invalid Request';
+        if (is_null($message)) {
+            $message = 'Invalid Request';
+        }
         parent::__construct($message, self::ERROR_CODE, $previous);
     }
 }

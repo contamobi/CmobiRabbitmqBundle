@@ -7,8 +7,11 @@ abstract class RpcServerErrorException extends RpcGenericErrorException
 {
     const ERROR_CODE = -32000;
 
-    public function __construct($message = "Server error", \Exception $previous = null)
+    public function __construct($message = null, \Exception $previous = null)
     {
+        if (is_null($message)) {
+            $message = 'Server error.';
+        }
         parent::__construct($message, self::validateCode(self::ERROR_CODE), $previous);
     }
 

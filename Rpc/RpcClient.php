@@ -207,7 +207,7 @@ abstract class RpcClient
         try {
             $responses = json_decode($this->response, true);
         } catch (\Exception $e) {
-            throw new RpcInvalidResponseException($e);
+            throw new RpcInvalidResponseException(null, $e);
         }
         $rpcResponse = new RpcResponseCollection();
 

@@ -77,6 +77,7 @@ class RpcRequestCollection implements RpcRequestCollectionInterface, \IteratorAg
 
     /**
      * @param $priorityNumber
+     * @return string
      */
     public function changePriority($priorityNumber)
     {
@@ -84,6 +85,8 @@ class RpcRequestCollection implements RpcRequestCollectionInterface, \IteratorAg
             $priorityNumber = decoct($priorityNumber);
         }
         $this->priority = $priorityNumber;
+
+        return $this->priority;
     }
 
     /**

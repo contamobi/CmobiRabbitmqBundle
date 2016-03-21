@@ -81,7 +81,7 @@ class BaseService implements RpcServiceInterface
         try {
             $rpcResponse = json_encode($rpcResponse);
         } catch (\Exception $e) {
-            throw new RpcInvalidResponseException($e);
+            throw new RpcInvalidResponseException(null, $e);
         }
         $amqpResponse = new AMQPMessage(
             (string)$rpcResponse,

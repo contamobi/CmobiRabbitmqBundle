@@ -38,8 +38,8 @@ class Handler
                 $response = call_user_func_array($controller, $arguments);
 
                 if (!is_array($response)) {
-                    $previous = new InvalidBodyAMQPMessageException('Invalid Body: Content should be array.');
-                    $exception = new RpcInternalErrorException($previous);
+                    $previous = new InvalidBodyAMQPMessageException();
+                    $exception = new RpcInternalErrorException('Invalid Body: Content should be array.', $previous);
                     $error = new RpcResponse($request->id, [], $exception);
                     $responses->add($error);
                 } else {
