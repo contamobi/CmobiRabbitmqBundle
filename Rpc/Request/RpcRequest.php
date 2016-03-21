@@ -37,7 +37,6 @@ class RpcRequest implements RpcRequestInterface
         $this->id = $id;
     }
 
-
     /**
      * @return string
      */

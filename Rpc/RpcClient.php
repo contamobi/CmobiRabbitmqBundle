@@ -7,6 +7,8 @@ use Cmobi\RabbitmqBundle\Rpc\Exception\RpcInvalidRequestException;
 use Cmobi\RabbitmqBundle\Rpc\Exception\RpcInvalidResponseException;
 use Cmobi\RabbitmqBundle\Rpc\Request\RpcRequest;
 use Cmobi\RabbitmqBundle\Rpc\Request\RpcRequestCollection;
+use Cmobi\RabbitmqBundle\Rpc\Request\RpcRequestCollectionInterface;
+use Cmobi\RabbitmqBundle\Rpc\Request\RpcRequestInterface;
 use Cmobi\RabbitmqBundle\Rpc\Response\RpcResponse;
 use Cmobi\RabbitmqBundle\Rpc\Response\RpcResponseCollection;
 use PhpAmqpLib\Channel\AbstractChannel;
@@ -81,7 +83,7 @@ abstract class RpcClient
             throw new RpcInvalidRequestException($e);
         }
         /* Send to Message Broker */
-        $this->handleRequest($body);
+        $this->handleRequest($body, $this->requestCollection->getPriority());
        $rpcResponse = $this->buildRpcResponseCollection();
 
         return $rpcResponse;
@@ -165,8 +167,9 @@ abstract class RpcClient
 
     /**
      * @param $body
+     * @param int $priority
      */
-    private function handleRequest($body)
+    private function handleRequest($body, $priority = RpcRequestCollectionInterface::PRIORITY_LOW)
     {
         list($callbackQueue, ,) = $this->getChannel()->queue_declare(
             '', false, false, false, true
@@ -181,7 +184,8 @@ abstract class RpcClient
             (string)$body,
             [
                 'correlation_id' => $this->correlationId,
-                'reply_to' => $this->callbackQueue
+                'reply_to' => $this->callbackQueue,
+                'priority' => $priority
             ]
         );
         $this->getChannel()->basic_publish($msg, '', $this->getQueueName());
