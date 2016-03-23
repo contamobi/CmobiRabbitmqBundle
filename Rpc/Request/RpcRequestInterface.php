@@ -5,6 +5,11 @@ namespace Cmobi\RabbitmqBundle\Rpc\Request;
 interface RpcRequestInterface
 {
     /**
+     * @return string|int
+     */
+    public function getId();
+
+    /**
      * fetch $key from $attributes
      *
      * @param $key

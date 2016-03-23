@@ -19,14 +19,15 @@ class RpcResponseCollection implements RpcResponseCollectionInterface, \Iterator
 
     public function add(RpcResponseInterface $response)
     {
-        $key = array_search($response, $this->responses, true);
+        if (!is_null($response->getId())) {
+            unset($this->responses[$response->getId()]);
+            $this->responses[$response->getId()] = $response;
+        } else {
+            $key = array_search($response, $this->responses, true);
+            unset($this->responses[$key]);
 
-        if ($key !== false) {
-            unserialize($this->responses[$key]);
+            $this->responses[] = $response;
         }
-        unset($this->responses[$key]);
-
-        $this->responses[] = $response;
     }
 
     public function all()

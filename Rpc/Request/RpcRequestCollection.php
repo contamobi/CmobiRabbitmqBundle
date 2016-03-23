@@ -25,12 +25,14 @@ class RpcRequestCollection implements RpcRequestCollectionInterface, \IteratorAg
 
     public function add(RpcRequestInterface $request)
     {
-        $key = array_search($request, $this->requests, true);
-
-        if ($key !== false) {
+        if (!is_null($request)) {
+            unset($this->requests[$request->getId()]);
+            $this->requests[$request->getId()] = $request;
+        } else {
+            $key = array_search($request, $this->requests, true);
             unset($this->requests[$key]);
+            $this->requests[] = $request;
         }
-        $this->requests[] = $request;
     }
 
     public function all()
