@@ -168,8 +168,9 @@ abstract class RpcClient
     /**
      * @param $body
      * @param int $priority
+     * @param int $expire (By default, message expire after 5 minutes if not processed)
      */
-    private function handleRequest($body, $priority = RpcRequestCollectionInterface::PRIORITY_LOW)
+    private function handleRequest($body, $priority = RpcRequestCollectionInterface::PRIORITY_LOW, $expire = 300000)
     {
         list($callbackQueue, ,) = $this->getChannel()->queue_declare(
             '', false, false, false, true
@@ -185,7 +186,8 @@ abstract class RpcClient
             [
                 'correlation_id' => $this->correlationId,
                 'reply_to' => $this->callbackQueue,
-                'priority' => $priority
+                'priority' => $priority,
+                'expire' => $expire
             ]
         );
         $this->getChannel()->basic_publish($msg, '', $this->getQueueName());
