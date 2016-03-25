@@ -17,6 +17,8 @@ use PhpAmqpLib\Message\AMQPMessage;
 
 abstract class RpcClient
 {
+    const DEFAULT_TTL = 60000;
+
     private $queue;
     private $connection;
     private $channel;
@@ -50,11 +52,12 @@ abstract class RpcClient
     }
 
     /**
+     * @param int $expire
      * @return RpcResponseCollection
      * @throws RpcInvalidRequestException
      * @throws RpcInvalidResponseException
      */
-    public function call()
+    public function call($expire = self::DEFAULT_TTL)
     {
         if (
             !$this->requestCollection instanceof RpcRequestCollection
@@ -83,7 +86,7 @@ abstract class RpcClient
             throw new RpcInvalidRequestException($e);
         }
         /* Send to Message Broker */
-        $this->handleRequest($body, $this->requestCollection->getPriority());
+        $this->handleRequest($body, $this->requestCollection->getPriority(), $expire);
        $rpcResponse = $this->buildRpcResponseCollection();
 
         return $rpcResponse;
@@ -168,9 +171,13 @@ abstract class RpcClient
     /**
      * @param $body
      * @param int $priority
-     * @param int $expire (By default, message expire after 5 minutes if not processed)
+     * @param int $expire (By default, message expire after 1 minutes if not processed)
      */
-    private function handleRequest($body, $priority = RpcRequestCollectionInterface::PRIORITY_LOW, $expire = 300000)
+    private function handleRequest(
+        $body,
+        $priority = RpcRequestCollectionInterface::PRIORITY_LOW,
+        $expire = self::DEFAULT_TTL
+    )
     {
         list($callbackQueue, ,) = $this->getChannel()->queue_declare(
             '', false, false, false, true
