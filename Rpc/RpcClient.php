@@ -180,7 +180,10 @@ abstract class RpcClient
     )
     {
         list($callbackQueue, ,) = $this->getChannel()->queue_declare(
-            '', false, false, false, true
+            '', false, false, false, true, false, [
+                'x-message-ttl' => $expire,
+                'x-max-priority' => RpcRequestCollectionInterface::PRIORITY_MAX
+            ]
         );
         $this->callbackQueue = $callbackQueue;
         $this->getChannel()->basic_consume(
@@ -193,8 +196,7 @@ abstract class RpcClient
             [
                 'correlation_id' => $this->correlationId,
                 'reply_to' => $this->callbackQueue,
-                'priority' => $priority,
-                'expire' => $expire
+                'priority' => $priority
             ]
         );
         $this->getChannel()->basic_publish($msg, '', $this->getQueueName());
