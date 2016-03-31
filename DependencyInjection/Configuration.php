@@ -77,7 +77,34 @@ class Configuration implements ConfigurationInterface
                 ->end()
             ->end()
         ;
-
+        $rootNode->fixXmlConfig('worker')
+            ->children()
+                ->arrayNode('workers')
+                    ->useAttributeAsKey('key')
+                    ->prototype('array')
+                        ->children()
+                            ->arrayNode('queue')
+                                ->children()
+                                    ->scalarNode('name')->end()
+                                    ->booleanNode('passive')->defaultFalse()->end()
+                                    ->booleanNode('durable')->defaultTrue()->end()
+                                    ->booleanNode('exclusive')->defaultFalse()->end()
+                                    ->booleanNode('auto_delete')->defaultFalse()->end()
+                                    ->booleanNode('nowait')->defaultFalse()->end()
+                                    ->variableNode('arguments')->defaultNull()->end()
+                                    ->scalarNode('ticket')->defaultNull()->end()
+                                    ->arrayNode('routing_keys')
+                                        ->prototype('scalar')->end()
+                                    ->end()
+                                ->end()
+                            ->end()
+                            ->scalarNode('class')->defaultValue(BaseService::class)->end()
+                            ->arrayNode('arguments')->canBeDisabled()->end()
+                        ->end()
+                    ->end()
+                ->end()
+            ->end()
+        ;
         return $tree;
     }
 }

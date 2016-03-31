@@ -77,3 +77,10 @@ services:
         calls:
             - [setContainer, ["@service_container"]]
             - [buildChannel]
+
+    cmobi_rabbitmq.worker_server:
+        class: Cmobi\RabbitmqBundle\Worker\Receiver
+        arguments: ['%cmobi_rabbitmq.workers%']
+        calls:
+            - [setContainer, ["@service_container"]]
+            - [buildChannel]

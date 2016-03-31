@@ -1,28 +1,29 @@
 <?php
 
-namespace Cmobi\RabbitmqBundle\Rpc;
+namespace Cmobi\RabbitmqBundle\Worker;
 
+use AMQPChannel;
 use Cmobi\RabbitmqBundle\MessageBroker\ServerInterface;
-use Cmobi\RabbitmqBundle\Rpc\Exception\InvalidRpcServerClassException;
-use Cmobi\RabbitmqBundle\Rpc\Exception\NotFoundRpcServiceException;
-use PhpAmqpLib\Channel\AMQPChannel;
+use Cmobi\RabbitmqBundle\MessageBroker\ServiceInterface;
+use Cmobi\RabbitmqBundle\Worker\Exception\InvalidWorkerServiceException;
+use Cmobi\RabbitmqBundle\Worker\Exception\NotFoundWorkerException;
 use PhpAmqpLib\Connection\AMQPStreamConnection;
 use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 
-class RpcServer implements ServerInterface
+class Receiver implements ServerInterface
 {
     use ContainerAwareTrait;
 
-    private $rpcServices;
+    private $workers;
     private $connection;
     private $channel;
 
-    public function __construct(array $rpcServices, AMQPStreamConnection $connection = null)
+    public function __construct(array $workers, AMQPStreamConnection $connection = null)
     {
-        if (!$rpcServices) {
-            throw new NotFoundRpcServiceException('no rpc services found.');
+        if (!$workers) {
+            throw new NotFoundWorkerException('Any worker serivce found.');
         }
-        $this->rpcServices = $rpcServices;
+        $this->workers = $workers;
 
         if (!is_null($connection)) {
             $this->connection = $connection;
@@ -31,20 +32,20 @@ class RpcServer implements ServerInterface
 
     /**
      * @param $queue
-     * @param RpcServiceInterface $serviceCallback
+     * @param ServiceInterface $serviceCallback
      * @param bool|false $passive
-     * @param bool|false $durable
+     * @param bool|true $durable
      * @param bool|false $exclusive
      * @param bool|true $auto_delete
      * @param bool|false $nowait
      * @param null $arguments
      * @param null $ticket
      */
-    public function publishService(
+    public function publishWorker(
         $queue,
-        RpcServiceInterface $serviceCallback,
+        ServiceInterface $serviceCallback,
         $passive = false,
-        $durable = false,
+        $durable = true,
         $exclusive = false,
         $auto_delete = true,
         $nowait = false,
@@ -60,22 +61,22 @@ class RpcServer implements ServerInterface
     }
 
     /**
-     * @throws InvalidRpcServerClassException
+     * @throws InvalidWorkerServiceException
      */
     public function run()
     {
-        foreach ($this->rpcServices as $serviceName) {
-            $service = $this->getContainer()->get($serviceName);
+        foreach ($this->workers as $workerName) {
+            $service = $this->getContainer()->get($workerName);
 
-            if (!$service instanceof RpcServiceInterface) {
-                throw new InvalidRpcServerClassException(
-                    'Failed start RpcServer: %s is not instance of RpcServiceInterface'. $serviceName
+            if (!$service instanceof ServiceInterface) {
+                throw new InvalidWorkerServiceException(
+                    'Failed start WorkerServer: %s is not instance of ServiceInterface'. $workerName
                 );
             }
             list(
                 $name, $passive, $durable, $exclusive, $auto_delete, $nowait, $arguments, $ticket
                 ) = array_values($service->getQueueOptions());
-            $this->publishService(
+            $this->publishWorker(
                 $service->getQueueName(),
                 $service,
                 $passive,

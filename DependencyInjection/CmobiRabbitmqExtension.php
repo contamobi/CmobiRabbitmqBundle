@@ -4,8 +4,10 @@ namespace Cmobi\RabbitmqBundle\DependencyInjection;
 
 use Cmobi\RabbitmqBundle\DependencyInjection\Compiler\ConfigCachePass;
 use Cmobi\RabbitmqBundle\DependencyInjection\Compiler\RpcServicePass;
+use Cmobi\RabbitmqBundle\MessageBroker\ServiceInterface;
 use Cmobi\RabbitmqBundle\Rpc\Exception\InvalidRpcServerClassException;
 use Cmobi\RabbitmqBundle\Rpc\RpcServiceInterface;
+use Cmobi\RabbitmqBundle\Worker\Exception\InvalidWorkerServiceException;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
@@ -85,6 +87,31 @@ class CmobiRabbitmqExtension extends Extension
             $rpcServers[$server] = $serviceName;
         }
         $this->getContainer()->setParameter('cmobi_rabbitmq.rpc_services', $rpcServers);
+    }
+
+    public function loadWorkers()
+    {
+        $workers = [];
+
+        foreach ($this->config['workers'] as $server => $params) {
+            $serviceClass = $params['class'];
+
+            if (!is_subclass_of($serviceClass, ServiceInterface::class)) {
+                throw new InvalidWorkerServiceException(
+                    sprintf('server (%s) is not class of BaseService', $server)
+                );
+            }
+
+            if (!isset($params['arguments'])) {
+                $params['arguments'] = [];
+            }
+            $serviceName = sprintf('cmobi_rabbitmq.worker_service.%s', $server);
+            $this->getContainer()->addCompilerPass(
+                new RpcServicePass($serviceName, $serviceClass, $params['queue'], $params['arguments'])
+            );
+            $rpcServers[$server] = $serviceName;
+        }
+        $this->getContainer()->setParameter('cmobi_rabbitmq.workers', $workers);
     }
 
     public function registerRouterConfiguration($resource)
