@@ -48,6 +48,10 @@ abstract class RpcClient
     public function refreshChannel()
     {
         $connection = $this->getConnection();
+
+        if (!$connection->isConnected()) {
+            $connection->reconnect();
+        }
         $this->channel = $connection->channel();
     }
 
