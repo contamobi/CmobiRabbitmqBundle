@@ -71,6 +71,7 @@ abstract class RpcClient
         }
         $requestId = uniqid($this->queue);
         $this->correlationId = $requestId;
+        $this->response = null;
         $requests = [];
 
         /**
