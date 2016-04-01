@@ -29,6 +29,7 @@ class CmobiRabbitmqExtension extends Extension
         $this->registerRouterConfiguration($configs[0]['router']);
         $this->loadConnections();
         $this->loadRpcServers();
+        $container->setParameter('cmobi_rabbitmq.basic_qos', $configs[0]['basic_qos']);
 
         if ($container->getParameter('kernel.debug')) {
             $container->addCompilerPass(new ConfigCachePass());

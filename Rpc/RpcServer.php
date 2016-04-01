@@ -54,7 +54,6 @@ class RpcServer
         $this->getChannel()->queue_declare(
             $queue, $passive, $durable, $exclusive, $auto_delete, $nowait, $arguments, $ticket
         );
-        $this->getChannel()->basic_qos(null, 1, null);
         $this->getChannel()->basic_consume($queue, '', false, false, $exclusive, $nowait, $serviceCallback->createCallback());
     }
 
@@ -102,6 +101,12 @@ class RpcServer
             $this->connection = $connectionManager->getConnection();
         }
         $this->channel = $this->connection->channel();
+        $qos = 1;
+
+        if ($this->getContainer()->hasParameter('cmobi_rabbitmq.basic_qos')) {
+            $qos = $this->getContainer()->getParameter('cmobi_rabbitmq.basic_qos');
+        }
+        $this->getChannel()->basic_qos(null, $qos, null);
     }
 
     /**

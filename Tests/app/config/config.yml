@@ -4,6 +4,7 @@ framework:
 cmobi_rabbitmq:
     router:
         resource: "%kernel.root_dir%/config/rpc_routing.yml"
+    basic_qos: 1
     connections:
         default:
             host: localhost
