@@ -3,6 +3,7 @@
 namespace Cmobi\RabbitmqBundle\DependencyInjection;
 
 use Cmobi\RabbitmqBundle\DependencyInjection\Compiler\ConfigCachePass;
+use Cmobi\RabbitmqBundle\DependencyInjection\Compiler\LogDispatcherPass;
 use Cmobi\RabbitmqBundle\DependencyInjection\Compiler\RpcServicePass;
 use Cmobi\RabbitmqBundle\Rpc\Exception\InvalidRpcServerClassException;
 use Cmobi\RabbitmqBundle\Rpc\RpcServiceInterface;
@@ -26,6 +27,7 @@ class CmobiRabbitmqExtension extends Extension
         $configuration = $this->getConfiguration($configs, $container);
         $this->config = $this->processConfiguration($configuration, $configs);
         $this->container = $container;
+        $this->registerLogger($configs[0]['log_path']);
         $this->registerRouterConfiguration($configs[0]['router']);
         $this->loadConnections();
         $this->loadRpcServers();
@@ -88,6 +90,18 @@ class CmobiRabbitmqExtension extends Extension
         $this->getContainer()->setParameter('cmobi_rabbitmq.rpc_services', $rpcServers);
     }
 
+    /**
+     * @param $path
+     */
+    public function registerLogger($path)
+    {
+        $logDispatcherPass = new LogDispatcherPass($path);
+        $this->getContainer()->addCompilerPass($logDispatcherPass);
+    }
+
+    /**
+     * @param $resource
+     */
     public function registerRouterConfiguration($resource)
     {
         $this->getContainer()->setParameter('cmobi_rabbitmq.router_rpc.resource', $resource);

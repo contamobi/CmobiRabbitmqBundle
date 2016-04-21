@@ -25,7 +25,7 @@ class RpcServicePass implements CompilerPassInterface
     {
         $rpcHandler = $container->getDefinition('cmobi_rabbitmq.rpc.handler');
         $rpcMessager = $container->getDefinition('cmobi_rabbitmq.rpc.messager');
-        $logger = $container->getDefinition('logger');
+        $logger = $container->getDefinition('cmobi_rabbitmq.logger');
         $definition = new Definition(
             $this->serviceClass,
             [

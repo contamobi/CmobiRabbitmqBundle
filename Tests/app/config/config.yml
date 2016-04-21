@@ -5,6 +5,7 @@ cmobi_rabbitmq:
     router:
         resource: "%kernel.root_dir%/config/rpc_routing.yml"
     basic_qos: 1
+    log_path: "%kernel.root_dir%/logs/rabbitmq_service.log"
     connections:
         default:
             host: localhost

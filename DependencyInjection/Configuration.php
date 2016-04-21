@@ -16,6 +16,10 @@ class Configuration implements ConfigurationInterface
             ->children()
                 ->scalarNode('basic_qos')->defaultValue(1)->end()
             ->end();
+        $rootNode
+            ->children()
+                ->scalarNode('log_path')->end()
+            ->end();
         $rootNode->fixXmlConfig('connection')
             ->children()
                 ->arrayNode('connections')

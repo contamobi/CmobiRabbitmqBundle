@@ -19,7 +19,8 @@
         "php": ">=5.6.1",
         "symfony/http-kernel": "2.8.*",
         "php-amqplib/php-amqplib": "2.5.*",
-        "symfony/console": "^2.8"
+        "symfony/console": "^2.8",
+        "monolog/monolog": "^1.19"
     },
     "require-dev": {
         "symfony/framework-bundle": "~2.8",
