@@ -9,12 +9,14 @@ use Cmobi\RabbitmqBundle\Rpc\Response\RpcResponse;
 use Cmobi\RabbitmqBundle\Rpc\Response\RpcResponseCollection;
 use Cmobi\RabbitmqBundle\Rpc\Response\RpcResponseCollectionInterface;
 use PhpAmqpLib\Message\AMQPMessage;
+use Psr\Log\LoggerInterface;
 
 class BaseService implements RpcServiceInterface
 {
     protected $queueName;
     protected $rpcHandler;
     protected $rpcMessager;
+    protected $logger;
 
     /** @var array */
     protected $queueOptions = [
@@ -28,8 +30,15 @@ class BaseService implements RpcServiceInterface
         'ticket'                => null
     ];
 
-    public function __construct(Handler $handler, RpcMessager $messager, array $queueOptions, array $parameters = null)
+    public function __construct(
+        Handler $handler,
+        RpcMessager $messager,
+        array $queueOptions,
+        array $parameters = null,
+        LoggerInterface $logger
+    )
     {
+        $this->logger = $logger;
         $this->rpcHandler = $handler;
         $this->rpcMessager = $messager;
         $this->queueName = $queueOptions['name'];
@@ -47,6 +56,7 @@ class BaseService implements RpcServiceInterface
                 $requestCollection = $this->rpcMessager->parseAMQPMessage($message);
                 $responseCollection = $this->getHandler()->handle($requestCollection);
             } catch (\Exception $e) {
+                $this->logger->error($e);
                 $responseCollection = new RpcResponseCollection();
                 $exception = new RpcInternalErrorException();
                 $response = new RpcResponse(null, [], $exception);
