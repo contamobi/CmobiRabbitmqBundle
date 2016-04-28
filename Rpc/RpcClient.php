@@ -195,6 +195,7 @@ abstract class RpcClient
         list($callbackQueue, ,) = $this->getChannel()->queue_declare(
             'callback_to_' . $this->getQueueName() . uniqid('', true), false, false, false, true, false, [
                 'x-message-ttl' => ['I', $expire],
+                'x-expires' => ['I', $expire],
                 'x-max-priority' => ['I', RpcRequestCollectionInterface::PRIORITY_MAX]
             ]
         );
