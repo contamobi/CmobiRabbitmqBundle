@@ -21,6 +21,7 @@ abstract class RpcClient
 
     private $queue;
     private $connection;
+    private $connectionManager;
     private $channel;
     private $callbackQueue;
     private $response;
@@ -30,8 +31,9 @@ abstract class RpcClient
     public function __construct($queueName, ConnectionManagerInterface $manager)
     {
         $this->queue = $queueName;
-        $this->connection = $manager->getConnection();
-        $this->channel = $this->connection->channel();
+        $this->connectionManager = $manager;
+        $this->connection = null;
+        $this->channel = null;
         $this->requestCollection = new RpcRequestCollection();
     }
 
@@ -146,6 +148,9 @@ abstract class RpcClient
      */
     public function getChannel()
     {
+        if (is_null($this->channel)) {
+            $this->channel = $this->getConnection()->channel();
+        }
         return $this->channel;
     }
 
@@ -162,6 +167,9 @@ abstract class RpcClient
      */
     public function getConnection()
     {
+        if (is_null($this->connection)) {
+            $this->connection = $this->connectionManager->getConnection();
+        }
         return $this->connection;
     }
 
