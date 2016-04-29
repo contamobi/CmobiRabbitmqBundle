@@ -22,9 +22,9 @@ class BaseService implements RpcServiceInterface
     protected $queueOptions = [
         'name'                  => null,
         'passive'               => false,
-        'durable'               => true,
+        'durable'               => false,
         'exclusive'             => false,
-        'auto_delete'           => false, //Em caso de falha no serviço a filha se mantém para que outro processe.
+        'auto_delete'           => true,
         'nowait'                => false,
         'arguments'             => null,
         'ticket'                => null

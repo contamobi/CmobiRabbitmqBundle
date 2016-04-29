@@ -216,7 +216,7 @@ abstract class RpcClient
         $this->getChannel()->basic_publish($msg, '', $this->getQueueName());
 
         while(!$this->response) {
-            $this->getChannel()->wait();
+            $this->getChannel()->wait(null, 0, ($expire / 1000));
         }
         $this->getChannel()->close();
         $this->getConnection()->close();
