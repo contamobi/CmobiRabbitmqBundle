@@ -50,6 +50,11 @@ class RpcResponseCollection implements RpcResponseCollectionInterface, \Iterator
         unset($this->responses[$id]);
     }
 
+    public function clear()
+    {
+        $this->responses = [];
+    }
+
     public function addCollection(RpcResponseCollection $collection)
     {
         foreach ($collection->all() as $id => $response) {

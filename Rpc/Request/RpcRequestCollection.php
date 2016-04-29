@@ -91,6 +91,12 @@ class RpcRequestCollection implements RpcRequestCollectionInterface, \IteratorAg
         return $this->priority;
     }
 
+
+    public function clear()
+    {
+        $this->requests = [];
+    }
+
     /**
      * Return octect priority
      *

@@ -86,7 +86,7 @@ abstract class RpcClient
             }
             $requests[] = $request->toArray();
         }
-
+        $this->requestCollection->clear();
         try {
             $body = json_encode($requests);
         } catch (\Exception $e) {
@@ -94,7 +94,7 @@ abstract class RpcClient
         }
         /* Send to Message Broker */
         $this->handleRequest($body, $this->requestCollection->getPriority(), $expire);
-       $rpcResponse = $this->buildRpcResponseCollection();
+        $rpcResponse = $this->buildRpcResponseCollection();
 
         return $rpcResponse;
     }

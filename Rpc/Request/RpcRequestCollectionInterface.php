@@ -16,4 +16,9 @@ interface RpcRequestCollectionInterface
      * @return int
      */
     public function getPriority();
+
+    /**
+     * Erase rpc requests
+     */
+    public function clear();
 }
