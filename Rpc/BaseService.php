@@ -58,7 +58,7 @@ class BaseService implements RpcServiceInterface
             } catch (\Exception $e) {
                 $this->logger->error($e);
                 $responseCollection = new RpcResponseCollection();
-                $exception = new RpcInternalErrorException();
+                $exception = new RpcInternalErrorException($e->getMessage());
                 $response = new RpcResponse(null, [], $exception);
                 $responseCollection->add($response);
             }
