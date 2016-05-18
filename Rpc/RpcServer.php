@@ -6,6 +6,8 @@ use Cmobi\RabbitmqBundle\Rpc\Exception\InvalidRpcServerClassException;
 use Cmobi\RabbitmqBundle\Rpc\Exception\NotFoundRpcServiceException;
 use PhpAmqpLib\Channel\AMQPChannel;
 use PhpAmqpLib\Connection\AMQPStreamConnection;
+use PhpAmqpLib\Exception\AMQPRuntimeException;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 
 class RpcServer
@@ -14,13 +16,15 @@ class RpcServer
 
     private $rpcServices;
     private $connection;
+    private $logger;
     private $channel;
 
-    public function __construct(array $rpcServices, AMQPStreamConnection $connection = null)
+    public function __construct(array $rpcServices, LoggerInterface $logger, AMQPStreamConnection $connection = null)
     {
         if (!$rpcServices) {
             throw new NotFoundRpcServiceException('no rpc services found.');
         }
+        $this->logger = $logger;
         $this->rpcServices = $rpcServices;
 
         if (!is_null($connection)) {
@@ -84,7 +88,17 @@ class RpcServer
         }
 
         while(count($this->getChannel()->callbacks)) {
-            $this->getChannel()->wait();
+            try {
+                $this->getChannel()->wait();
+            } catch (AMQPRuntimeException $e) {
+                $this->logger->error(
+                    sprintf(
+                        'Failed process queue with error: %s',
+                        $e->getMessage()
+                    )
+                );
+            }
+            continue;
         }
 
         $this->getChannel()->close();

@@ -73,7 +73,7 @@ services:
 
     cmobi_rabbitmq.rpc_server:
         class: Cmobi\RabbitmqBundle\Rpc\RpcServer
-        arguments: ['%cmobi_rabbitmq.rpc_services%']
+        arguments: ['%cmobi_rabbitmq.rpc_services%', '@logger']
         calls:
             - [setContainer, ["@service_container"]]
             - [buildChannel]
