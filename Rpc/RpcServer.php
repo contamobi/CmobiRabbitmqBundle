@@ -19,12 +19,11 @@ class RpcServer
     private $logger;
     private $channel;
 
-    public function __construct(array $rpcServices, LoggerInterface $logger, AMQPStreamConnection $connection = null)
+    public function __construct(array $rpcServices, AMQPStreamConnection $connection = null)
     {
         if (!$rpcServices) {
             throw new NotFoundRpcServiceException('no rpc services found.');
         }
-        $this->logger = $logger;
         $this->rpcServices = $rpcServices;
 
         if (!is_null($connection)) {
@@ -91,14 +90,17 @@ class RpcServer
             try {
                 $this->getChannel()->wait();
             } catch (AMQPRuntimeException $e) {
-                $this->logger->error(
-                    sprintf(
-                        'Failed process queue with error: %s',
-                        $e->getMessage()
-                    )
-                );
+
+                if ($this->logger instanceof LoggerInterface) {
+                    $this->logger->error(
+                        sprintf(
+                            'Failed process queue with error: %s',
+                            $e->getMessage()
+                        )
+                    );
+                }
+                continue;
             }
-            continue;
         }
 
         $this->getChannel()->close();
@@ -145,5 +147,21 @@ class RpcServer
     protected function getContainer()
     {
         return $this->container;
+    }
+
+    /**
+     * @return LoggerInterface
+     */
+    public function getLogger()
+    {
+        return $this->logger;
+    }
+
+    /**
+     * @param LoggerInterface $logger
+     */
+    public function setLogger(LoggerInterface $logger)
+    {
+        $this->logger = $logger;
     }
 }

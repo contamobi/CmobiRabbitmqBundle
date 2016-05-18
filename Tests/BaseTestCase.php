@@ -12,7 +12,6 @@ class BaseTestCase extends \PHPUnit_Framework_TestCase
     {
         $kernel = new \AppKernel('test', true);
         $kernel->boot();
-
         $this->container = $kernel->getContainer();
     }
 

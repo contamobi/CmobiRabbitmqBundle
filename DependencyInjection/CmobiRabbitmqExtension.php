@@ -4,8 +4,10 @@ namespace Cmobi\RabbitmqBundle\DependencyInjection;
 
 use Cmobi\RabbitmqBundle\DependencyInjection\Compiler\ConfigCachePass;
 use Cmobi\RabbitmqBundle\DependencyInjection\Compiler\LogDispatcherPass;
+use Cmobi\RabbitmqBundle\DependencyInjection\Compiler\RpcServerPass;
 use Cmobi\RabbitmqBundle\DependencyInjection\Compiler\RpcServicePass;
 use Cmobi\RabbitmqBundle\Rpc\Exception\InvalidRpcServerClassException;
+use Cmobi\RabbitmqBundle\Rpc\RpcServer;
 use Cmobi\RabbitmqBundle\Rpc\RpcServiceInterface;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -36,6 +38,7 @@ class CmobiRabbitmqExtension extends Extension
         if ($container->getParameter('kernel.debug')) {
             $container->addCompilerPass(new ConfigCachePass());
         }
+        $container->addCompilerPass(new RpcServerPass());
         /* Compile and lock container */
         $container->compile();
     }
