@@ -1,8 +1,9 @@
 <?php
 
-namespace Cmobi\RabbitmqBundle\Amqp;
+namespace Cmobi\RabbitmqBundle\Protocol\Amqp;
 
-use Cmobi\RabbitmqBundle\Amqp\Exception\InvalidAMQPConnectionClassException;
+use Cmobi\RabbitmqBundle\ConnectionFactoryInterface;
+use Cmobi\RabbitmqBundle\Protocol\Amqp\Exception\InvalidAMQPConnectionClassException;
 use PhpAmqpLib\Connection\AMQPStreamConnection;
 
 /**

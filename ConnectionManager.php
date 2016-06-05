@@ -1,9 +1,8 @@
 <?php
 
-namespace Cmobi\RabbitmqBundle\Amqp;
+namespace Cmobi\RabbitmqBundle;
 
-use Cmobi\RabbitmqBundle\ConnectionManagerInterface;
-use Cmobi\RabbitmqBundle\Amqp\Exception\NotFoundAMQPConnectionFactoryException;
+use Cmobi\RabbitmqBundle\Protocol\Amqp\Exception\NotFoundAMQPConnectionFactoryException;
 use PhpAmqpLib\Connection\AMQPStreamConnection;
 use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 

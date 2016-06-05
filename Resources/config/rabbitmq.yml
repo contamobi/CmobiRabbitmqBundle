@@ -2,30 +2,8 @@ parameters:
     cmobi_rabbitmq.connection.class: PhpAmqpLib\Connection\AMQPConnection
     cmobi_rabbitmq.lazy.connection.class: PhpAmqpLib\Connection\AMQPLazyConnection
     cmobi_rabbitmq.connection.factory.class: Cmobi\RabbitmqBundle\Amqp\ConnectionFactory
-    cmobi_rabbitmq.methodRouter.options.matcher_class: Cmobi\RabbitmqBundle\Routing\Matcher\MethodMatcher
-    cmobi_rabbitmq.methodRouter.options.matcher_dumper_class: Cmobi\RabbitmqBundle\Routing\Matcher\Dumper\PhpMatcherDumper
-    cmobi_rabbitmq.methodRouter.cache_warmer.class: Cmobi\RabbitmqBundle\Routing\CacheWarmer\MethodRouterCacheWarmer
-    cmobi_rabbitmq.methodRouter.options.matcher.cache_class: %method.cache_class_prefix%MethodMatcher
-    cmobi_rabbitmq.router_rpc.arguments:
-        cache_dir: %kernel.cache_dir%
-        debug: %kernel.debug%
-        matcher_class: %cmobi_rabbitmq.methodrouter.options.matcher_class%
-        matcher_dumper_class: %cmobi_rabbitmq.methodrouter.options.matcher_dumper_class%
-        matcher_cache_class: %cmobi_rabbitmq.methodrouter.options.matcher.cache_class%
 
 services:
-    cmobi_rabbitmq.routing_loader_service:
-        class: Cmobi\RabbitmqBundle\Routing\Loader\DependencyInjection\ServiceRouterLoader
-        arguments: ["@service_container"]
-        tags:
-            - { name: routing.loader }
-
-    cmobi_rabbitmq.routing_loader.rpc:
-        class: Cmobi\RabbitmqBundle\Routing\Loader\YamlRpcLoader
-        arguments: ["@service_container"]
-        tags:
-            - { name: routing.loader }
-
     cmobi_rabbitmq.self_resource_checker:
         class: Symfony\Component\Config\Resource\SelfCheckingResourceChecker
         public: false
@@ -43,27 +21,6 @@ services:
         arguments:
             - []
         public: false
-
-    cmobi_rabbitmq.router_rpc:
-        class: Cmobi\RabbitmqBundle\Routing\MethodRouter
-        arguments: ["@service_container", "%cmobi_rabbitmq.router_rpc.resource%", "%cmobi_rabbitmq.router_rpc.arguments%"]
-        calls:
-            - [setConfigCacheFactory, ["@cmobi_rabbitmq.config_cache_factory"]]
-
-    cmobi_rabbitmq.router_rpc_cache_warmer:
-        class: Cmobi\RabbitmqBundle\Routing\CacheWarmer\MethodRouterCacheWarmer
-        arguments: ["@cmobi_rabbitmq.router_rpc"]
-        tags:
-            - { name: kernel.cache_warmer }
-
-    cmobi_rabbitmq.rpc.messager:
-        class: Cmobi\RabbitmqBundle\Rpc\RpcMessager
-        arguments: ['@cmobi_rabbitmq.router_rpc']
-
-    cmobi_rabbitmq.rpc.handler:
-        class: Cmobi\RabbitmqBundle\Rpc\Handler
-        calls:
-            - [setContainer, ["@service_container"]]
 
     cmobi_rabbitmq.connection.manager:
         class: Cmobi\RabbitmqBundle\Amqp\ConnectionManager
