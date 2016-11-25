@@ -1,6 +1,6 @@
 <?php
 
-namespace Cmobi\RabbitmqBundle\Protocol\Amqp\Exception;
+namespace Cmobi\RabbitmqBundle\Connection\Exception;
 
 class NotFoundAMQPConnectionFactoryException extends \Exception
 {

@@ -1,9 +1,8 @@
 <?php
 
-namespace Cmobi\RabbitmqBundle\Protocol\Amqp;
+namespace Cmobi\RabbitmqBundle\Connection;
 
-use Cmobi\RabbitmqBundle\ConnectionFactoryInterface;
-use Cmobi\RabbitmqBundle\Protocol\Amqp\Exception\InvalidAMQPConnectionClassException;
+use Cmobi\RabbitmqBundle\Connection\Exception\InvalidAMQPConnectionClassException;
 use PhpAmqpLib\Connection\AMQPStreamConnection;
 
 /**
@@ -11,7 +10,7 @@ use PhpAmqpLib\Connection\AMQPStreamConnection;
  * Class ConnectionFactory
  * @package Cmobi\RabbitmqBundle\Amqp
  */
-class ConnectionFactory implements ConnectionFactoryInterface
+class ConnectionFactory
 {
     /** @var \ReflectionClass */
     private $class;
@@ -37,7 +36,7 @@ class ConnectionFactory implements ConnectionFactoryInterface
      */
     public function __construct($class, array $parameters)
     {
-        if (!is_subclass_of($class, AMQPStreamConnection::class)) {
+        if (! is_a($class, AMQPStreamConnection::class, true)) {
             throw new InvalidAMQPConnectionClassException('$class not instance of AMQPStreamConnection');
         }
         $this->class = $class;

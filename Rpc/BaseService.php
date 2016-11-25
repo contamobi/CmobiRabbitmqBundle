@@ -11,7 +11,7 @@ use Cmobi\RabbitmqBundle\Rpc\Response\RpcResponseCollectionInterface;
 use PhpAmqpLib\Message\AMQPMessage;
 use Psr\Log\LoggerInterface;
 
-class BaseService implements RpcServiceInterface
+class BaseService
 {
     protected $queueName;
     protected $rpcHandler;

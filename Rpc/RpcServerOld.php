@@ -10,7 +10,7 @@ use PhpAmqpLib\Exception\AMQPRuntimeException;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 
-class RpcServer
+class RpcServerOld
 {
     use ContainerAwareTrait;
 
@@ -21,7 +21,7 @@ class RpcServer
 
     public function __construct(array $rpcServices, AMQPStreamConnection $connection = null)
     {
-        if (!$rpcServices) {
+        if (! $rpcServices) {
             throw new NotFoundRpcServiceException('no rpc services found.');
         }
         $this->rpcServices = $rpcServices;
@@ -107,61 +107,5 @@ class RpcServer
         $this->getConnection()->close();
     }
 
-    /**
-     * @throws \Cmobi\RabbitmqBundle\Amqp\Exception\NotFoundAMQPConnectionFactoryException
-     */
-    public function buildChannel()
-    {
-        if (!$this->connection instanceof AMQPStreamConnection) {
-            $connectionManager = $this->getContainer()->get('cmobi_rabbitmq.connection.manager');
-            $this->connection = $connectionManager->getConnection();
-        }
-        $this->channel = $this->connection->channel();
-        $qos = 1;
 
-        if ($this->getContainer()->hasParameter('cmobi_rabbitmq.basic_qos')) {
-            $qos = $this->getContainer()->getParameter('cmobi_rabbitmq.basic_qos');
-        }
-        $this->getChannel()->basic_qos(null, $qos, null);
-    }
-
-    /**
-     * @return AMQPStreamConnection
-     */
-    protected function getConnection()
-    {
-        return $this->connection;
-    }
-
-    /**
-     * @return AMQPChannel
-     */
-    protected function getChannel()
-    {
-        return $this->channel;
-    }
-
-    /**
-     * @return \Symfony\Component\DependencyInjection\ContainerInterface
-     */
-    protected function getContainer()
-    {
-        return $this->container;
-    }
-
-    /**
-     * @return LoggerInterface
-     */
-    public function getLogger()
-    {
-        return $this->logger;
-    }
-
-    /**
-     * @param LoggerInterface $logger
-     */
-    public function setLogger(LoggerInterface $logger)
-    {
-        $this->logger = $logger;
-    }
 }

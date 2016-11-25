@@ -1,0 +1,12 @@
+parameters:
+    cmobi_rabbitmq_host: localhost
+    cmobi_rabbitmq_port: 5672
+    cmobi_rabbitmq_user: 'guest'
+    cmobi_rabbitmq_password: 'guest'
+    cmobi_rabbitmq_vhost: '/'
+    cmobi_rabbitmq_lazy: false
+    cmobi_basic_qos: 1
+    cmobi_rabbitmq_connection_timeout: 3
+    cmobi_rabbitmq_read_write_timeout: 1160
+    cmobi_rabbitmq_keepalive: true
+    cmobi_rabbitmq_heartbeat: 540

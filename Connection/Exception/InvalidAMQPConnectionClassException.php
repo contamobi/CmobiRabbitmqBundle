@@ -1,6 +1,6 @@
 <?php
 
-namespace Cmobi\RabbitmqBundle\Protocol\Amqp\Exception;
+namespace Cmobi\RabbitmqBundle\Connection\Exception;
 
 class InvalidAMQPConnectionClassException extends \Exception
 {
