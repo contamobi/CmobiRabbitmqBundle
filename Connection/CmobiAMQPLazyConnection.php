@@ -2,7 +2,6 @@
 
 namespace Cmobi\RabbitmqBundle\Connection;
 
-use CmobiRabbitmqBundle\Connection\CmobiAMQPChannel;
 use PhpAmqpLib\Connection\AMQPLazyConnection;
 
 class CmobiAMQPLazyConnection extends AMQPLazyConnection implements CmobiAMQPConnectionInterface

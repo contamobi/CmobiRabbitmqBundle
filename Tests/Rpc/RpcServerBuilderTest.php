@@ -2,12 +2,12 @@
 
 namespace Cmobi\RabbitmqBundle\Tests\Rpc;
 
+use Cmobi\RabbitmqBundle\Connection\CmobiAMQPChannel;
 use Cmobi\RabbitmqBundle\Connection\CmobiAMQPConnection;
 use Cmobi\RabbitmqBundle\Connection\CmobiAMQPConnectionInterface;
 use Cmobi\RabbitmqBundle\Queue\QueueInterface;
 use Cmobi\RabbitmqBundle\Rpc\RpcServerBuilder;
 use Cmobi\RabbitmqBundle\Tests\BaseTestCase;
-use PhpAmqpLib\Channel\AMQPChannel;
 
 class RpcServerBuilderTest extends BaseTestCase
 {
@@ -22,7 +22,7 @@ class RpcServerBuilderTest extends BaseTestCase
     public function testBuildQueue()
     {
         $rpcServer = new RpcServerBuilder($this->getAMQPStreamConnectionMock(),[]);
-        $queue = $rpcServer->buildQueue();
+        $queue = $rpcServer->buildQueue('test');
 
         $this->assertInstanceOf(QueueInterface::class, $queue);
     }
@@ -32,7 +32,7 @@ class RpcServerBuilderTest extends BaseTestCase
         $rpcServer = new RpcServerBuilder($this->getAMQPStreamConnectionMock(), []);
         $channel = $rpcServer->getChannel();
 
-        $this->assertInstanceOf(AMQPChannel::class, $channel);
+        $this->assertInstanceOf(CmobiAMQPChannel::class, $channel);
     }
 
     /**
@@ -44,10 +44,12 @@ class RpcServerBuilderTest extends BaseTestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $channelMock =  $this->getMockBuilder(AMQPChannel::class)
+        $channelMock =  $this->getMockBuilder(CmobiAMQPChannel::class)
             ->disableOriginalConstructor()
             ->getMock();
-        $channelMock->method('basic_qos');
+        $channelMock->expects($this->any())
+            ->method('basic_qos')
+            ->willReturn(true);
 
         $class->method('channel')
             ->willReturn($channelMock);

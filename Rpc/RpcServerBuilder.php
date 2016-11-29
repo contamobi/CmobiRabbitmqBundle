@@ -2,10 +2,11 @@
 
 namespace Cmobi\RabbitmqBundle\Rpc;
 
+use Cmobi\RabbitmqBundle\Connection\CmobiAMQPChannel;
 use Cmobi\RabbitmqBundle\Connection\CmobiAMQPConnectionInterface;
 use Cmobi\RabbitmqBundle\Connection\Exception\InvalidAMQPChannelException;
+use Cmobi\RabbitmqBundle\Queue\Queue;
 use Cmobi\RabbitmqBundle\Queue\QueueBuilderInterface;
-use CmobiRabbitmqBundle\Connection\CmobiAMQPChannel;
 
 class RpcServerBuilder implements QueueBuilderInterface
 {
@@ -38,14 +39,23 @@ class RpcServerBuilder implements QueueBuilderInterface
         return $this->channel;
     }
 
-    public function buildQueue()
+    /**
+     * @param $queueName
+     * @return Queue
+     * @throws InvalidAMQPChannelException
+     */
+    public function buildQueue($queueName)
     {
         $qos = 1;
 
         if (array_key_exists('cmobi_rabbitmq.basic_qos', $this->parameters)) {
             $qos = $this->parameters['cmobi_rabbitmq.basic_qos'];
         }
-        $this->getChannel()->basic_qos(null, $qos, null);
+        $rpcQueueBag = new RpcQueueBag($queueName, $qos);
+
+        $queue = new Queue($this->getChannel(), $rpcQueueBag);
+
+        return $queue;
     }
 
     /**

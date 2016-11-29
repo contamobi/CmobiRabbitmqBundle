@@ -2,7 +2,6 @@
 
 namespace Cmobi\RabbitmqBundle\Connection;
 
-use CmobiRabbitmqBundle\Connection\CmobiAMQPChannel;
 use PhpAmqpLib\Connection\AMQPStreamConnection;
 
 class CmobiAMQPConnection extends AMQPStreamConnection implements CmobiAMQPConnectionInterface

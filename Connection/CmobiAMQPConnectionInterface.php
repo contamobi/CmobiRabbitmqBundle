@@ -2,7 +2,6 @@
 
 namespace Cmobi\RabbitmqBundle\Connection;
 
-use CmobiRabbitmqBundle\Connection\CmobiAMQPChannel;
 
 interface CmobiAMQPConnectionInterface
 {

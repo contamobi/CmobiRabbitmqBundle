@@ -1,5 +1,4 @@
 <?php
-declare(strict_types=1);
 
 namespace Cmobi\RabbitmqBundle\Queue;
 
@@ -11,7 +10,12 @@ interface QueueInterface
     public function start();
 
     /**
-     * @return int
+     * @return QueueBagInterface
      */
-    public function getBasicQos() : int;
+    public function getQueueBag();
+
+    /**
+     * @return \Closure
+     */
+    public function getCallback();
 }
