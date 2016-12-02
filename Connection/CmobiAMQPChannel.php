@@ -37,10 +37,10 @@ class CmobiAMQPChannel extends AMQPChannel
 
     /**
      * @param array $params
-     * @param \Closure $callback
+     * @param $callback
      * @return mixed|string
      */
-    public function basicConsume(array $params, \Closure $callback)
+    public function basicConsume(array $params, $callback)
     {
         list (
             $queue,
@@ -49,7 +49,6 @@ class CmobiAMQPChannel extends AMQPChannel
             $no_ack,
             $exclusive,
             $nowait,
-            $callback,
             $ticket,
             $arguments
             ) = $params;

@@ -9,7 +9,7 @@ class RpcQueueBag implements QueueBagInterface
     private $options;
 
     public function __construct(
-        $queueName,
+        $queue,
         $basicQos = 1,
         $passive = false,
         $durable = false,
@@ -24,7 +24,7 @@ class RpcQueueBag implements QueueBagInterface
     )
     {
         $this->options = [
-            'queue_name' => $queueName,
+            'queue' => $queue,
             'basic_qos' => $basicQos,
             'passive' => $passive,
             'durable' => $durable,
@@ -40,11 +40,27 @@ class RpcQueueBag implements QueueBagInterface
     }
 
     /**
-     * @return string
+     * @param $queue
      */
-    public function getQueueName()
+    public function setQueue($queue)
     {
-        return $this->options['queue_name'];
+        $this->options['queue'] = $queue;
+    }
+
+    /**
+     * @return string|mixed
+     */
+    public function getQueue()
+    {
+        return $this->options['queue'];
+    }
+
+    /**
+     * @param $qos
+     */
+    public function setBasicQos($qos)
+    {
+        $this->options['basic_qos'] = $qos;
     }
 
     /**
@@ -56,11 +72,27 @@ class RpcQueueBag implements QueueBagInterface
     }
 
     /**
+     * @param $passive
+     */
+    public function setPassive($passive)
+    {
+        $this->options['passive'] = $passive;
+    }
+
+    /**
      * @return bool
      */
     public function getPassive()
     {
         return $this->options['passive'];
+    }
+
+    /**
+     * @param $durable
+     */
+    public function setDurable($durable)
+    {
+        $this->options['durable'] = $durable;
     }
 
     /**
@@ -72,11 +104,27 @@ class RpcQueueBag implements QueueBagInterface
     }
 
     /**
+     * @param $exclusive
+     */
+    public function setExclusive($exclusive)
+    {
+        $this->options['exclusive'] = $exclusive;
+    }
+
+    /**
      * @return bool
      */
     public function getExclusive()
     {
         return $this->options['exclusive'];
+    }
+
+    /**
+     * @param $autoDelete
+     */
+    public function setAutoDelete($autoDelete)
+    {
+        $this->options['auto_delete'] = $autoDelete;
     }
 
     /**
@@ -88,11 +136,27 @@ class RpcQueueBag implements QueueBagInterface
     }
 
     /**
+     * @param $noWait
+     */
+    public function setNoWait($noWait)
+    {
+        $this->options['no_wait'] = $noWait;
+    }
+
+    /**
      * @return bool
      */
     public function getNoWait()
     {
         return $this->options['no_wait'];
+    }
+
+    /**
+     * @param array $arguments
+     */
+    public function setArguments(array $arguments)
+    {
+        $this->options['arguments'] = $arguments;
     }
 
     /**
@@ -104,11 +168,27 @@ class RpcQueueBag implements QueueBagInterface
     }
 
     /**
+     * @param $ticket
+     */
+    public function setTicket($ticket)
+    {
+        $this->options['ticket'] = $ticket;
+    }
+
+    /**
      * @return string
      */
     public function getTicket()
     {
         return $this->options['ticket'];
+    }
+
+    /**
+     * @param $consumerTag
+     */
+    public function setConsumerTag($consumerTag)
+    {
+        $this->options['consumer_tag'] = $consumerTag;
     }
 
     /**
@@ -120,11 +200,27 @@ class RpcQueueBag implements QueueBagInterface
     }
 
     /**
+     * @param $noAck
+     */
+    public function setNoAck($noAck)
+    {
+        $this->options['no_ack'] = $noAck;
+    }
+
+    /**
      * @return bool
      */
     public function getNoAck()
     {
         return $this->options['no_ack'];
+    }
+
+    /**
+     * @param $noLocal
+     */
+    public function setNoLocal($noLocal)
+    {
+        $this->options['no_local'] = $noLocal;
     }
 
     /**
@@ -141,7 +237,7 @@ class RpcQueueBag implements QueueBagInterface
     public function getQueueDeclare()
     {
         return [
-            $this->getQueueName(),
+            $this->getQueue(),
             $this->getPassive(),
             $this->getDurable(),
             $this->getExclusive(),
@@ -158,9 +254,9 @@ class RpcQueueBag implements QueueBagInterface
     public function getQueueConsume()
     {
         return [
-            $this->getQueueName(),
+            $this->getQueue(),
             $this->getConsumerTag(),
-            $this->getConsumerTag(),
+            $this->getNoLocal(),
             $this->getNoAck(),
             $this->getExclusive(),
             $this->getNoWait(),

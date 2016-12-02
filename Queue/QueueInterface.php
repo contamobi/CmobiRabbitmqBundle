@@ -15,7 +15,7 @@ interface QueueInterface
     public function getQueueBag();
 
     /**
-     * @return \Closure
+     * @return QueueCallbackInterface
      */
     public function getCallback();
 }

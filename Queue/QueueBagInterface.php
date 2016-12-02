@@ -5,9 +5,9 @@ namespace Cmobi\RabbitmqBundle\Queue;
 interface QueueBagInterface
 {
     /**
-     * @return string
+     * @return string|mixed
      */
-    public function getQueueName();
+    public function getQueue();
 
     /**
      * @return int

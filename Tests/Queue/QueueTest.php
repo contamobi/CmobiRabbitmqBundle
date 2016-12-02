@@ -5,32 +5,32 @@ namespace Cmobi\RabbitmqBundle\Tests\Queue;
 use Cmobi\RabbitmqBundle\Connection\CmobiAMQPChannel;
 use Cmobi\RabbitmqBundle\Queue\Queue;
 use Cmobi\RabbitmqBundle\Queue\QueueBagInterface;
+use Cmobi\RabbitmqBundle\Queue\QueueCallbackInterface;
 use Cmobi\RabbitmqBundle\Tests\BaseTestCase;
-use ReflectionFunction;
 
 class QueueTest extends BaseTestCase
 {
     public function testGetQueueBag()
     {
-        $queue = new Queue($this->getCmobiAMQPChannelMock(), $this->getQueueBagMock());
+        $queue = new Queue($this->getCmobiAMQPChannelMock(), $this->getQueueBagMock(), $this->getLoggerMock());
 
         $this->assertInstanceOf(QueueBagInterface::class, $queue->getQueuebag());
     }
 
     public function testGetCallback()
     {
-        $queue = new Queue($this->getCmobiAMQPChannelMock(), $this->getQueueBagMock());
-        $queue->setCallback(function($a) { return $a; });
+        $queue = new Queue($this->getCmobiAMQPChannelMock(), $this->getQueueBagMock(), $this->getLoggerMock());
+        $queue->setCallback($this->getQueueCallbackMock());
 
-        $func = new ReflectionFunction($queue->getCallback());
+        $callback = $queue->getCallback();
 
-        $this->assertTrue($func->isClosure());
+        $this->assertInstanceOf(QueueCallbackInterface::class, $callback);
     }
 
     /**
      * @return QueueBagInterface
      */
-    public function getQueueBagMock()
+    protected function getQueueBagMock()
     {
         $bagMock = $this->getMockBuilder(QueueBagInterface::class)
             ->disableOriginalConstructor()
@@ -42,7 +42,7 @@ class QueueTest extends BaseTestCase
     /**
      * @return CmobiAMQPChannel
      */
-    public function getCmobiAMQPChannelMock()
+    protected function getCmobiAMQPChannelMock()
     {
         $channelMock =  $this->getMockBuilder(CmobiAMQPChannel::class)
             ->disableOriginalConstructor()
@@ -52,5 +52,19 @@ class QueueTest extends BaseTestCase
             ->willReturn(true);
 
         return $channelMock;
+    }
+
+    /**
+     * @return QueueCallbackInterface
+     */
+    protected function getQueueCallbackMock()
+    {
+        $callbackMock = $this->getMockBuilder(QueueCallbackInterface::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+        $callbackMock->method('toClosure')
+            ->willReturn(function () {});
+
+        return $callbackMock;
     }
 }

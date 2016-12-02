@@ -18,7 +18,7 @@ class RpcQueueBagTest extends BaseTestCase
     {
         $queueBag = new RpcQueueBag('test');
 
-        $this->assertEquals('test', $queueBag->getQueueName());
+        $this->assertEquals('test', $queueBag->getQueue());
     }
 
     public function testGetPassive()
@@ -62,5 +62,43 @@ class RpcQueueBagTest extends BaseTestCase
         $queueBag = new RpcQueueBag('test');
 
         $this->assertEquals(null, $queueBag->getTicket());
+    }
+
+    public function testGetQueueDeclare()
+    {
+        $queueBag = new RpcQueueBag('test');
+
+        $this->assertEquals(
+            [
+                'test',
+                false,
+                false,
+                false,
+                true,
+                false,
+                null,
+                null
+            ],
+            $queueBag->getQueueDeclare()
+        );
+    }
+
+    public function testGetQueueConsume()
+    {
+        $queueBag = new RpcQueueBag('test');
+
+        $this->assertEquals(
+            [
+                'test',
+                '',
+                false,
+                false,
+                false,
+                false,
+                null,
+                null
+            ],
+            $queueBag->getQueueConsume()
+        );
     }
 }

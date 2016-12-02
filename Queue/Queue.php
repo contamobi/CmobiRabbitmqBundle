@@ -4,17 +4,20 @@ namespace Cmobi\RabbitmqBundle\Queue;
 
 use Cmobi\RabbitmqBundle\Connection\CmobiAMQPChannel;
 use PhpAmqpLib\Exception\AMQPRuntimeException;
+use Psr\Log\LoggerInterface;
 
 class Queue implements QueueInterface
 {
     private $channel;
     private $queueBag;
     private $callback;
+    private $logger;
 
-    public function __construct(CmobiAMQPChannel $channel, QueueBagInterface $queueBag)
+    public function __construct(CmobiAMQPChannel $channel, QueueBagInterface $queueBag, LoggerInterface $logger)
     {
         $this->channel = $channel;
         $this->queueBag = $queueBag;
+        $this->logger = $logger;
     }
 
     /**
@@ -34,12 +37,13 @@ class Queue implements QueueInterface
         $this->getChannel()->basic_qos(null, $queueBag->getBasicQos(), null);
         $this->getChannel()->queueDeclare($queueBag->getQueueDeclare());
 
-        $this->getChannel()->basicConsume($queueBag->getQueueConsume(), $this->getCallback());
+        $this->getChannel()->basicConsume($queueBag->getQueueConsume(), $this->getCallback()->toClosure());
 
         while(count($this->getChannel()->callbacks)) {
             try {
                 $this->getChannel()->wait();
             } catch (AMQPRuntimeException $e) {
+                $this->logger->error($e->getMessage());
 
                 continue;
             }
@@ -58,15 +62,15 @@ class Queue implements QueueInterface
     }
 
     /**
-     * @param \Closure $function
+     * @param QueueCallbackInterface $callback
      */
-    public function setCallback(\Closure $function)
+    public function setCallback(QueueCallbackInterface $callback)
     {
-        $this->callback = $function;
+        $this->callback = $callback;
     }
 
     /**
-     * @return \Closure
+     * @return QueueCallbackInterface
      */
     public function getCallback()
     {

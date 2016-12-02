@@ -7,16 +7,20 @@ use Cmobi\RabbitmqBundle\Connection\CmobiAMQPConnectionInterface;
 use Cmobi\RabbitmqBundle\Connection\Exception\InvalidAMQPChannelException;
 use Cmobi\RabbitmqBundle\Queue\Queue;
 use Cmobi\RabbitmqBundle\Queue\QueueBuilderInterface;
+use Cmobi\RabbitmqBundle\Queue\QueueServiceInterface;
+use Psr\Log\LoggerInterface;
 
 class RpcServerBuilder implements QueueBuilderInterface
 {
     private $connection;
     private $channel;
+    private $logger;
     private $parameters;
 
-    public function __construct(CmobiAMQPConnectionInterface $connection, array $parameters)
+    public function __construct(CmobiAMQPConnectionInterface $connection, LoggerInterface $logger, array $parameters)
     {
         $this->connection = $connection;
+        $this->logger = $logger;
         $this->parameters = $parameters;
         $this->channel = null;
     }
@@ -41,10 +45,12 @@ class RpcServerBuilder implements QueueBuilderInterface
 
     /**
      * @param $queueName
+     * @param QueueServiceInterface $queueService
+     *
      * @return Queue
      * @throws InvalidAMQPChannelException
      */
-    public function buildQueue($queueName)
+    public function buildQueue($queueName, QueueServiceInterface $queueService)
     {
         $qos = 1;
 
@@ -53,7 +59,9 @@ class RpcServerBuilder implements QueueBuilderInterface
         }
         $rpcQueueBag = new RpcQueueBag($queueName, $qos);
 
-        $queue = new Queue($this->getChannel(), $rpcQueueBag);
+        $queue = new Queue($this->getChannel(), $rpcQueueBag, $this->logger);
+        $queueCallback = new RpcQueueCallback($queueService);
+        $queue->setCallback($queueCallback);
 
         return $queue;
     }

@@ -6,8 +6,9 @@ interface QueueBuilderInterface
 {
     /**
      * @param $queueName
+     * @param QueueServiceInterface $queueService
      *
      * @return QueueInterface
      */
-    public function buildQueue($queueName);
+    public function buildQueue($queueName, QueueServiceInterface $queueService);
 }
