@@ -21,3 +21,9 @@ services:
         arguments:
             - []
         public: false
+
+    cmobi_rabbitmq.connection.manager:
+        class: Cmobi\RabbitmqBundle\Connection\ConnectionManager
+        arguments: ['%cmobi_rabbitmq.connection.factories%']
+        calls:
+          - [setContainer, ["@service_container"]]
