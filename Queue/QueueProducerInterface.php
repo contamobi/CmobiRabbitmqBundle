@@ -31,6 +31,12 @@ interface QueueProducerInterface
      */
     public function getChannel();
 
+    /** @return string */
+    public function generateCorrelationId();
+
+    /** @return string */
+    public function getCurrentCorrelationId();
+
     /**
      * @return string
      */

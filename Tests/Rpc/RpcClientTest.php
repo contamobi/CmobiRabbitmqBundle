@@ -5,13 +5,12 @@ namespace Cmobi\RabbitmqBundle\Tests\Rpc;
 use Cmobi\RabbitmqBundle\Connection\CmobiAMQPChannel;
 use Cmobi\RabbitmqBundle\Connection\CmobiAMQPConnection;
 use Cmobi\RabbitmqBundle\Connection\ConnectionManager;
+use Cmobi\RabbitmqBundle\Queue\CmobiAMQPMessage;
 use Cmobi\RabbitmqBundle\Rpc\RpcClient;
 use Cmobi\RabbitmqBundle\Tests\BaseTestCase;
 
 class RpcClientTest extends BaseTestCase
 {
-    private $responseFromBasicConsumeInChannel;
-
     public function testGetQueueName()
     {
         $rpcClient = new RpcClient('test', $this->getConnectionManagerMock());
@@ -43,10 +42,38 @@ class RpcClientTest extends BaseTestCase
     public function testGetResponse()
     {
         $rpcClient = new RpcClient('test', $this->getConnectionManagerMock(), 'caller_test');
-        $this->responseFromBasicConsumeInChannel = 'testGetResponse() - OK';
+
+        /** @Todo prevent infinite while - improve it */
+        $rpcClient->setResponse('testGetResponse() - OK');
+
         $rpcClient->publish('test');
+        $rpcClient->onResponse(
+            $this->getCmobiAMQPMessage('testGetResponse() - OK',
+                $rpcClient->getCurrentCorrelationId())
+        );
 
         $this->assertEquals('testGetResponse() - OK', $rpcClient->getResponse());
+    }
+
+    public function testGenerateCorrelationId()
+    {
+        $rpcClient = new RpcClient('test', $this->getConnectionManagerMock(), 'caller_test');
+
+        $this->assertRegExp(sprintf('/%s/', $rpcClient->getCurrentCorrelationId()), $rpcClient->getQueueName());
+    }
+
+    public function testGetCurrentCorrelationId()
+    {
+        $rpcClient = new RpcClient('test', $this->getConnectionManagerMock(), 'caller_test');
+        /** @Todo prevent infinite while - improve it */
+        $rpcClient->setResponse('testGetResponse() - OK');
+
+        $rpcClient->publish('test');
+        $rpcClient->onResponse(
+            $this->getCmobiAMQPMessage('testGetResponse() - OK',
+                $rpcClient->getCurrentCorrelationId())
+        );
+        $this->assertNotNull($rpcClient->getCurrentCorrelationId());
     }
 
     /**
@@ -86,8 +113,6 @@ class RpcClientTest extends BaseTestCase
      */
     protected function getChannelMock()
     {
-        $basicConsumeResponse = $this->responseFromBasicConsumeInChannel;
-
         $channelMock = $this->getMockBuilder(CmobiAMQPChannel::class)
             ->disableOriginalConstructor()
             ->getMock();
@@ -97,13 +122,28 @@ class RpcClientTest extends BaseTestCase
             ->willReturn(true);
         $channelMock
             ->method('basicConsume')
-            ->with($this->returnCallback(function($params, $callback) use ($basicConsumeResponse) {
-
-                //$callback[0]->$callback[1]($basicConsumeResponse);
-            }))
             ->willReturn(true);
 
 
         return $channelMock;
+    }
+
+    /**
+     * @param string $msg
+     * @param null $correlationId
+     * @return CmobiAMQPMessage
+     */
+    protected function getCmobiAMQPMessage($msg = '', $correlationId = null)
+    {
+        $msgMock = $this->getMockBuilder(CmobiAMQPMessage::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+        $msgMock->method('get')
+            ->willReturn('correlation_id')
+            ->willReturn($correlationId);
+        $msgMock->method('getBody')
+            ->willReturn($msg);
+
+        return $msgMock;
     }
 }

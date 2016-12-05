@@ -30,7 +30,7 @@ class RpcClient implements QueueProducerInterface
     public function onResponse(CmobiAMQPMessage $rep)
     {
         if($rep->get('correlation_id') === $this->correlationId) {
-            $this->response = $rep->body;
+            $this->response = $rep->getBody();
         }
     }
 
@@ -58,6 +58,7 @@ class RpcClient implements QueueProducerInterface
     public function publish($data, $expire = self::DEFAULT_TTL, $priority = self::PRIORITY_LOW)
     {
         $this->refreshChannel();
+        $this->correlationId = $this->generateCorrelationId();
         $queueBag = new RpcQueueBag(
             sprintf('callback_to_%s_from_%s_%s', $this->getQueueName(), $this->getFromName(), microtime())
         );
@@ -66,10 +67,10 @@ class RpcClient implements QueueProducerInterface
         ]);
         list($callbackQueue, ,) = $this->getChannel()->queueDeclare($queueBag->getQueueDeclare());
         $this->callbackQueue = $callbackQueue;
-        $consumeQueBag = new RpcQueueBag($callbackQueue);
+        $consumeQueueBag = new RpcQueueBag($callbackQueue);
 
         $this->getChannel()->basicConsume(
-            $consumeQueBag->getQueueConsume(),
+            $consumeQueueBag->getQueueConsume(),
             [$this, 'onResponse']
         );
         $msg = new CmobiAMQPMessage(
@@ -114,10 +115,34 @@ class RpcClient implements QueueProducerInterface
     }
 
     /**
+     * @todo unecessary method set, its only exists to run tests whitout stay jailed in infinite while waiting response.
+     *
+     * @param $content
+     */
+    public function setResponse($content)
+    {
+        $this->response = $content;
+    }
+
+    /**
      * @return string
      */
     public function getResponse()
     {
         return $this->response;
+    }
+
+    /** @return string */
+    public function generateCorrelationId()
+    {
+        return uniqid($this->getQueueName()) . microtime();
+    }
+
+    /**
+     * @return string
+     */
+    public function getCurrentCorrelationId()
+    {
+        return $this->correlationId;
     }
 }
