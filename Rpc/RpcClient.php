@@ -6,6 +6,7 @@ use Cmobi\RabbitmqBundle\Connection\CmobiAMQPChannel;
 use Cmobi\RabbitmqBundle\Connection\ConnectionManager;
 use Cmobi\RabbitmqBundle\Queue\CmobiAMQPMessage;
 use Cmobi\RabbitmqBundle\Queue\QueueProducerInterface;
+use PhpAmqpLib\Message\AMQPMessage;
 
 class RpcClient implements QueueProducerInterface
 {
@@ -25,9 +26,9 @@ class RpcClient implements QueueProducerInterface
     }
 
     /**
-     * @param CmobiAMQPMessage $rep
+     * @param AMQPMessage $rep
      */
-    public function onResponse(CmobiAMQPMessage $rep)
+    public function onResponse(AMQPMessage $rep)
     {
         if($rep->get('correlation_id') === $this->correlationId) {
             $this->response = $rep->getBody();

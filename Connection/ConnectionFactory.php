@@ -52,7 +52,7 @@ class ConnectionFactory
     }
 
     /**
-     * @return AMQPStreamConnection
+     * @return CmobiAMQPConnectionInterface
      */
     public function createConnection()
     {

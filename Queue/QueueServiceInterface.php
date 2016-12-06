@@ -2,11 +2,13 @@
 
 namespace Cmobi\RabbitmqBundle\Queue;
 
+use PhpAmqpLib\Message\AMQPMessage;
+
 interface QueueServiceInterface
 {
     /**
-     * @param CmobiAMQPMessage $message
+     * @param AMQPMessage $message
      * @return string
      */
-    public function handle(CmobiAMQPMessage $message);
+    public function handle(AMQPMessage $message);
 }
