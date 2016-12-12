@@ -31,12 +31,6 @@ interface QueueProducerInterface
      */
     public function getChannel();
 
-    /** @return string */
-    public function generateCorrelationId();
-
-    /** @return string */
-    public function getCurrentCorrelationId();
-
     /**
      * @return string
      */
@@ -48,9 +42,4 @@ interface QueueProducerInterface
      * @return string
      */
     public function getFromName();
-
-    /**
-     * @return string
-     */
-    public function getResponse();
 }
