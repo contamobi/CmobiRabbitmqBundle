@@ -3,29 +3,52 @@
 namespace Cmobi\RabbitmqBundle\Queue;
 
 use Cmobi\RabbitmqBundle\Connection\CmobiAMQPChannel;
-use PhpAmqpLib\Exception\AMQPRuntimeException;
+use Cmobi\RabbitmqBundle\Connection\CmobiAMQPConnection;
+use Cmobi\RabbitmqBundle\Connection\ConnectionManager;
+use Cmobi\RabbitmqBundle\Connection\Exception\InvalidAMQPChannelException;
 use Psr\Log\LoggerInterface;
 
 class Queue implements QueueInterface
 {
+    private $connectionManager;
+    private $connection;
     private $channel;
     private $queueBag;
     private $callback;
     private $logger;
 
-    public function __construct(CmobiAMQPChannel $channel, QueueBagInterface $queueBag, LoggerInterface $logger)
+    public function __construct(ConnectionManager $connectionManager, QueueBagInterface $queueBag, LoggerInterface $logger)
     {
-        $this->channel = $channel;
+        $this->connectionManager = $connectionManager;
+        $this->connection = $this->getConnectionManager()->getConnection();
         $this->queueBag = $queueBag;
         $this->logger = $logger;
     }
 
     /**
      * @return CmobiAMQPChannel
+     * @throws InvalidAMQPChannelException
      */
     protected function getChannel()
     {
+        if ($this->channel instanceof CmobiAMQPChannel) {
+            return $this->channel;
+        }
+        $this->channel = $this->getConnection()->channel();
+
+        if (! $this->channel instanceof CmobiAMQPChannel) {
+            throw new InvalidAMQPChannelException('Failed get AMQPChannel');
+        }
+
         return $this->channel;
+    }
+
+    protected function createQueue()
+    {
+        $queueBag = $this->getQueuebag();
+        $this->getChannel()->basic_qos(null, $queueBag->getBasicQos(), null);
+        $this->getChannel()->queueDeclare($queueBag->getQueueDeclare());
+        $this->getChannel()->basicConsume($queueBag->getQueueConsume(), $this->getCallback()->toClosure());
     }
 
     /**
@@ -33,17 +56,14 @@ class Queue implements QueueInterface
      */
     public function start()
     {
-        $queueBag = $this->getQueuebag();
-        $this->getChannel()->basic_qos(null, $queueBag->getBasicQos(), null);
-        $this->getChannel()->queueDeclare($queueBag->getQueueDeclare());
-
-        $this->getChannel()->basicConsume($queueBag->getQueueConsume(), $this->getCallback()->toClosure());
+        $this->createQueue();
 
         while(count($this->getChannel()->callbacks)) {
             try {
                 $this->getChannel()->wait();
-            } catch (AMQPRuntimeException $e) {
+            } catch (\Exception $e) {
                 $this->logger->error($e->getMessage());
+                $this->forceReconnect();
 
                 continue;
             }
@@ -75,5 +95,44 @@ class Queue implements QueueInterface
     public function getCallback()
     {
         return $this->callback;
+    }
+
+    /**
+     * @return ConnectionManager
+     */
+    public function getConnectionManager()
+    {
+        return $this->connectionManager;
+    }
+
+    /**
+     * @return CmobiAMQPConnection
+     */
+    public function getConnection()
+    {
+        return $this->connection;
+    }
+
+    /**
+     * Retry connect to message broker until it can.
+     */
+    public function forceReconnect()
+    {
+        do {
+            try {
+                $failed = false;
+                $this->logger->warning('forceReconnect() - trying connect...');
+                $this->connection = $this->getConnectionManager()->getConnection();
+                $this->channel = $this->getConnection()->channel();
+                $this->createQueue();
+            } catch (\Exception $e) {
+                $failed = true;
+                sleep(3);
+                $this->logger->error('forceReconnect() - ' . $e->getMessage());
+            }
+        } while ($failed);
+        $this->logger->warning('forceReconnect() - connected!');
+
+        return $this->channel;
     }
 }

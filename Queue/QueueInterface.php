@@ -18,4 +18,9 @@ interface QueueInterface
      * @return QueueCallbackInterface
      */
     public function getCallback();
+
+    /**
+     * Retry connect to message broker until it can.
+     */
+    public function forceReconnect();
 }

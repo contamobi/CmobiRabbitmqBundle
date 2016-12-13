@@ -5,6 +5,7 @@ namespace Cmobi\RabbitmqBundle\Tests\Rpc;
 use Cmobi\RabbitmqBundle\Connection\CmobiAMQPChannel;
 use Cmobi\RabbitmqBundle\Connection\CmobiAMQPConnection;
 use Cmobi\RabbitmqBundle\Connection\CmobiAMQPConnectionInterface;
+use Cmobi\RabbitmqBundle\Connection\ConnectionManager;
 use Cmobi\RabbitmqBundle\Queue\QueueCallbackInterface;
 use Cmobi\RabbitmqBundle\Queue\QueueInterface;
 use Cmobi\RabbitmqBundle\Queue\QueueServiceInterface;
@@ -14,37 +15,20 @@ use Cmobi\RabbitmqBundle\Worker\WorkerBuilder;
 
 class WorkerBuilderTest extends BaseTestCase
 {
-    public function testGetConnection()
+    public function testGetConnectionManager()
     {
-        $workerServer = new WorkerBuilder($this->getAMQPStreamConnectionMock(), $this->getLoggerMock(), []);
-        $connection = $workerServer->getConnection();
+        $workerServer = new WorkerBuilder($this->getConnectionManagerMock(), $this->getLoggerMock(), []);
+        $connectionManager = $workerServer->getConnectionManager();
 
-        $this->assertInstanceOf(CmobiAMQPConnectionInterface::class, $connection);
+        $this->assertInstanceOf(ConnectionManager::class, $connectionManager);
     }
 
     public function testBuildQueue()
     {
-        $rpcServer = new RpcServerBuilder($this->getAMQPStreamConnectionMock(), $this->getLoggerMock(), []);
-        $queue = $rpcServer->buildQueue('test', $this->getQueueServiceMock());
+        $workerServer = new WorkerBuilder($this->getConnectionManagerMock(), $this->getLoggerMock(), []);
+        $queue = $workerServer->buildQueue('test', $this->getQueueServiceMock());
 
         $this->assertInstanceOf(QueueInterface::class, $queue);
-    }
-
-    public function testGetCallbackAfterBuildQueue()
-    {
-        $rpcServer = new RpcServerBuilder($this->getAMQPStreamConnectionMock(), $this->getLoggerMock(), []);
-        $queue = $rpcServer->buildQueue('test', $this->getQueueServiceMock());
-        $callback = $queue->getCallback();
-
-        $this->assertInstanceOf(QueueCallbackInterface::class, $callback);
-    }
-
-    public function testGetChannel()
-    {
-        $rpcServer = new RpcServerBuilder($this->getAMQPStreamConnectionMock(), $this->getLoggerMock(), []);
-        $channel = $rpcServer->getChannel();
-
-        $this->assertInstanceOf(CmobiAMQPChannel::class, $channel);
     }
 
     /**
@@ -67,6 +51,18 @@ class WorkerBuilderTest extends BaseTestCase
             ->willReturn($channelMock);
 
         return $class;
+    }
+
+    /**
+     * @return ConnectionManager
+     */
+    protected function getConnectionManagerMock()
+    {
+        $connectionManagerMock = $this->getMockBuilder(ConnectionManager::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        return $connectionManagerMock;
     }
 
     /**

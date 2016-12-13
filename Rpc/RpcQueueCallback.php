@@ -5,6 +5,7 @@ namespace Cmobi\RabbitmqBundle\Rpc;
 use Cmobi\RabbitmqBundle\Queue\CmobiAMQPMessage;
 use Cmobi\RabbitmqBundle\Queue\QueueCallbackInterface;
 use Cmobi\RabbitmqBundle\Queue\QueueServiceInterface;
+use PhpAmqpLib\Message\AMQPMessage;
 
 class RpcQueueCallback implements QueueCallbackInterface
 {
@@ -28,7 +29,7 @@ class RpcQueueCallback implements QueueCallbackInterface
      */
     public function toClosure()
     {
-        return function (CmobiAMQPMessage $message) {
+        return function (AMQPMessage $message) {
             $response = $this->getQueueService()->handle($message);
 
             $amqpResponse = new CmobiAMQPMessage(
