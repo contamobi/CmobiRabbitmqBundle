@@ -1,6 +1,7 @@
 <?php
 
 namespace Cmobi\RabbitmqBundle\Connection;
+
 use Cmobi\RabbitmqBundle\Connection\Exception\NotFoundAMQPConnectionFactoryException;
 use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 

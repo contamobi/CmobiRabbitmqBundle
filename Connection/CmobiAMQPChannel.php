@@ -65,4 +65,35 @@ class CmobiAMQPChannel extends AMQPChannel
             $arguments
         );
     }
+
+    /**
+     * @param array $params
+     * @return mixed|null
+     */
+    public function exchangeDeclare(array $params)
+    {
+        list (
+        $exchange,
+        $type,
+        $passive,
+        $durable,
+        $autoDelete,
+        $internal,
+        $nowait,
+        $arguments,
+        $ticket
+        ) = $params;
+
+        return parent::exchange_declare(
+            $exchange,
+            $type,
+            $passive,
+            $durable,
+            $autoDelete,
+            $internal,
+            $nowait,
+            $arguments,
+            $ticket
+        );
+    }
 }

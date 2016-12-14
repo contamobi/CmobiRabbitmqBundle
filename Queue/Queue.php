@@ -46,8 +46,16 @@ class Queue implements QueueInterface
     protected function createQueue()
     {
         $queueBag = $this->getQueuebag();
+
         $this->getChannel()->basic_qos(null, $queueBag->getBasicQos(), null);
-        $this->getChannel()->queueDeclare($queueBag->getQueueDeclare());
+
+        if ($queueBag->getExchangeDeclare()) {
+            $this->getChannel()->exchangeDeclare($queueBag->getExchangeDeclare());
+            list ($queueName, , ) = $this->getChannel()->queueDeclare($queueBag->getQueueDeclare());
+            $this->getChannel()->queue_bind($queueName, $queueBag->getExchange());
+        } else {
+            $this->getChannel()->queueDeclare($queueBag->getQueueDeclare());
+        }
         $this->getChannel()->basicConsume($queueBag->getQueueConsume(), $this->getCallback()->toClosure());
     }
 

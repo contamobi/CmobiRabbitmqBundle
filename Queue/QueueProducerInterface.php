@@ -37,6 +37,16 @@ interface QueueProducerInterface
     public function getQueueName();
 
     /**
+     * @return string
+     */
+    public function getExchange();
+
+    /**
+     * @return string
+     */
+    public function getExchangeType();
+
+    /**
      * Return caller name
      *
      * @return string

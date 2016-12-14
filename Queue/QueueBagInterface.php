@@ -55,6 +55,16 @@ interface QueueBagInterface
     public function getConsumerTag();
 
     /**
+     * @return string
+     */
+    public function getExchange();
+
+    /**
+     * @return string
+     */
+    public function getType();
+
+    /**
      * @return bool
      */
     public function getNoAck();
@@ -73,4 +83,9 @@ interface QueueBagInterface
      * @return array
      */
     public function getQueueConsume();
+
+    /**
+     * @return array|false
+     */
+    public function getExchangeDeclare();
 }
