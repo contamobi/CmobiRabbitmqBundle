@@ -20,9 +20,9 @@ class Publisher implements QueueProducerInterface
     public function __construct(
         $exchange,
         $exchangeType = ExchangeType::FANOUT,
-        $queueName,
         ConnectionManager $manager,
-        $fromName = ''
+        $fromName = '',
+        $queueName = ''
     )
     {
         $this->exchange = $exchange;

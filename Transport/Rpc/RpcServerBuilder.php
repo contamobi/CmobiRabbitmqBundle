@@ -55,4 +55,20 @@ class RpcServerBuilder implements QueueBuilderInterface
     {
         return $this->connectionManager;
     }
+
+    /**
+     * @return string|false
+     */
+    public function getExchangeName()
+    {
+        return false;
+    }
+
+    /**
+     * @return string|false
+     */
+    public function getExchangeType()
+    {
+        return false;
+    }
 }

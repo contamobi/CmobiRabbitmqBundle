@@ -14,35 +14,61 @@ class PublisherTest extends BaseTestCase
 {
     public function testGetQueueName()
     {
-        $publisher = new Publisher('exch_test', ExchangeType::FANOUT, 'test', $this->getConnectionManagerMock());
+        $publisher = new Publisher(
+            'exch_test',
+            ExchangeType::FANOUT,
+            $this->getConnectionManagerMock(),
+            'from_name_test',
+            'test'
+        );
 
         $this->assertEquals('test', $publisher->getQueueName());
     }
 
     public function testGetExchange()
     {
-        $publisher = new Publisher('exch_test', ExchangeType::FANOUT, 'test', $this->getConnectionManagerMock());
+        $publisher = new Publisher(
+            'exch_test',
+            ExchangeType::FANOUT,
+            $this->getConnectionManagerMock(),
+            'test'
+        );
 
         $this->assertEquals('exch_test', $publisher->getExchange());
     }
 
     public function testGetExchangeType()
     {
-        $publisher = new Publisher('exch_test', ExchangeType::DIRECT, 'test', $this->getConnectionManagerMock());
+        $publisher = new Publisher(
+            'exch_test',
+            ExchangeType::DIRECT,
+            $this->getConnectionManagerMock(),
+            'test'
+        );
 
         $this->assertEquals(ExchangeType::DIRECT, $publisher->getExchangeType());
     }
 
     public function testRefreshChannel()
     {
-        $publisher = new Publisher('exch_test', ExchangeType::FANOUT, 'test', $this->getConnectionManagerMock());
+        $publisher = new Publisher(
+            'exch_test',
+            ExchangeType::FANOUT,
+            $this->getConnectionManagerMock(),
+            'test'
+        );
 
         $this->assertInstanceOf(CmobiAMQPChannel::class, $publisher->refreshChannel());
     }
 
     public function testGetChannel()
     {
-        $publisher = new Publisher('exch_test', ExchangeType::FANOUT, 'test', $this->getConnectionManagerMock());
+        $publisher = new Publisher(
+            'exch_test',
+            ExchangeType::FANOUT,
+            $this->getConnectionManagerMock(),
+            'test'
+        );
 
         $this->assertInstanceOf(CmobiAMQPChannel::class, $publisher->refreshChannel());
     }
@@ -52,8 +78,9 @@ class PublisherTest extends BaseTestCase
         $publisher = new Publisher(
             'exch_test',
             ExchangeType::FANOUT,
-            'test',
-            $this->getConnectionManagerMock(), 'caller_test'
+            $this->getConnectionManagerMock(),
+            'caller_test',
+            ''
         );
 
         $this->assertEquals('caller_test', $publisher->getFromName());
