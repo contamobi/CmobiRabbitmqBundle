@@ -2,71 +2,41 @@
 
 namespace Cmobi\RabbitmqBundle\Pool;
 
+use Cmobi\RabbitmqBundle\Queue\QueueJailed;
+
 class PoolManager
 {
-    private $queues;
+    private $pools;
 
     public function __construct()
     {
-        $this->queues = new \SplObjectStorage();
+        $this->pools = new \SplObjectStorage();
     }
 
     /**
      * @param QueueJailed $queue
+     * @param int $size
      * @return $this
      */
-    public function addQueue(QueueJailed $queue)
+    public function publishQueue(QueueJailed $queue, int $size)
     {
-        if (! $this->getQueues()->contains($queue)) {
-            $this->getQueues()->attach($queue);
+        $pool = new \Pool($size, Autoloader::class, ["vendor/autoload.php"]);
+        $pool->submit($queue);
+
+        if (! $this->getPools()->contains($pool)) {
+            $this->getPools()->attach($pool);
         }
+
+        $pool->shutdown();
 
         return $this;
-    }
-
-    /**
-     * @param QueueJailed $queue
-     * @return $this|bool
-     */
-    public function removeQueue(QueueJailed $queue)
-    {
-        if ($queue->isRunning()) {
-            return false;
-        }
-
-        if (! $this->getQueues()->contains($queue)) {
-            return false;
-        }
-        $this->getQueues()->detach($queue);
-
-        return $this;
-    }
-
-    public function start()
-    {
-        foreach ($this->getQueues() as $queue) {
-
-            if ($queue instanceof QueueJailed) {
-                $queue->start();
-            }
-        }
-    }
-
-    public function stop()
-    {
-        foreach ($this->getQueues() as $queue) {
-
-            if ($queue instanceof QueueJailed) {
-                $queue->kill();
-            }
-        }
     }
 
     /**
      * @return \SplObjectStorage
      */
-    public function getQueues()
+    public function getPools()
     {
-        return $this->queues;
+        return $this->pools;
     }
 }
