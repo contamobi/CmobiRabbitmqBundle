@@ -103,7 +103,7 @@ class SubscriberQueueBagTest extends BaseTestCase
                 false,
                 false,
                 null,
-                null
+                null,
             ],
             $queueBag->getQueueDeclare()
         );
@@ -122,7 +122,7 @@ class SubscriberQueueBagTest extends BaseTestCase
                 false,
                 false,
                 null,
-                null
+                null,
             ],
             $queueBag->getQueueConsume()
         );
@@ -142,7 +142,7 @@ class SubscriberQueueBagTest extends BaseTestCase
                 false,
                 false,
                 null,
-                null
+                null,
             ],
             $queueBag->getExchangeDeclare()
         );
@@ -163,7 +163,7 @@ class SubscriberQueueBagTest extends BaseTestCase
                 false,
                 false,
                 null,
-                null
+                null,
             ],
             $queueBag->getExchangeDeclare()
         );

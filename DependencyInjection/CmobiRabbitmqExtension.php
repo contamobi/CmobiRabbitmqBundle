@@ -2,7 +2,6 @@
 
 namespace Cmobi\RabbitmqBundle\DependencyInjection;
 
-use Cmobi\RabbitmqBundle\DependencyInjection\Compiler\ConfigCachePass;
 use Cmobi\RabbitmqBundle\DependencyInjection\Compiler\LogDispatcherPass;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -17,7 +16,7 @@ class CmobiRabbitmqExtension extends Extension
 
     public function load(array $configs, ContainerBuilder $container)
     {
-        $fileLocator = new FileLocator(__DIR__ . '/../Resources/config');
+        $fileLocator = new FileLocator(__DIR__.'/../Resources/config');
         $loader = new YamlFileLoader($container, $fileLocator);
         $loader->load('rabbitmq.yml');
 
@@ -37,7 +36,6 @@ class CmobiRabbitmqExtension extends Extension
         $factories = [];
 
         foreach ($this->config['connections'] as $name => $connection) {
-
             $connectionClass = '%cmobi_rabbitmq.connection.class%';
 
             if ($connection['lazy']) {
@@ -47,7 +45,7 @@ class CmobiRabbitmqExtension extends Extension
                 '%cmobi_rabbitmq.connection.factory.class%',
                 [
                     $connectionClass,
-                    $connection
+                    $connection,
                 ]
             );
             $factoryName = sprintf('cmobi_rabbitmq.connection.factory.%s', $name);

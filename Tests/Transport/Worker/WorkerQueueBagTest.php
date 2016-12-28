@@ -77,7 +77,7 @@ class WorkerQueueBagTest extends BaseTestCase
                 false,
                 false,
                 null,
-                null
+                null,
             ],
             $queueBag->getQueueDeclare()
         );
@@ -96,7 +96,7 @@ class WorkerQueueBagTest extends BaseTestCase
                 false,
                 false,
                 null,
-                null
+                null,
             ],
             $queueBag->getQueueConsume()
         );

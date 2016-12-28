@@ -45,7 +45,7 @@ class QueueTest extends BaseTestCase
      */
     protected function getCmobiAMQPChannelMock()
     {
-        $channelMock =  $this->getMockBuilder(CmobiAMQPChannel::class)
+        $channelMock = $this->getMockBuilder(CmobiAMQPChannel::class)
             ->disableOriginalConstructor()
             ->getMock();
         $channelMock->expects($this->any())

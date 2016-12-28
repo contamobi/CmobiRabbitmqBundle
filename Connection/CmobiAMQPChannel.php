@@ -8,11 +8,12 @@ class CmobiAMQPChannel extends AMQPChannel
 {
     /**
      * @param array $params
+     *
      * @return mixed|null
      */
     public function queueDeclare(array $params)
     {
-        list (
+        list(
             $queue,
             $passive,
             $durable,
@@ -38,11 +39,12 @@ class CmobiAMQPChannel extends AMQPChannel
     /**
      * @param array $params
      * @param $callback
+     *
      * @return mixed|string
      */
     public function basicConsume(array $params, $callback)
     {
-        list (
+        list(
             $queue,
             $consumer_tag,
             $no_local,
@@ -68,11 +70,12 @@ class CmobiAMQPChannel extends AMQPChannel
 
     /**
      * @param array $params
+     *
      * @return mixed|null
      */
     public function exchangeDeclare(array $params)
     {
-        list (
+        list(
         $exchange,
         $type,
         $passive,

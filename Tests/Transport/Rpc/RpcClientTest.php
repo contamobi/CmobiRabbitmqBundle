@@ -43,7 +43,7 @@ class RpcClientTest extends BaseTestCase
     {
         $rpcClient = new RpcClient('test', $this->getConnectionManagerMock(), 'caller_test');
 
-        /** @Todo prevent infinite while - improve it */
+        /* @Todo prevent infinite while - improve it */
         $rpcClient->setResponse('testGetResponse() - OK');
 
         $rpcClient->publish('test');
@@ -65,7 +65,7 @@ class RpcClientTest extends BaseTestCase
     public function testGetCurrentCorrelationId()
     {
         $rpcClient = new RpcClient('test', $this->getConnectionManagerMock(), 'caller_test');
-        /** @Todo prevent infinite while - improve it */
+        /* @Todo prevent infinite while - improve it */
         $rpcClient->setResponse('testGetResponse() - OK');
 
         $rpcClient->publish('test');
@@ -124,13 +124,13 @@ class RpcClientTest extends BaseTestCase
             ->method('basicConsume')
             ->willReturn(true);
 
-
         return $channelMock;
     }
 
     /**
      * @param string $msg
-     * @param null $correlationId
+     * @param null   $correlationId
+     *
      * @return CmobiAMQPMessage
      */
     protected function getCmobiAMQPMessage($msg = '', $correlationId = null)

@@ -48,7 +48,7 @@ class RpcServerBuilderTest extends BaseTestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $channelMock =  $this->getMockBuilder(CmobiAMQPChannel::class)
+        $channelMock = $this->getMockBuilder(CmobiAMQPChannel::class)
             ->disableOriginalConstructor()
             ->getMock();
         $channelMock->expects($this->any())

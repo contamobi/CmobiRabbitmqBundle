@@ -11,6 +11,7 @@ class CmobiAMQPLazyConnection extends AMQPLazyConnection implements CmobiAMQPCon
      * create that object if it doesn't already exist.
      *
      * @param string $channel_id
+     *
      * @return CmobiAMQPChannel
      */
     public function channel($channel_id = null)

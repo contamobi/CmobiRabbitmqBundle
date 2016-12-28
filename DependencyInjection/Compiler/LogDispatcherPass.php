@@ -19,7 +19,7 @@ class LogDispatcherPass implements CompilerPassInterface
         $definition = new Definition(
             LogDispatcher::class,
             [
-                'path' => $this->path
+                'path' => $this->path,
             ]
         );
         $container->setDefinition('cmobi_rabbitmq.logger', $definition);

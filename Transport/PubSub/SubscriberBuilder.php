@@ -23,8 +23,7 @@ class SubscriberBuilder implements QueueBuilderInterface
         ConnectionManager $connManager,
         LoggerInterface $logger,
         array $parameters
-    )
-    {
+    ) {
         $this->exchangeName = $exchangeName;
         $this->exchangeType = $exchangeType;
         $this->connectionManager = $connManager;
@@ -38,6 +37,7 @@ class SubscriberBuilder implements QueueBuilderInterface
      * @param QueueServiceInterface $queueService
      *
      * @return Queue
+     *
      * @throws InvalidAMQPChannelException
      */
     public function buildQueue($queueName, QueueServiceInterface $queueService)

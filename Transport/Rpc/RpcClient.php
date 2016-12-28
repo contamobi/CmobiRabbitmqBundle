@@ -30,20 +30,21 @@ class RpcClient implements QueueProducerInterface
      */
     public function onResponse(AMQPMessage $rep)
     {
-        if($rep->get('correlation_id') === $this->correlationId) {
+        if ($rep->get('correlation_id') === $this->correlationId) {
             $this->response = $rep->getBody();
         }
     }
 
     /**
      * @return \PhpAmqpLib\Channel\AMQPChannel
+     *
      * @throws \Cmobi\RabbitmqBundle\Connection\Exception\NotFoundAMQPConnectionFactoryException
      */
     public function refreshChannel()
     {
         $connection = $this->connectionManager->getConnection();
 
-        if (! $connection->isConnected()) {
+        if (!$connection->isConnected()) {
             $connection->reconnect();
         }
         $this->channel = $connection->channel();
@@ -64,9 +65,9 @@ class RpcClient implements QueueProducerInterface
             sprintf('callback_to_%s_from_%s_%s', $this->getQueueName(), $this->getFromName(), microtime())
         );
         $queueBag->setArguments([
-            'x-expires' => ['I', $expire]
+            'x-expires' => ['I', $expire],
         ]);
-        list($callbackQueue, ,) = $this->getChannel()->queueDeclare($queueBag->getQueueDeclare());
+        list($callbackQueue) = $this->getChannel()->queueDeclare($queueBag->getQueueDeclare());
         $this->callbackQueue = $callbackQueue;
         $consumeQueueBag = new RpcQueueBag($callbackQueue);
 
@@ -75,16 +76,16 @@ class RpcClient implements QueueProducerInterface
             [$this, 'onResponse']
         );
         $msg = new CmobiAMQPMessage(
-            (string)$data,
+            (string) $data,
             [
                 'correlation_id' => $this->correlationId,
                 'reply_to' => $this->callbackQueue,
-                'priority' => $priority
+                'priority' => $priority,
             ]
         );
         $this->getChannel()->basic_publish($msg, '', $this->getQueueName());
 
-        while(! $this->response) {
+        while (!$this->response) {
             $this->getChannel()->wait(null, 0, ($expire / 1000));
         }
         $this->getChannel()->close();
@@ -136,7 +137,7 @@ class RpcClient implements QueueProducerInterface
     /** @return string */
     public function generateCorrelationId()
     {
-        return uniqid($this->getQueueName()) . microtime();
+        return uniqid($this->getQueueName()).microtime();
     }
 
     /**

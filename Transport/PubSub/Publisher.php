@@ -23,8 +23,7 @@ class Publisher implements QueueProducerInterface
         ConnectionManager $manager,
         $fromName = '',
         $queueName = ''
-    )
-    {
+    ) {
         $this->exchange = $exchange;
         $this->exchangeType = $exchangeType;
         $this->queueName = $queueName;
@@ -36,14 +35,13 @@ class Publisher implements QueueProducerInterface
      * @param $data
      * @param $expire
      * @param $priority
-     * @return void
      */
     public function publish($data, $expire = self::DEFAULT_TTL, $priority = self::PRIORITY_LOW)
     {
         $this->refreshChannel();
         $queueBag = new SubscriberQueueBag($this->getExchange(), $this->getExchangeType(), $this->getQueueName());
         $this->getChannel()->exchangeDeclare($queueBag->getExchangeDeclare());
-        $msg = new CmobiAMQPMessage((string)$data);
+        $msg = new CmobiAMQPMessage((string) $data);
         $this->getChannel()->basic_publish($msg, $queueBag->getExchange());
 
         $this->getChannel()->close();
@@ -58,7 +56,7 @@ class Publisher implements QueueProducerInterface
         /** @var CmobiAMQPConnectionInterface $connection */
         $connection = $this->connectionManager->getConnection();
 
-        if (! $connection->isConnected()) {
+        if (!$connection->isConnected()) {
             $connection->reconnect();
         }
         $this->channel = $connection->channel();
@@ -83,7 +81,7 @@ class Publisher implements QueueProducerInterface
     }
 
     /**
-     * Return caller name
+     * Return caller name.
      *
      * @return string
      */

@@ -7,8 +7,7 @@ use PhpAmqpLib\Connection\AMQPStreamConnection;
 
 /**
  * Class based on AMQPConnectionFactory from OldSoundRabbitmqBundle
- * Class ConnectionFactory
- * @package Cmobi\RabbitmqBundle\Amqp
+ * Class ConnectionFactory.
  */
 class ConnectionFactory
 {
@@ -17,26 +16,27 @@ class ConnectionFactory
 
     /** @var array */
     private $parameters = [
-        'host'               => 'localhost',
-        'port'               => 5672,
-        'user'               => 'guest',
-        'password'           => 'guest',
-        'vhost'              => '/',
+        'host' => 'localhost',
+        'port' => 5672,
+        'user' => 'guest',
+        'password' => 'guest',
+        'vhost' => '/',
         'connection_timeout' => 3,
         'read_write_timeout' => 3,
-        'ssl_context'        => null,
-        'keepalive'          => false,
-        'heartbeat'          => 0,
+        'ssl_context' => null,
+        'keepalive' => false,
+        'heartbeat' => 0,
     ];
 
     /**
      * @param $class string FQCN of AMQPConnection class to instantiate.
      * @param array $parameters
+     *
      * @throws InvalidAMQPConnectionClassException
      */
     public function __construct($class, array $parameters)
     {
-        if (! is_a($class, AMQPStreamConnection::class, true)) {
+        if (!is_a($class, AMQPStreamConnection::class, true)) {
             throw new InvalidAMQPConnectionClassException('$class not instance of AMQPStreamConnection');
         }
         $this->class = $class;

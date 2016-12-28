@@ -17,7 +17,6 @@ interface QueueProducerInterface
      * @param $data
      * @param $expire
      * @param $priority
-     * @return void
      */
     public function publish($data, $expire = self::DEFAULT_TTL, $priority = self::PRIORITY_LOW);
 
@@ -47,7 +46,7 @@ interface QueueProducerInterface
     public function getExchangeType();
 
     /**
-     * Return caller name
+     * Return caller name.
      *
      * @return string
      */

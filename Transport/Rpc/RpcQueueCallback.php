@@ -33,7 +33,7 @@ class RpcQueueCallback implements QueueCallbackInterface
             $response = $this->getQueueService()->handle($message);
 
             $amqpResponse = new CmobiAMQPMessage(
-                (string)$response,
+                (string) $response,
                 ['correlation_id' => $message->get('correlation_id')]
             );
 

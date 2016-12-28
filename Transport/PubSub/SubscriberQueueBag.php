@@ -25,8 +25,7 @@ class SubscriberQueueBag implements QueueBagInterface
         $consumerTag = '',
         $noAck = true,
         $noLocal = false
-    )
-    {
+    ) {
         $this->options = [
             'exchange' => $exchange,
             'type' => $type,
@@ -43,7 +42,7 @@ class SubscriberQueueBag implements QueueBagInterface
             'ticket' => $ticket,
             'consumer_tag' => $consumerTag,
             'no_ack' => $noAck,
-            'no_local' => $noLocal
+            'no_local' => $noLocal,
         ];
     }
 
@@ -316,7 +315,7 @@ class SubscriberQueueBag implements QueueBagInterface
             $this->getAutoDelete(),
             $this->getNoWait(),
             $this->getArguments(),
-            $this->getTicket()
+            $this->getTicket(),
         ];
     }
 
@@ -333,7 +332,7 @@ class SubscriberQueueBag implements QueueBagInterface
             $this->getConsumeExclusive(),
             $this->getNoWait(),
             $this->getTicket(),
-            $this->getArguments()
+            $this->getArguments(),
         ];
     }
 
@@ -348,7 +347,7 @@ class SubscriberQueueBag implements QueueBagInterface
             $this->getInternal(),
             $this->getNoWait(),
             $this->getArguments(),
-            $this->getTicket()
+            $this->getTicket(),
         ];
     }
 

@@ -8,6 +8,7 @@ interface QueueServiceInterface
 {
     /**
      * @param AMQPMessage $message
+     *
      * @return string
      */
     public function handle(AMQPMessage $message);

@@ -134,13 +134,13 @@ class PublisherTest extends BaseTestCase
             ->method('basicConsume')
             ->willReturn(true);
 
-
         return $channelMock;
     }
 
     /**
      * @param string $msg
-     * @param null $correlationId
+     * @param null   $correlationId
+     *
      * @return CmobiAMQPMessage
      */
     protected function getCmobiAMQPMessage($msg = '', $correlationId = null)

@@ -6,8 +6,6 @@ use Cmobi\RabbitmqBundle\Connection\CmobiAMQPConnection;
 use Cmobi\RabbitmqBundle\Connection\CmobiAMQPConnectionInterface;
 use Cmobi\RabbitmqBundle\Connection\ConnectionFactory;
 use Cmobi\RabbitmqBundle\Tests\BaseTestCase;
-use PhpAmqpLib\Connection\AMQPStreamConnection;
-
 
 class ConnectionFactoryTest extends BaseTestCase
 {

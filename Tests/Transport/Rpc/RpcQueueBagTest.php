@@ -83,7 +83,7 @@ class RpcQueueBagTest extends BaseTestCase
                 true,
                 false,
                 null,
-                null
+                null,
             ],
             $queueBag->getQueueDeclare()
         );
@@ -102,7 +102,7 @@ class RpcQueueBagTest extends BaseTestCase
                 false,
                 false,
                 null,
-                null
+                null,
             ],
             $queueBag->getQueueConsume()
         );

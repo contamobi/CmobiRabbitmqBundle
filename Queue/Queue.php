@@ -27,6 +27,7 @@ class Queue implements QueueInterface
 
     /**
      * @return CmobiAMQPChannel
+     *
      * @throws InvalidAMQPChannelException
      */
     protected function getChannel()
@@ -36,7 +37,7 @@ class Queue implements QueueInterface
         }
         $this->channel = $this->getConnection()->channel();
 
-        if (! $this->channel instanceof CmobiAMQPChannel) {
+        if (!$this->channel instanceof CmobiAMQPChannel) {
             throw new InvalidAMQPChannelException('Failed get AMQPChannel');
         }
 
@@ -51,7 +52,7 @@ class Queue implements QueueInterface
 
         if ($queueBag->getExchangeDeclare()) {
             $this->getChannel()->exchangeDeclare($queueBag->getExchangeDeclare());
-            list ($queueName, , ) = $this->getChannel()->queueDeclare($queueBag->getQueueDeclare());
+            list($queueName) = $this->getChannel()->queueDeclare($queueBag->getQueueDeclare());
             $this->getChannel()->queue_bind($queueName, $queueBag->getExchange());
         } else {
             $this->getChannel()->queueDeclare($queueBag->getQueueDeclare());
@@ -60,13 +61,13 @@ class Queue implements QueueInterface
     }
 
     /**
-     * Declare and start queue in broker
+     * Declare and start queue in broker.
      */
     public function start()
     {
         $this->createQueue();
 
-        while(count($this->getChannel()->callbacks)) {
+        while (count($this->getChannel()->callbacks)) {
             try {
                 $this->getChannel()->wait();
             } catch (\Exception $e) {
@@ -126,6 +127,7 @@ class Queue implements QueueInterface
      */
     /**
      * @param CmobiAMQPConnection|null $connection
+     *
      * @return CmobiAMQPChannel
      */
     public function forceReconnect(CmobiAMQPConnection $connection = null)
@@ -140,7 +142,7 @@ class Queue implements QueueInterface
             } catch (\Exception $e) {
                 $failed = true;
                 sleep(3);
-                $this->logger->error('forceReconnect() - ' . $e->getMessage());
+                $this->logger->error('forceReconnect() - '.$e->getMessage());
             }
         } while ($failed);
         $this->logger->warning('forceReconnect() - connected!');

@@ -7,7 +7,7 @@ use Cmobi\RabbitmqBundle\Connection\CmobiAMQPConnection;
 interface QueueInterface
 {
     /**
-     * Declare and start queue in broker
+     * Declare and start queue in broker.
      */
     public function start();
 

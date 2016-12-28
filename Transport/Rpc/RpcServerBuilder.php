@@ -2,8 +2,6 @@
 
 namespace Cmobi\RabbitmqBundle\Transport\Rpc;
 
-use Cmobi\RabbitmqBundle\Connection\CmobiAMQPChannel;
-use Cmobi\RabbitmqBundle\Connection\CmobiAMQPConnectionInterface;
 use Cmobi\RabbitmqBundle\Connection\ConnectionManager;
 use Cmobi\RabbitmqBundle\Connection\Exception\InvalidAMQPChannelException;
 use Cmobi\RabbitmqBundle\Queue\Queue;
@@ -30,6 +28,7 @@ class RpcServerBuilder implements QueueBuilderInterface
      * @param QueueServiceInterface $queueService
      *
      * @return Queue
+     *
      * @throws InvalidAMQPChannelException
      */
     public function buildQueue($queueName, QueueServiceInterface $queueService)

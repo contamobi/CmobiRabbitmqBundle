@@ -21,8 +21,7 @@ class RpcQueueBag implements QueueBagInterface
         $consumerTag = '',
         $noAck = false,
         $noLocal = false
-    )
-    {
+    ) {
         $this->options = [
             'queue' => $queue,
             'basic_qos' => $basicQos,
@@ -35,7 +34,7 @@ class RpcQueueBag implements QueueBagInterface
             'ticket' => $ticket,
             'consumer_tag' => $consumerTag,
             'no_ack' => $noAck,
-            'no_local' => $noLocal
+            'no_local' => $noLocal,
         ];
     }
 
@@ -244,7 +243,7 @@ class RpcQueueBag implements QueueBagInterface
             $this->getAutoDelete(),
             $this->getNoWait(),
             $this->getArguments(),
-            $this->getTicket()
+            $this->getTicket(),
         ];
     }
 
@@ -261,7 +260,7 @@ class RpcQueueBag implements QueueBagInterface
             $this->getExclusive(),
             $this->getNoWait(),
             $this->getTicket(),
-            $this->getArguments()
+            $this->getArguments(),
         ];
     }
 

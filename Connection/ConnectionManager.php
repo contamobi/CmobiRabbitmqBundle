@@ -20,13 +20,13 @@ class ConnectionManager
     {
         $factory = $this->getContainer()->get($this->factories['default']);
 
-        if (! is_null($name) && array_key_exists($name, $this->factories)) {
+        if (!is_null($name) && array_key_exists($name, $this->factories)) {
             $factory = $this->getContainer()->get(
                 $this->factories[$name]
             );
         }
 
-        if (! $factory instanceof ConnectionFactory) {
+        if (!$factory instanceof ConnectionFactory) {
             throw new NotFoundAMQPConnectionFactoryException(sprintf('%s: connection not found.', $name));
         }
 

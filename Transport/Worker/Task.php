@@ -26,7 +26,6 @@ class Task implements QueueProducerInterface
      * @param $data
      * @param $expire
      * @param $priority
-     * @return void
      */
     public function publish($data, $expire = self::DEFAULT_TTL, $priority = self::PRIORITY_LOW)
     {
@@ -34,10 +33,10 @@ class Task implements QueueProducerInterface
         $queueBag = new WorkerQueueBag($this->getQueueName());
         $this->getChannel()->queueDeclare($queueBag->getQueueDeclare());
         $msg = new CmobiAMQPMessage(
-            (string)$data,
+            (string) $data,
             [
                 'delivery_mode' => 2, // make message persistent
-                'priority' => $priority
+                'priority' => $priority,
             ]
         );
         $this->getChannel()->basic_publish($msg, '', $this->getQueueName());
@@ -54,7 +53,7 @@ class Task implements QueueProducerInterface
         /** @var CmobiAMQPConnectionInterface $connection */
         $connection = $this->connectionManager->getConnection();
 
-        if (! $connection->isConnected()) {
+        if (!$connection->isConnected()) {
             $connection->reconnect();
         }
         $this->channel = $connection->channel();
