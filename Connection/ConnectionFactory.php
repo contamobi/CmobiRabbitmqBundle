@@ -52,6 +52,22 @@ class ConnectionFactory
     }
 
     /**
+     * @return array
+     */
+    public function getParameters()
+    {
+        return $this->parameters;
+    }
+
+    /**
+     * @return \ReflectionClass|string
+     */
+    public function getClass()
+    {
+        return $this->class;
+    }
+
+    /**
      * @return CmobiAMQPConnectionInterface
      */
     public function createConnection()

@@ -2,6 +2,8 @@
 
 namespace Cmobi\RabbitmqBundle\Queue;
 
+use Cmobi\RabbitmqBundle\Connection\CmobiAMQPConnection;
+
 interface QueueInterface
 {
     /**
@@ -21,6 +23,8 @@ interface QueueInterface
 
     /**
      * Retry connect to message broker until it can.
+     *
+     * @param CmobiAMQPConnection|null $connection
      */
-    public function forceReconnect();
+    public function forceReconnect(CmobiAMQPConnection $connection = null);
 }

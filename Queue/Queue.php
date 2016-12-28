@@ -124,7 +124,11 @@ class Queue implements QueueInterface
     /**
      * Retry connect to message broker until it can.
      */
-    public function forceReconnect()
+    /**
+     * @param CmobiAMQPConnection|null $connection
+     * @return CmobiAMQPChannel
+     */
+    public function forceReconnect(CmobiAMQPConnection $connection = null)
     {
         do {
             try {
