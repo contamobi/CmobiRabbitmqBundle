@@ -1,25 +1,23 @@
+imports:
+    - { resource: 'parameters.yml' }
+
 framework:
     secret: "Three can keep a secret, if two of them are dead."
 
 cmobi_rabbitmq:
-    router:
-        resource: "%kernel.root_dir%/config/rpc_routing.yml"
-    basic_qos: 1
+    basic_qos: "%cmobi_basic_qos%"
     log_path: "%kernel.root_dir%/logs/rabbitmq_service.log"
     connections:
         default:
-            host: localhost
-            port: 5672
-            user:     'guest'
-            password: 'guest'
-            vhost:    '/'
-            lazy:     false
-            connection_timeout: 3
-            read_write_timeout: 3
+            host: "%cmobi_rabbitmq_host%"
+            port: "%cmobi_rabbitmq_port%"
+            user: "%cmobi_rabbitmq_user%"
+            password: "%cmobi_rabbitmq_password%"
+            vhost: "%cmobi_rabbitmq_vhost%"
+            lazy: "%cmobi_rabbitmq_lazy%"
+            connection_timeout: "%cmobi_rabbitmq_connection_timeout%"
+            read_write_timeout: "%cmobi_rabbitmq_read_write_timeout%"
             # requires php-amqplib v2.4.1+ and PHP5.4+
-            keepalive: false
+            keepalive: "%cmobi_rabbitmq_keepalive%"
             # requires php-amqplib v2.4.1+
-            heartbeat: 0
-    rpc_servers:
-        default:
-            queue: { name: 'default_queue' }
+            heartbeat: "%cmobi_rabbitmq_heartbeat%"

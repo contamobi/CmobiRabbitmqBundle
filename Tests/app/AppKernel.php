@@ -9,12 +9,12 @@ class AppKernel extends Kernel
     {
         return [
             new Symfony\Bundle\FrameworkBundle\FrameworkBundle(),
-            new Cmobi\RabbitmqBundle\CmobiRabbitmqBundle()
+            new Cmobi\RabbitmqBundle\CmobiRabbitmqBundle(),
         ];
     }
 
     public function registerContainerConfiguration(LoaderInterface $loader)
     {
-        $loader->load(__DIR__ . '/config/config.yml');
+        $loader->load(__DIR__.'/config/config.yml');
     }
 }

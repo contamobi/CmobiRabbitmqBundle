@@ -2,6 +2,8 @@
 
 namespace Cmobi\RabbitmqBundle\Tests;
 
+use Monolog\Logger;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\Container;
 
 class BaseTestCase extends \PHPUnit_Framework_TestCase
@@ -21,5 +23,17 @@ class BaseTestCase extends \PHPUnit_Framework_TestCase
     protected function getContainer()
     {
         return $this->container;
+    }
+
+    /**
+     * @return LoggerInterface
+     */
+    protected function getLoggerMock()
+    {
+        $logger = $this->getMockBuilder(Logger::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        return $logger;
     }
 }

@@ -28,9 +28,7 @@ class LogDispatcher implements LoggerInterface
      * System is unusable.
      *
      * @param string $message
-     * @param array $context
-     *
-     * @return null
+     * @param array  $context
      */
     public function emergency($message, array $context = array())
     {
@@ -44,9 +42,7 @@ class LogDispatcher implements LoggerInterface
      * trigger the SMS alerts and wake you up.
      *
      * @param string $message
-     * @param array $context
-     *
-     * @return null
+     * @param array  $context
      */
     public function alert($message, array $context = array())
     {
@@ -59,9 +55,7 @@ class LogDispatcher implements LoggerInterface
      * Example: Application component unavailable, unexpected exception.
      *
      * @param string $message
-     * @param array $context
-     *
-     * @return null
+     * @param array  $context
      */
     public function critical($message, array $context = array())
     {
@@ -73,9 +67,7 @@ class LogDispatcher implements LoggerInterface
      * be logged and monitored.
      *
      * @param string $message
-     * @param array $context
-     *
-     * @return null
+     * @param array  $context
      */
     public function error($message, array $context = array())
     {
@@ -89,9 +81,7 @@ class LogDispatcher implements LoggerInterface
      * that are not necessarily wrong.
      *
      * @param string $message
-     * @param array $context
-     *
-     * @return null
+     * @param array  $context
      */
     public function warning($message, array $context = array())
     {
@@ -102,9 +92,7 @@ class LogDispatcher implements LoggerInterface
      * Normal but significant events.
      *
      * @param string $message
-     * @param array $context
-     *
-     * @return null
+     * @param array  $context
      */
     public function notice($message, array $context = array())
     {
@@ -117,9 +105,7 @@ class LogDispatcher implements LoggerInterface
      * Example: User logs in, SQL logs.
      *
      * @param string $message
-     * @param array $context
-     *
-     * @return null
+     * @param array  $context
      */
     public function info($message, array $context = array())
     {
@@ -130,9 +116,7 @@ class LogDispatcher implements LoggerInterface
      * Detailed debug information.
      *
      * @param string $message
-     * @param array $context
-     *
-     * @return null
+     * @param array  $context
      */
     public function debug($message, array $context = array())
     {
@@ -142,11 +126,9 @@ class LogDispatcher implements LoggerInterface
     /**
      * Logs with an arbitrary level.
      *
-     * @param mixed $level
+     * @param mixed  $level
      * @param string $message
-     * @param array $context
-     *
-     * @return null
+     * @param array  $context
      */
     public function log($level, $message, array $context = array())
     {

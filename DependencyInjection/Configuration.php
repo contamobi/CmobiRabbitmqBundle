@@ -2,7 +2,6 @@
 
 namespace Cmobi\RabbitmqBundle\DependencyInjection;
 
-use Cmobi\RabbitmqBundle\Rpc\BaseService;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 
@@ -41,45 +40,6 @@ class Configuration implements ConfigurationInterface
                             ->end()
                             ->booleanNode('keepalive')->defaultFalse()->info('requires php-amqplib v2.4.1+ and PHP5.4+')->end()
                             ->scalarNode('heartbeat')->defaultValue(0)->info('requires php-amqplib v2.4.1+')->end()
-                        ->end()
-                    ->end()
-                ->end()
-            ->end()
-        ;
-        $rootNode
-            ->children()
-                ->arrayNode('router')
-                    ->info('router configuration')
-                    ->canBeUnset()
-                    ->children()
-                        ->scalarNode('resource')->isRequired()->end()
-                    ->end()
-                ->end()
-            ->end()
-        ;
-        $rootNode->fixXmlConfig('rpc_server')
-            ->children()
-                ->arrayNode('rpc_servers')
-                    ->useAttributeAsKey('key')
-                    ->prototype('array')
-                        ->children()
-                            ->arrayNode('queue')
-                                     ->children()
-                                         ->scalarNode('name')->end()
-                                         ->booleanNode('passive')->defaultFalse()->end()
-                                         ->booleanNode('durable')->defaultTrue()->end()
-                                         ->booleanNode('exclusive')->defaultFalse()->end()
-                                         ->booleanNode('auto_delete')->defaultFalse()->end()
-                                         ->booleanNode('nowait')->defaultFalse()->end()
-                                         ->variableNode('arguments')->defaultNull()->end()
-                                         ->scalarNode('ticket')->defaultNull()->end()
-                                         ->arrayNode('routing_keys')
-                                            ->prototype('scalar')->end()
-                                         ->end()
-                                     ->end()
-                            ->end()
-                            ->scalarNode('class')->defaultValue(BaseService::class)->end()
-                            ->arrayNode('arguments')->canBeDisabled()->end()
                         ->end()
                     ->end()
                 ->end()
