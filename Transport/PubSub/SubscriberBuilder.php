@@ -14,11 +14,8 @@ class SubscriberBuilder implements QueueBuilderInterface
     private $connectionManager;
     private $logger;
 
-    public function __construct(
-        ConnectionManager $connManager,
-        LoggerInterface $logger,
-        array $parameters
-    ) {
+    public function __construct(ConnectionManager $connManager, LoggerInterface $logger)
+    {
         $this->connectionManager = $connManager;
         $this->logger = $logger;
         $this->channel = null;

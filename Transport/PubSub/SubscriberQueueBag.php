@@ -3,47 +3,29 @@
 namespace Cmobi\RabbitmqBundle\Transport\PubSub;
 
 use Cmobi\RabbitmqBundle\Queue\QueueBagInterface;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class SubscriberQueueBag implements QueueBagInterface
 {
+    private $resolver;
     private $options;
 
     public function __construct(
-        $exchange,
+        $exchangeName,
         $type = ExchangeType::FANOUT,
         $queueName = null,
         $basicQos = 1,
-        $passive = false,
-        $durable = false,
-        $declareExclusive = true,
-        $consumeExclusive = false,
-        $internal = false,
-        $autoDelete = false,
-        $noWait = false,
-        array $arguments = null,
-        $ticket = null,
-        $consumerTag = '',
-        $noAck = true,
-        $noLocal = false
+        array $arguments = null
     ) {
-        $this->options = [
-            'exchange' => $exchange,
+        $this->resolver = new OptionsResolver();
+        $this->resolver->setDefaults([
+            'exchange' => $exchangeName,
             'type' => $type,
-            'basic_qos' => $basicQos,
             'queue_name' => $queueName,
-            'passive' => $passive,
-            'durable' => $durable,
-            'declare_exclusive' => $declareExclusive,
-            'consume_exclusive' => $consumeExclusive,
-            'internal' => $internal,
-            'auto_delete' => $autoDelete,
-            'no_wait' => $noWait,
-            'arguments' => $arguments,
-            'ticket' => $ticket,
-            'consumer_tag' => $consumerTag,
-            'no_ack' => $noAck,
-            'no_local' => $noLocal,
-        ];
+            'basicQos' => $basicQos,
+            'arguments' => $arguments
+        ]);
+        $this->options = $this->resolver->resolve([]);
     }
 
     /**
@@ -81,15 +63,16 @@ class SubscriberQueueBag implements QueueBagInterface
     /**
      * @param $queueName
      */
-    public function setQueueName($queueName)
+    public function setQueue($queueName)
     {
         $this->options['queue_name'] = $queueName;
     }
 
+
     /**
-     * @return string
+     * @return string|mixed
      */
-    public function getQueueName()
+    public function getQueue()
     {
         return $this->options['queue_name'];
     }
@@ -111,19 +94,11 @@ class SubscriberQueueBag implements QueueBagInterface
     }
 
     /**
-     * @param $passive
-     */
-    public function setPassive($passive)
-    {
-        $this->options['passive'] = $passive;
-    }
-
-    /**
      * @return bool
      */
     public function getPassive()
     {
-        return $this->options['passive'];
+        return false;
     }
 
     /**
@@ -132,94 +107,6 @@ class SubscriberQueueBag implements QueueBagInterface
     public function setInternal($internal)
     {
         $this->options['internal'] = $internal;
-    }
-
-    /**
-     * @return bool
-     */
-    public function getInternal()
-    {
-        return $this->options['internal'];
-    }
-
-    /**
-     * @param $durable
-     */
-    public function setDurable($durable)
-    {
-        $this->options['durable'] = $durable;
-    }
-
-    /**
-     * @return bool
-     */
-    public function getDurable()
-    {
-        return $this->options['durable'];
-    }
-
-    /**
-     * @param $exclusive
-     */
-    public function setDeclareExclusive($exclusive)
-    {
-        $this->options['declare_exclusive'] = $exclusive;
-    }
-
-    /**
-     * @return bool
-     */
-    public function getDeclareExclusive()
-    {
-        return $this->options['declare_exclusive'];
-    }
-
-    /**
-     * @param $exclusive
-     */
-    public function setConsumeExclusive($exclusive)
-    {
-        $this->options['consume_exclusive'] = $exclusive;
-    }
-
-    /**
-     * @return bool
-     */
-    public function getConsumeExclusive()
-    {
-        return $this->options['consume_exclusive'];
-    }
-
-    /**
-     * @param $autoDelete
-     */
-    public function setAutoDelete($autoDelete)
-    {
-        $this->options['auto_delete'] = $autoDelete;
-    }
-
-    /**
-     * @return bool
-     */
-    public function getAutoDelete()
-    {
-        return $this->options['auto_delete'];
-    }
-
-    /**
-     * @param $noWait
-     */
-    public function setNoWait($noWait)
-    {
-        $this->options['no_wait'] = $noWait;
-    }
-
-    /**
-     * @return bool
-     */
-    public function getNoWait()
-    {
-        return $this->options['no_wait'];
     }
 
     /**
@@ -239,43 +126,36 @@ class SubscriberQueueBag implements QueueBagInterface
     }
 
     /**
-     * @param $ticket
+     * @return bool
      */
-    public function setTicket($ticket)
+    public function getInternal()
     {
-        $this->options['ticket'] = $ticket;
+        return false;
     }
+
+    /**
+     * @return bool
+     */
+    public function getDurable()
+    {
+        return false;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getAutoDelete()
+    {
+        return false;
+    }
+
 
     /**
      * @return string
      */
     public function getTicket()
     {
-        return $this->options['ticket'];
-    }
-
-    /**
-     * @param $consumerTag
-     */
-    public function setConsumerTag($consumerTag)
-    {
-        $this->options['consumer_tag'] = $consumerTag;
-    }
-
-    /**
-     * @return string
-     */
-    public function getConsumerTag()
-    {
-        return $this->options['consumer_tag'];
-    }
-
-    /**
-     * @param $noAck
-     */
-    public function setNoAck($noAck)
-    {
-        $this->options['no_ack'] = $noAck;
+        return null;
     }
 
     /**
@@ -283,15 +163,7 @@ class SubscriberQueueBag implements QueueBagInterface
      */
     public function getNoAck()
     {
-        return $this->options['no_ack'];
-    }
-
-    /**
-     * @param $noLocal
-     */
-    public function setNoLocal($noLocal)
-    {
-        $this->options['no_local'] = $noLocal;
+        return true;
     }
 
     /**
@@ -299,7 +171,31 @@ class SubscriberQueueBag implements QueueBagInterface
      */
     public function getNoLocal()
     {
-        return $this->options['no_local'];
+        return false;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getNoWait()
+    {
+        return false;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getExclusive()
+    {
+        return false;
+    }
+
+    /**
+     * @return string
+     */
+    public function getConsumerTag()
+    {
+        return '';
     }
 
     /**
@@ -308,10 +204,10 @@ class SubscriberQueueBag implements QueueBagInterface
     public function getQueueDeclare()
     {
         return [
-            $this->getQueueName(),
+            $this->getQueue(),
             $this->getPassive(),
             $this->getDurable(),
-            $this->getDeclareExclusive(),
+            true,
             $this->getAutoDelete(),
             $this->getNoWait(),
             $this->getArguments(),
@@ -325,11 +221,11 @@ class SubscriberQueueBag implements QueueBagInterface
     public function getQueueConsume()
     {
         return [
-            $this->getQueueName(),
+            $this->getQueue(),
             $this->getConsumerTag(),
             $this->getNoLocal(),
             $this->getNoAck(),
-            $this->getConsumeExclusive(),
+            false,
             $this->getNoWait(),
             $this->getTicket(),
             $this->getArguments(),
@@ -352,18 +248,11 @@ class SubscriberQueueBag implements QueueBagInterface
     }
 
     /**
-     * @return string|mixed
+     * @param array $options
+     * @return QueueBagInterface
      */
-    public function getQueue()
+    public function registerOptions(array $options)
     {
-        return $this->getQueueName();
-    }
-
-    /**
-     * @return bool
-     */
-    public function getExclusive()
-    {
-        return false;
+        $this->options = $this->resolver->resolve($options);
     }
 }

@@ -3,39 +3,25 @@
 namespace Cmobi\RabbitmqBundle\Transport\Worker;
 
 use Cmobi\RabbitmqBundle\Queue\QueueBagInterface;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class WorkerQueueBag implements QueueBagInterface
 {
+    private $resolver;
     private $options;
 
     public function __construct(
-        $queue,
+        $queueName,
         $basicQos = 1,
-        $passive = false,
-        $durable = true,
-        $exclusive = false,
-        $autoDelete = false,
-        $noWait = false,
-        array $arguments = null,
-        $ticket = null,
-        $consumerTag = '',
-        $noAck = false,
-        $noLocal = false
+        array $arguments = null
     ) {
-        $this->options = [
-            'queue' => $queue,
+        $this->resolver = new OptionsResolver();
+        $this->resolver->setDefaults([
+            'queue_name' => $queueName,
             'basic_qos' => $basicQos,
-            'passive' => $passive,
-            'durable' => $durable,
-            'exclusive' => $exclusive,
-            'auto_delete' => $autoDelete,
-            'no_wait' => $noWait,
-            'arguments' => $arguments,
-            'ticket' => $ticket,
-            'consumer_tag' => $consumerTag,
-            'no_ack' => $noAck,
-            'no_local' => $noLocal,
-        ];
+            'arguments' => $arguments
+        ]);
+        $this->options = $this->resolver->resolve([]);
     }
 
     /**
@@ -43,7 +29,7 @@ class WorkerQueueBag implements QueueBagInterface
      */
     public function setQueue($queue)
     {
-        $this->options['queue'] = $queue;
+        $this->options['queue_name'] = $queue;
     }
 
     /**
@@ -51,7 +37,7 @@ class WorkerQueueBag implements QueueBagInterface
      */
     public function getQueue()
     {
-        return $this->options['queue'];
+        return $this->options['queue_name'];
     }
 
     /**
@@ -71,27 +57,11 @@ class WorkerQueueBag implements QueueBagInterface
     }
 
     /**
-     * @param $passive
-     */
-    public function setPassive($passive)
-    {
-        $this->options['passive'] = $passive;
-    }
-
-    /**
      * @return bool
      */
     public function getPassive()
     {
-        return $this->options['passive'];
-    }
-
-    /**
-     * @param $durable
-     */
-    public function setDurable($durable)
-    {
-        $this->options['durable'] = $durable;
+        return false;
     }
 
     /**
@@ -99,15 +69,7 @@ class WorkerQueueBag implements QueueBagInterface
      */
     public function getDurable()
     {
-        return $this->options['durable'];
-    }
-
-    /**
-     * @param $exclusive
-     */
-    public function setExclusive($exclusive)
-    {
-        $this->options['exclusive'] = $exclusive;
+        return true;
     }
 
     /**
@@ -115,15 +77,7 @@ class WorkerQueueBag implements QueueBagInterface
      */
     public function getExclusive()
     {
-        return $this->options['exclusive'];
-    }
-
-    /**
-     * @param $autoDelete
-     */
-    public function setAutoDelete($autoDelete)
-    {
-        $this->options['auto_delete'] = $autoDelete;
+        return false;
     }
 
     /**
@@ -131,15 +85,7 @@ class WorkerQueueBag implements QueueBagInterface
      */
     public function getAutoDelete()
     {
-        return $this->options['auto_delete'];
-    }
-
-    /**
-     * @param $noWait
-     */
-    public function setNoWait($noWait)
-    {
-        $this->options['no_wait'] = $noWait;
+        return false;
     }
 
     /**
@@ -147,7 +93,39 @@ class WorkerQueueBag implements QueueBagInterface
      */
     public function getNoWait()
     {
-        return $this->options['no_wait'];
+        return false;
+    }
+
+    /**
+     * @return null
+     */
+    public function getTicket()
+    {
+        return null;
+    }
+
+    /**
+     * @return string
+     */
+    public function getConsumerTag()
+    {
+        return '';
+    }
+
+    /**
+     * @return bool
+     */
+    public function getNoAck()
+    {
+        return false;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getNoLocal()
+    {
+        return false;
     }
 
     /**
@@ -164,70 +142,6 @@ class WorkerQueueBag implements QueueBagInterface
     public function getArguments()
     {
         return $this->options['arguments'];
-    }
-
-    /**
-     * @param $ticket
-     */
-    public function setTicket($ticket)
-    {
-        $this->options['ticket'] = $ticket;
-    }
-
-    /**
-     * @return string
-     */
-    public function getTicket()
-    {
-        return $this->options['ticket'];
-    }
-
-    /**
-     * @param $consumerTag
-     */
-    public function setConsumerTag($consumerTag)
-    {
-        $this->options['consumer_tag'] = $consumerTag;
-    }
-
-    /**
-     * @return string
-     */
-    public function getConsumerTag()
-    {
-        return $this->options['consumer_tag'];
-    }
-
-    /**
-     * @param $noAck
-     */
-    public function setNoAck($noAck)
-    {
-        $this->options['no_ack'] = $noAck;
-    }
-
-    /**
-     * @return bool
-     */
-    public function getNoAck()
-    {
-        return $this->options['no_ack'];
-    }
-
-    /**
-     * @param $noLocal
-     */
-    public function setNoLocal($noLocal)
-    {
-        $this->options['no_local'] = $noLocal;
-    }
-
-    /**
-     * @return bool
-     */
-    public function getNoLocal()
-    {
-        return $this->options['no_local'];
     }
 
     /**
@@ -286,5 +200,16 @@ class WorkerQueueBag implements QueueBagInterface
     public function getType()
     {
         return false;
+    }
+
+    /**
+     * @param array $options
+     * @return QueueBagInterface
+     */
+    public function registerOptions(array $options)
+    {
+        $this->options = $this->resolver->resolve($options);
+
+        return $this;
     }
 }

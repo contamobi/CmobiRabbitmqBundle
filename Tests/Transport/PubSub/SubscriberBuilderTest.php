@@ -11,14 +11,13 @@ use Cmobi\RabbitmqBundle\Queue\QueueServiceInterface;
 use Cmobi\RabbitmqBundle\Tests\BaseTestCase;
 use Cmobi\RabbitmqBundle\Transport\PubSub\ExchangeType;
 use Cmobi\RabbitmqBundle\Transport\PubSub\SubscriberBuilder;
+use Cmobi\RabbitmqBundle\Transport\PubSub\SubscriberQueueBag;
 
 class SubscriberBuilderTest extends BaseTestCase
 {
     public function testGetConnectionManager()
     {
         $subscriberBuilder = new SubscriberBuilder(
-            'test',
-            ExchangeType::FANOUT,
             $this->getConnectionManagerMock(),
             $this->getLoggerMock(), []
         );
@@ -30,41 +29,13 @@ class SubscriberBuilderTest extends BaseTestCase
     public function testBuildQueue()
     {
         $subscriberBuilder = new SubscriberBuilder(
-            'test',
-            ExchangeType::FANOUT,
             $this->getConnectionManagerMock(),
-            $this->getLoggerMock(),
-            []
+            $this->getLoggerMock()
         );
-        $queue = $subscriberBuilder->buildQueue('test', $this->getQueueServiceMock());
+        $subscriberQueueBag = new SubscriberQueueBag('test_exchange');
+        $queue = $subscriberBuilder->buildQueue('test', $this->getQueueServiceMock(), $subscriberQueueBag);
 
         $this->assertInstanceOf(QueueInterface::class, $queue);
-    }
-
-    public function testGetExchange()
-    {
-        $subscriberBuilder = new SubscriberBuilder(
-            'test_exchange',
-             ExchangeType::FANOUT,
-            $this->getConnectionManagerMock(),
-            $this->getLoggerMock(),
-            []
-        );
-
-        $this->assertEquals('test_exchange', $subscriberBuilder->getExchangeName());
-    }
-
-    public function testGetExchangeType()
-    {
-        $subscriberBuilder = new SubscriberBuilder(
-            'test_exchange',
-            ExchangeType::DIRECT,
-            $this->getConnectionManagerMock(),
-            $this->getLoggerMock(),
-            []
-        );
-
-        $this->assertEquals(ExchangeType::DIRECT, $subscriberBuilder->getExchangeType());
     }
 
     /**

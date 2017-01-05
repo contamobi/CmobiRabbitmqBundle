@@ -9,6 +9,7 @@ use Cmobi\RabbitmqBundle\Connection\ConnectionManager;
 use Cmobi\RabbitmqBundle\Queue\QueueCallbackInterface;
 use Cmobi\RabbitmqBundle\Queue\QueueInterface;
 use Cmobi\RabbitmqBundle\Queue\QueueServiceInterface;
+use Cmobi\RabbitmqBundle\Transport\Rpc\RpcQueueBag;
 use Cmobi\RabbitmqBundle\Transport\Rpc\RpcServerBuilder;
 use Cmobi\RabbitmqBundle\Tests\BaseTestCase;
 
@@ -25,7 +26,8 @@ class RpcServerBuilderTest extends BaseTestCase
     public function testBuildQueue()
     {
         $rpcServer = new RpcServerBuilder($this->getConnectionManagerMock(), $this->getLoggerMock(), []);
-        $queue = $rpcServer->buildQueue('test', $this->getQueueServiceMock());
+        $rpcServerQueueBag = new RpcQueueBag('test_queue');
+        $queue = $rpcServer->buildQueue('test', $this->getQueueServiceMock(), $rpcServerQueueBag);
 
         $this->assertInstanceOf(QueueInterface::class, $queue);
     }
@@ -33,7 +35,8 @@ class RpcServerBuilderTest extends BaseTestCase
     public function testGetCallbackAfterBuildQueue()
     {
         $rpcServer = new RpcServerBuilder($this->getConnectionManagerMock(), $this->getLoggerMock(), []);
-        $queue = $rpcServer->buildQueue('test', $this->getQueueServiceMock());
+        $rpcServerQueueBag = new RpcQueueBag('test_queue');
+        $queue = $rpcServer->buildQueue('test', $this->getQueueServiceMock(), $rpcServerQueueBag);
         $callback = $queue->getCallback();
 
         $this->assertInstanceOf(QueueCallbackInterface::class, $callback);

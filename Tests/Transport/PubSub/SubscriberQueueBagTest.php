@@ -8,11 +8,11 @@ use Cmobi\RabbitmqBundle\Tests\BaseTestCase;
 
 class SubscriberQueueBagTest extends BaseTestCase
 {
-    public function testGetQueueName()
+    public function testGetQueue()
     {
         $queueBag = new SubscriberQueueBag('excharge1', ExchangeType::FANOUT, 'test');
 
-        $this->assertEquals('test', $queueBag->getQueueName());
+        $this->assertEquals('test', $queueBag->getQueue());
     }
 
     public function testGetType()
@@ -34,20 +34,6 @@ class SubscriberQueueBagTest extends BaseTestCase
         $queueBag = new SubscriberQueueBag('test');
 
         $this->assertEquals(false, $queueBag->getDurable());
-    }
-
-    public function testGetDeclareExclusive()
-    {
-        $queueBag = new SubscriberQueueBag('test');
-
-        $this->assertEquals(true, $queueBag->getDeclareExclusive());
-    }
-
-    public function testGetConsumeExclusive()
-    {
-        $queueBag = new SubscriberQueueBag('test');
-
-        $this->assertEquals(false, $queueBag->getConsumeExclusive());
     }
 
     public function testGetAutoDelete()

@@ -10,6 +10,7 @@ use Cmobi\RabbitmqBundle\Queue\QueueInterface;
 use Cmobi\RabbitmqBundle\Queue\QueueServiceInterface;
 use Cmobi\RabbitmqBundle\Tests\BaseTestCase;
 use Cmobi\RabbitmqBundle\Transport\Worker\WorkerBuilder;
+use Cmobi\RabbitmqBundle\Transport\Worker\WorkerQueueBag;
 
 class WorkerBuilderTest extends BaseTestCase
 {
@@ -24,7 +25,8 @@ class WorkerBuilderTest extends BaseTestCase
     public function testBuildQueue()
     {
         $workerServer = new WorkerBuilder($this->getConnectionManagerMock(), $this->getLoggerMock(), []);
-        $queue = $workerServer->buildQueue('test', $this->getQueueServiceMock());
+        $workerBag = new WorkerQueueBag('test_queue');
+        $queue = $workerServer->buildQueue('test', $this->getQueueServiceMock(), $workerBag);
 
         $this->assertInstanceOf(QueueInterface::class, $queue);
     }

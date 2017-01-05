@@ -25,7 +25,6 @@ class CmobiRabbitmqExtension extends Extension
         $this->container = $container;
         $this->registerLogger($configs[0]['log_path']);
         $this->loadConnections();
-        $container->setParameter('cmobi_rabbitmq.basic_qos', $configs[0]['basic_qos']);
 
         /* Compile and lock container */
         $container->compile();

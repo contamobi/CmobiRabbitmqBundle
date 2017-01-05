@@ -3,41 +3,29 @@
 namespace Cmobi\RabbitmqBundle\Transport\Rpc;
 
 use Cmobi\RabbitmqBundle\Queue\QueueBagInterface;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class RpcQueueBag implements QueueBagInterface
 {
-    private $queue;
-    private $basicQos;
+    private $resolver;
     private $options;
 
     public function __construct(
-        $queue,
+        $queueName,
         $basicQos = 1,
-        $passive = false,
         $durable = false,
-        $exclusive = false,
         $autoDelete = true,
-        $noWait = false,
-        array $arguments = null,
-        $ticket = null,
-        $consumerTag = '',
-        $noAck = false,
-        $noLocal = false
+        array $arguments = null
     ) {
-        $this->queue = $queue;
-        $this->basicQos = $basicQos;
-        $this->options = [
-            'passive' => $passive,
+        $this->resolver = new OptionsResolver();
+        $this->resolver->setDefaults([
+            'queue_name' => $queueName,
+            'basic_qos' => $basicQos,
             'durable' => $durable,
-            'exclusive' => $exclusive,
             'auto_delete' => $autoDelete,
-            'no_wait' => $noWait,
-            'arguments' => $arguments,
-            'ticket' => $ticket,
-            'consumer_tag' => $consumerTag,
-            'no_ack' => $noAck,
-            'no_local' => $noLocal,
-        ];
+            'arguments' => $arguments
+        ]);
+        $this->options = $this->resolver->resolve([]);
     }
 
     /**
@@ -45,7 +33,7 @@ class RpcQueueBag implements QueueBagInterface
      */
     public function setQueue($queue)
     {
-        $this->queue = $queue;
+        $this->options['queue_name'] = $queue;
     }
 
     /**
@@ -53,7 +41,7 @@ class RpcQueueBag implements QueueBagInterface
      */
     public function getQueue()
     {
-        return $this->queue;
+        return $this->options['queue_name'];
     }
 
     /**
@@ -61,7 +49,7 @@ class RpcQueueBag implements QueueBagInterface
      */
     public function setBasicQos($qos)
     {
-        $this->basicQos = $qos;
+        $this->options['basic_qos'] = $qos;
     }
 
     /**
@@ -69,55 +57,7 @@ class RpcQueueBag implements QueueBagInterface
      */
     public function getBasicQos()
     {
-        return $this->basicQos;
-    }
-
-    /**
-     * @param $passive
-     */
-    public function setPassive($passive)
-    {
-        $this->options['passive'] = $passive;
-    }
-
-    /**
-     * @return bool
-     */
-    public function getPassive()
-    {
-        return $this->options['passive'];
-    }
-
-    /**
-     * @param $durable
-     */
-    public function setDurable($durable)
-    {
-        $this->options['durable'] = $durable;
-    }
-
-    /**
-     * @return bool
-     */
-    public function getDurable()
-    {
-        return $this->options['durable'];
-    }
-
-    /**
-     * @param $exclusive
-     */
-    public function setExclusive($exclusive)
-    {
-        $this->options['exclusive'] = $exclusive;
-    }
-
-    /**
-     * @return bool
-     */
-    public function getExclusive()
-    {
-        return $this->options['exclusive'];
+        return $this->options['basic_qos'];
     }
 
     /**
@@ -137,22 +77,6 @@ class RpcQueueBag implements QueueBagInterface
     }
 
     /**
-     * @param $noWait
-     */
-    public function setNoWait($noWait)
-    {
-        $this->options['no_wait'] = $noWait;
-    }
-
-    /**
-     * @return bool
-     */
-    public function getNoWait()
-    {
-        return $this->options['no_wait'];
-    }
-
-    /**
      * @param array $arguments
      */
     public function setArguments(array $arguments)
@@ -169,27 +93,43 @@ class RpcQueueBag implements QueueBagInterface
     }
 
     /**
-     * @param $ticket
+     * @return bool
      */
-    public function setTicket($ticket)
+    public function getPassive()
     {
-        $this->options['ticket'] = $ticket;
+        return false;
     }
 
     /**
-     * @return string
+     * @return bool
+     */
+    public function getDurable()
+    {
+        return false;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getExclusive()
+    {
+        return false;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getNoWait()
+    {
+        return false;
+    }
+
+    /**
+     * @return null
      */
     public function getTicket()
     {
-        return $this->options['ticket'];
-    }
-
-    /**
-     * @param $consumerTag
-     */
-    public function setConsumerTag($consumerTag)
-    {
-        $this->options['consumer_tag'] = $consumerTag;
+        return null;
     }
 
     /**
@@ -197,15 +137,7 @@ class RpcQueueBag implements QueueBagInterface
      */
     public function getConsumerTag()
     {
-        return $this->options['consumer_tag'];
-    }
-
-    /**
-     * @param $noAck
-     */
-    public function setNoAck($noAck)
-    {
-        $this->options['no_ack'] = $noAck;
+        return '';
     }
 
     /**
@@ -213,15 +145,7 @@ class RpcQueueBag implements QueueBagInterface
      */
     public function getNoAck()
     {
-        return $this->options['no_ack'];
-    }
-
-    /**
-     * @param $noLocal
-     */
-    public function setNoLocal($noLocal)
-    {
-        $this->options['no_local'] = $noLocal;
+        return false;
     }
 
     /**
@@ -229,7 +153,31 @@ class RpcQueueBag implements QueueBagInterface
      */
     public function getNoLocal()
     {
-        return $this->options['no_local'];
+        return false;
+    }
+
+    /**
+     * @return array|false
+     */
+    public function getExchangeDeclare()
+    {
+        return false;
+    }
+
+    /**
+     * @return string
+     */
+    public function getExchange()
+    {
+        return false;
+    }
+
+    /**
+     * @return string
+     */
+    public function getType()
+    {
+        return false;
     }
 
     /**
@@ -267,46 +215,12 @@ class RpcQueueBag implements QueueBagInterface
     }
 
     /**
-     * @return array|false
-     */
-    public function getExchangeDeclare()
-    {
-        return false;
-    }
-
-    /**
-     * @return string
-     */
-    public function getExchange()
-    {
-        return false;
-    }
-
-    /**
-     * @return string
-     */
-    public function getType()
-    {
-        return false;
-    }
-
-    /**
      * @param array $options
      * @return QueueBagInterface
      */
     public function registerOptions(array $options)
     {
-        $this->options['basic_qos'] = $options['basic_qos'];
-        $this->options['passive'] = $options['passive'];
-        $this->options['durable'] = $options['durable'];
-        $this->options['exclusive'] = $options['exclusive'];
-        $this->options['auto_delete'] = $options['auto_delete'];
-        $this->options['no_wait'] = $options['no_wait'];
-        $this->options['arguments'] = $options['arguments'];
-        $this->options['ticket'] = $options['ticket'];
-        $this->options['consumer_tag'] = $options['consumer_tag'];
-        $this->options['no_ack'] = $options['no_ack'];
-        $this->options['no_local'] = $options['no_local'];
+        $this->options = $this->resolver->resolve($options);
 
         return $this;
     }
