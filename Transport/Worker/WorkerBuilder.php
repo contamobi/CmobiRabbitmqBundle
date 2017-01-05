@@ -5,6 +5,7 @@ namespace Cmobi\RabbitmqBundle\Transport\Worker;
 use Cmobi\RabbitmqBundle\Connection\ConnectionManager;
 use Cmobi\RabbitmqBundle\Connection\Exception\InvalidAMQPChannelException;
 use Cmobi\RabbitmqBundle\Queue\Queue;
+use Cmobi\RabbitmqBundle\Queue\QueueBagInterface;
 use Cmobi\RabbitmqBundle\Queue\QueueBuilderInterface;
 use Cmobi\RabbitmqBundle\Queue\QueueServiceInterface;
 use Psr\Log\LoggerInterface;
@@ -13,34 +14,27 @@ class WorkerBuilder implements QueueBuilderInterface
 {
     private $connectionManager;
     private $logger;
-    private $parameters;
 
-    public function __construct(ConnectionManager $connManager, LoggerInterface $logger, array $parameters)
+    public function __construct(ConnectionManager $connManager, LoggerInterface $logger)
     {
         $this->connectionManager = $connManager;
         $this->logger = $logger;
-        $this->parameters = $parameters;
         $this->channel = null;
     }
 
     /**
      * @param $queueName
      * @param QueueServiceInterface $queueService
-     *
+     * @param QueueBagInterface $queueBag
      * @return Queue
-     *
-     * @throws InvalidAMQPChannelException
+     * @throws \Exception
      */
-    public function buildQueue($queueName, QueueServiceInterface $queueService)
+    public function buildQueue($queueName, QueueServiceInterface $queueService, QueueBagInterface $queueBag)
     {
-        $qos = 1;
-
-        if (array_key_exists('cmobi_rabbitmq.basic_qos', $this->parameters)) {
-            $qos = $this->parameters['cmobi_rabbitmq.basic_qos'];
+        if (! $queueBag instanceof WorkerQueueBag) {
+            throw new \Exception('Unsupported QueueBag');
         }
-        $rpcQueueBag = new WorkerQueueBag($queueName, $qos);
-
-        $queue = new Queue($this->getConnectionManager(), $rpcQueueBag, $this->logger);
+        $queue = new Queue($this->getConnectionManager(), $queueBag, $this->logger);
         $queueCallback = new WorkerQueueCallback($queueService);
         $queue->setCallback($queueCallback);
 
@@ -53,21 +47,5 @@ class WorkerBuilder implements QueueBuilderInterface
     public function getConnectionManager()
     {
         return $this->connectionManager;
-    }
-
-    /**
-     * @return string|false
-     */
-    public function getExchangeName()
-    {
-        return false;
-    }
-
-    /**
-     * @return string|false
-     */
-    public function getExchangeType()
-    {
-        return false;
     }
 }

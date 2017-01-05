@@ -88,4 +88,10 @@ interface QueueBagInterface
      * @return array|false
      */
     public function getExchangeDeclare();
+
+    /**
+     * @param array $options
+     * @return QueueBagInterface
+     */
+    public function registerOptions(array $options);
 }

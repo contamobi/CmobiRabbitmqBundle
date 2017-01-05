@@ -13,10 +13,6 @@ class Configuration implements ConfigurationInterface
         $rootNode = $tree->root('cmobi_rabbitmq');
         $rootNode
             ->children()
-                ->scalarNode('basic_qos')->defaultValue(1)->end()
-            ->end();
-        $rootNode
-            ->children()
                 ->scalarNode('log_path')->end()
             ->end();
         $rootNode->fixXmlConfig('connection')

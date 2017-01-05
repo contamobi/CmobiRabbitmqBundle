@@ -6,6 +6,8 @@ use Cmobi\RabbitmqBundle\Queue\QueueBagInterface;
 
 class RpcQueueBag implements QueueBagInterface
 {
+    private $queue;
+    private $basicQos;
     private $options;
 
     public function __construct(
@@ -22,9 +24,9 @@ class RpcQueueBag implements QueueBagInterface
         $noAck = false,
         $noLocal = false
     ) {
+        $this->queue = $queue;
+        $this->basicQos = $basicQos;
         $this->options = [
-            'queue' => $queue,
-            'basic_qos' => $basicQos,
             'passive' => $passive,
             'durable' => $durable,
             'exclusive' => $exclusive,
@@ -43,7 +45,7 @@ class RpcQueueBag implements QueueBagInterface
      */
     public function setQueue($queue)
     {
-        $this->options['queue'] = $queue;
+        $this->queue = $queue;
     }
 
     /**
@@ -51,7 +53,7 @@ class RpcQueueBag implements QueueBagInterface
      */
     public function getQueue()
     {
-        return $this->options['queue'];
+        return $this->queue;
     }
 
     /**
@@ -59,7 +61,7 @@ class RpcQueueBag implements QueueBagInterface
      */
     public function setBasicQos($qos)
     {
-        $this->options['basic_qos'] = $qos;
+        $this->basicQos = $qos;
     }
 
     /**
@@ -67,7 +69,7 @@ class RpcQueueBag implements QueueBagInterface
      */
     public function getBasicQos()
     {
-        return $this->options['basic_qos'];
+        return $this->basicQos;
     }
 
     /**
@@ -286,5 +288,26 @@ class RpcQueueBag implements QueueBagInterface
     public function getType()
     {
         return false;
+    }
+
+    /**
+     * @param array $options
+     * @return QueueBagInterface
+     */
+    public function registerOptions(array $options)
+    {
+        $this->options['basic_qos'] = $options['basic_qos'];
+        $this->options['passive'] = $options['passive'];
+        $this->options['durable'] = $options['durable'];
+        $this->options['exclusive'] = $options['exclusive'];
+        $this->options['auto_delete'] = $options['auto_delete'];
+        $this->options['no_wait'] = $options['no_wait'];
+        $this->options['arguments'] = $options['arguments'];
+        $this->options['ticket'] = $options['ticket'];
+        $this->options['consumer_tag'] = $options['consumer_tag'];
+        $this->options['no_ack'] = $options['no_ack'];
+        $this->options['no_local'] = $options['no_local'];
+
+        return $this;
     }
 }

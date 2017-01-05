@@ -2,23 +2,14 @@
 
 namespace Cmobi\RabbitmqBundle\Queue;
 
+
 interface QueueBuilderInterface
 {
     /**
-     * @return string|false
-     */
-    public function getExchangeName();
-
-    /**
-     * @return string|false
-     */
-    public function getExchangeType();
-
-    /**
      * @param $queueName
      * @param QueueServiceInterface $queueService
-     *
-     * @return QueueInterface
+     * @param QueueBagInterface $queueBag
+     * @return Queue
      */
-    public function buildQueue($queueName, QueueServiceInterface $queueService);
+    public function buildQueue($queueName, QueueServiceInterface $queueService, QueueBagInterface $queueBag);
 }
