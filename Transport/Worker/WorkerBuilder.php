@@ -12,6 +12,7 @@ use Psr\Log\LoggerInterface;
 
 class WorkerBuilder implements QueueBuilderInterface
 {
+    private $queue;
     private $connectionManager;
     private $logger;
 
@@ -37,6 +38,7 @@ class WorkerBuilder implements QueueBuilderInterface
         $queue = new Queue($this->getConnectionManager(), $queueBag, $this->logger);
         $queueCallback = new WorkerQueueCallback($queueService);
         $queue->setCallback($queueCallback);
+        $this->queue = $queue;
 
         return $queue;
     }
@@ -47,5 +49,13 @@ class WorkerBuilder implements QueueBuilderInterface
     public function getConnectionManager()
     {
         return $this->connectionManager;
+    }
+
+    /**
+     * @return Queue
+     */
+    public function getQueue()
+    {
+        return $this->queue;
     }
 }

@@ -12,4 +12,9 @@ interface QueueBuilderInterface
      * @return Queue
      */
     public function buildQueue($queueName, QueueServiceInterface $queueService, QueueBagInterface $queueBag);
+
+    /**
+     * @return Queue
+     */
+    public function getQueue();
 }

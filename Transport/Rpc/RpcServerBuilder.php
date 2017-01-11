@@ -11,6 +11,7 @@ use Psr\Log\LoggerInterface;
 
 class RpcServerBuilder implements QueueBuilderInterface
 {
+    private $queue;
     private $connectionManager;
     private $logger;
 
@@ -36,6 +37,7 @@ class RpcServerBuilder implements QueueBuilderInterface
         $queue = new Queue($this->getConnectionManager(), $queueBag, $this->logger);
         $queueCallback = new RpcQueueCallback($queueService);
         $queue->setCallback($queueCallback);
+        $this->queue = $queue;
 
         return $queue;
     }
@@ -46,5 +48,13 @@ class RpcServerBuilder implements QueueBuilderInterface
     public function getConnectionManager()
     {
         return $this->connectionManager;
+    }
+
+    /**
+     * @return Queue
+     */
+    public function getQueue()
+    {
+        return $this->queue;
     }
 }
