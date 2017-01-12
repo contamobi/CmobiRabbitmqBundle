@@ -10,17 +10,15 @@ class ConnectionManager
     use ContainerAwareTrait;
 
     private $factories;
-    private $default;
 
     public function __construct(array $factories)
     {
-        $this->default = 'default';
         $this->factories = $factories;
     }
 
     public function getConnection($name = null)
     {
-        $factory = $this->getContainer()->get($this->factories[$this->default]);
+        $factory = $this->getContainer()->get($this->factories['default']);
 
         if (!is_null($name) && array_key_exists($name, $this->factories)) {
             $factory = $this->getContainer()->get(
@@ -33,22 +31,6 @@ class ConnectionManager
         }
 
         return $factory->createConnection();
-    }
-
-    /**
-     * @param $connName
-     */
-    public function setDefault($connName)
-    {
-        $this->default = $connName;
-    }
-
-    /**
-     * @return string
-     */
-    public function getDefault()
-    {
-        return $this->default;
     }
 
     /**

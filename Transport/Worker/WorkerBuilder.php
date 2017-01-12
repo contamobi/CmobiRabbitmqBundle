@@ -14,11 +14,13 @@ class WorkerBuilder implements QueueBuilderInterface
 {
     private $queue;
     private $connectionManager;
+    private $connectionName;
     private $logger;
 
-    public function __construct(ConnectionManager $connManager, LoggerInterface $logger)
+    public function __construct(ConnectionManager $connManager, LoggerInterface $logger, $connectionName = 'default')
     {
         $this->connectionManager = $connManager;
+        $this->connectionName = $connectionName;
         $this->logger = $logger;
         $this->channel = null;
     }
@@ -35,7 +37,7 @@ class WorkerBuilder implements QueueBuilderInterface
         if (! $queueBag instanceof WorkerQueueBag) {
             throw new \Exception('Unsupported QueueBag');
         }
-        $queue = new Queue($this->getConnectionManager(), $queueBag, $this->logger);
+        $queue = new Queue($this->getConnectionManager(), $queueBag, $this->logger, $this->connectionName);
         $queueCallback = new WorkerQueueCallback($queueService);
         $queue->setCallback($queueCallback);
         $this->queue = $queue;

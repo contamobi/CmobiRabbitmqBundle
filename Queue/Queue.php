@@ -12,15 +12,22 @@ class Queue implements QueueInterface
 {
     private $connectionManager;
     private $connection;
+    private $connectionName;
     private $channel;
     private $queueBag;
     private $callback;
     private $logger;
 
-    public function __construct(ConnectionManager $connectionManager, QueueBagInterface $queueBag, LoggerInterface $logger)
+    public function __construct(
+        ConnectionManager $connectionManager,
+        QueueBagInterface $queueBag,
+        LoggerInterface $logger,
+        $connectionName = 'default'
+    )
     {
         $this->connectionManager = $connectionManager;
-        $this->connection = $this->getConnectionManager()->getConnection();
+        $this->connectionName = $connectionName;
+        $this->connection = $this->getConnectionManager()->getConnection($connectionName);
         $this->queueBag = $queueBag;
         $this->logger = $logger;
     }
@@ -136,7 +143,7 @@ class Queue implements QueueInterface
             try {
                 $failed = false;
                 $this->logger->warning('forceReconnect() - trying connect...');
-                $this->connection = $this->getConnectionManager()->getConnection();
+                $this->connection = $this->getConnectionManager()->getConnection($this->connectionName);
                 $this->channel = $this->getConnection()->channel();
                 $this->createQueue();
             } catch (\Exception $e) {
