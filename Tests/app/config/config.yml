@@ -20,3 +20,6 @@ cmobi_rabbitmq:
             keepalive: "%cmobi_rabbitmq_keepalive%"
             # requires php-amqplib v2.4.1+
             heartbeat: "%cmobi_rabbitmq_heartbeat%"
+    rpc_servers:
+        default:
+            queue: { name: 'default_queue' }

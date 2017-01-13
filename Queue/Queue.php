@@ -22,7 +22,8 @@ class Queue implements QueueInterface
         ConnectionManager $connectionManager,
         QueueBagInterface $queueBag,
         LoggerInterface $logger,
-        $connectionName = 'default'
+        $connectionName = 'default',
+        QueueCallbackInterface $callback = null
     )
     {
         $this->connectionManager = $connectionManager;
@@ -30,6 +31,7 @@ class Queue implements QueueInterface
         $this->connection = $this->getConnectionManager()->getConnection($connectionName);
         $this->queueBag = $queueBag;
         $this->logger = $logger;
+        $this->callback = $callback;
     }
 
     /**

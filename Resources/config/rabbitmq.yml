@@ -27,3 +27,6 @@ services:
         arguments: ['%cmobi_rabbitmq.connection.factories%']
         calls:
           - [setContainer, ["@service_container"]]
+
+    cmobi_rabbitmq.message.handler:
+        class: Cmobi\RabbitmqBundle\Queue\BaseQueueService
