@@ -6,7 +6,6 @@ use Cmobi\RabbitmqBundle\Connection\ConnectionManager;
 use Cmobi\RabbitmqBundle\DependencyInjection\CmobiRabbitmqExtension;
 use Cmobi\RabbitmqBundle\DependencyInjection\Compiler\RpcServerPass;
 use Cmobi\RabbitmqBundle\Queue\BaseQueueService;
-use Cmobi\RabbitmqBundle\Queue\QueueServiceInterface;
 use Cmobi\RabbitmqBundle\Tests\BaseTestCase;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
