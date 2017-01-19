@@ -1,6 +1,6 @@
 <?php
 
-namespace Cmobi\RabbitmqBundle\Transport\PubSub;
+namespace Cmobi\RabbitmqBundle\Transport\Subscriber;
 
 class ExchangeType
 {

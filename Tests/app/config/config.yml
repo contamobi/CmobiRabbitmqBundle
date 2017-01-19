@@ -22,4 +22,7 @@ cmobi_rabbitmq:
             heartbeat: "%cmobi_rabbitmq_heartbeat%"
     rpc_servers:
         default:
-            queue: { name: 'default_queue' }
+            queue: { name: 'default_rpc_queue' }
+    workers:
+        default:
+            queue: { name: 'default_worker_queue' }

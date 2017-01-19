@@ -1,14 +1,14 @@
 <?php
 
-namespace Cmobi\RabbitmqBundle\Tests\Transport\PubSub;
+namespace Cmobi\RabbitmqBundle\Tests\Transport\Subscriber;
 
 use Cmobi\RabbitmqBundle\Connection\CmobiAMQPChannel;
 use Cmobi\RabbitmqBundle\Connection\CmobiAMQPConnection;
 use Cmobi\RabbitmqBundle\Connection\ConnectionManager;
 use Cmobi\RabbitmqBundle\Queue\CmobiAMQPMessage;
 use Cmobi\RabbitmqBundle\Tests\BaseTestCase;
-use Cmobi\RabbitmqBundle\Transport\PubSub\ExchangeType;
-use Cmobi\RabbitmqBundle\Transport\PubSub\Publisher;
+use Cmobi\RabbitmqBundle\Transport\Subscriber\ExchangeType;
+use Cmobi\RabbitmqBundle\Transport\Subscriber\Publisher;
 
 class PublisherTest extends BaseTestCase
 {

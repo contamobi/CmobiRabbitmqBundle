@@ -1,10 +1,10 @@
 <?php
 
-namespace Cmobi\RabbitmqBundle\Test\Transport\PubSub;
+namespace Cmobi\RabbitmqBundle\Test\Transport\Subscriber;
 
 use Cmobi\RabbitmqBundle\Queue\QueueServiceInterface;
 use Cmobi\RabbitmqBundle\Tests\BaseTestCase;
-use Cmobi\RabbitmqBundle\Transport\PubSub\SubscriberQueueCallback;
+use Cmobi\RabbitmqBundle\Transport\Subscriber\SubscriberQueueCallback;
 
 class SubscriberQueueCallbackTest extends BaseTestCase
 {

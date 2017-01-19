@@ -1,6 +1,6 @@
 <?php
 
-namespace Cmobi\RabbitmqBundle\Transport\PubSub;
+namespace Cmobi\RabbitmqBundle\Transport\Subscriber;
 
 use Cmobi\RabbitmqBundle\Connection\ConnectionManager;
 use Cmobi\RabbitmqBundle\Queue\Queue;

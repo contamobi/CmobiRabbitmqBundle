@@ -1,6 +1,6 @@
 <?php
 
-namespace Cmobi\RabbitmqBundle\Tests\Transport\PubSub;
+namespace Cmobi\RabbitmqBundle\Tests\Transport\Subscriber;
 
 use Cmobi\RabbitmqBundle\Connection\CmobiAMQPChannel;
 use Cmobi\RabbitmqBundle\Connection\CmobiAMQPConnection;
@@ -9,9 +9,8 @@ use Cmobi\RabbitmqBundle\Connection\ConnectionManager;
 use Cmobi\RabbitmqBundle\Queue\QueueInterface;
 use Cmobi\RabbitmqBundle\Queue\QueueServiceInterface;
 use Cmobi\RabbitmqBundle\Tests\BaseTestCase;
-use Cmobi\RabbitmqBundle\Transport\PubSub\ExchangeType;
-use Cmobi\RabbitmqBundle\Transport\PubSub\SubscriberBuilder;
-use Cmobi\RabbitmqBundle\Transport\PubSub\SubscriberQueueBag;
+use Cmobi\RabbitmqBundle\Transport\Subscriber\SubscriberBuilder;
+use Cmobi\RabbitmqBundle\Transport\Subscriber\SubscriberQueueBag;
 
 class SubscriberBuilderTest extends BaseTestCase
 {

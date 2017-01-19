@@ -1,9 +1,9 @@
 <?php
 
-namespace Cmobi\RabbitmqBundle\Tests\Rpc;
+namespace Cmobi\RabbitmqBundle\Tests\Transport\Subscriber;
 
-use Cmobi\RabbitmqBundle\Transport\PubSub\ExchangeType;
-use Cmobi\RabbitmqBundle\Transport\PubSub\SubscriberQueueBag;
+use Cmobi\RabbitmqBundle\Transport\Subscriber\ExchangeType;
+use Cmobi\RabbitmqBundle\Transport\Subscriber\SubscriberQueueBag;
 use Cmobi\RabbitmqBundle\Tests\BaseTestCase;
 
 class SubscriberQueueBagTest extends BaseTestCase

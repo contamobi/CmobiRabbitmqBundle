@@ -4,6 +4,8 @@ namespace Cmobi\RabbitmqBundle\DependencyInjection;
 
 use Cmobi\RabbitmqBundle\DependencyInjection\Compiler\LogDispatcherPass;
 use Cmobi\RabbitmqBundle\DependencyInjection\Compiler\RpcServerPass;
+use Cmobi\RabbitmqBundle\DependencyInjection\Compiler\SubscriberPass;
+use Cmobi\RabbitmqBundle\DependencyInjection\Compiler\WorkerPass;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
@@ -23,6 +25,7 @@ class CmobiRabbitmqExtension extends Extension
         $this->registerLogger($container, $configs[0]['log_path']);
         $this->loadConnections($container, $configs[0]);
         $this->loadRpcServers($container, $config);
+        $this->loadWorkers($container, $config);
 
         /* Compile and lock container */
         $container->compile();
@@ -52,7 +55,6 @@ class CmobiRabbitmqExtension extends Extension
         $container->setParameter('cmobi_rabbitmq.connection.factories', $factories);
     }
 
-
     public function loadRpcServers(ContainerBuilder $container, array $configs)
     {
         foreach ($configs['rpc_servers'] as $server) {
@@ -65,6 +67,34 @@ class CmobiRabbitmqExtension extends Extension
                 $server['queue']['durable'],
                 $server['queue']['auto_delete'],
                 $server['queue']['arguments']
+            ));
+        }
+    }
+
+    public function loadWorkers(ContainerBuilder $container, array $configs)
+    {
+        foreach ($configs['workers'] as $worker) {
+            $container->addCompilerPass(new WorkerPass(
+                $worker['queue']['name'],
+                $worker['queue']['connection'],
+                $worker['service'],
+                $worker['queue']['basic_qos'],
+                $worker['queue']['arguments']
+            ));
+        }
+    }
+
+    public function loadSubscribers(ContainerBuilder $container, array $configs)
+    {
+        foreach ($configs['subscribers'] as $subscriber) {
+            $container->addCompilerPass(new SubscriberPass(
+                $subscriber['queue']['exchange'],
+                $subscriber['queue']['exchange_type'],
+                $subscriber['queue']['name'],
+                $subscriber['queue']['connection'],
+                $subscriber['service'],
+                $subscriber['queue']['basic_qos'],
+                $subscriber['queue']['arguments']
             ));
         }
     }

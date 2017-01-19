@@ -1,6 +1,6 @@
 <?php
 
-namespace Cmobi\RabbitmqBundle\Transport\PubSub;
+namespace Cmobi\RabbitmqBundle\Transport\Subscriber;
 
 use Cmobi\RabbitmqBundle\Queue\QueueBagInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -22,7 +22,7 @@ class SubscriberQueueBag implements QueueBagInterface
             'exchange' => $exchangeName,
             'type' => $type,
             'queue_name' => $queueName,
-            'basicQos' => $basicQos,
+            'basic_qos' => $basicQos,
             'arguments' => $arguments
         ]);
         $this->options = $this->resolver->resolve([]);
