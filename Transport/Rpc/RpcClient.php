@@ -6,6 +6,7 @@ use Cmobi\RabbitmqBundle\Connection\CmobiAMQPChannel;
 use Cmobi\RabbitmqBundle\Connection\ConnectionManager;
 use Cmobi\RabbitmqBundle\Queue\CmobiAMQPMessage;
 use Cmobi\RabbitmqBundle\Queue\QueueProducerInterface;
+use Cmobi\RabbitmqBundle\Transport\Exception\QueueNotFoundException;
 use PhpAmqpLib\Message\AMQPMessage;
 
 class RpcClient implements QueueProducerInterface
@@ -56,10 +57,16 @@ class RpcClient implements QueueProducerInterface
      * @param $data
      * @param int $expire
      * @param int $priority
+     * @throws QueueNotFoundException
+     * @throws \Cmobi\RabbitmqBundle\Connection\Exception\NotFoundAMQPConnectionFactoryException
      */
     public function publish($data, $expire = self::DEFAULT_TTL, $priority = self::PRIORITY_LOW)
     {
         $this->refreshChannel();
+
+        if (! $this->queueHasExists()) {
+            throw new QueueNotFoundException("Queue $this->queueName not declared.");
+        }
         $this->correlationId = $this->generateCorrelationId();
         $queueBag = new RpcQueueBag(
             sprintf('callback_to_%s_from_%s_%s', $this->getQueueName(), $this->getFromName(), microtime())
@@ -85,11 +92,25 @@ class RpcClient implements QueueProducerInterface
         );
         $this->getChannel()->basic_publish($msg, '', $this->getQueueName());
 
-        while (!$this->response) {
+        while (! $this->response) {
             $this->getChannel()->wait(null, 0, ($expire / 1000));
         }
         $this->getChannel()->close();
         $this->connectionManager->getConnection()->close();
+    }
+
+    /**
+     * @return bool
+     */
+    public function queueHasExists()
+    {
+        try {
+            $this->getChannel()->queue_declare($this->queueName, true);
+        } catch (\Exception $e) {
+            return false;
+        }
+
+        return true;
     }
 
     /**

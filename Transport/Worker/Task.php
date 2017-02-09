@@ -7,6 +7,7 @@ use Cmobi\RabbitmqBundle\Connection\CmobiAMQPConnectionInterface;
 use Cmobi\RabbitmqBundle\Connection\ConnectionManager;
 use Cmobi\RabbitmqBundle\Queue\CmobiAMQPMessage;
 use Cmobi\RabbitmqBundle\Queue\QueueProducerInterface;
+use Cmobi\RabbitmqBundle\Transport\Exception\QueueNotFoundException;
 
 class Task implements QueueProducerInterface
 {
@@ -24,12 +25,18 @@ class Task implements QueueProducerInterface
 
     /**
      * @param $data
-     * @param $expire
-     * @param $priority
+     * @param int $expire
+     * @param int $priority
+     * @throws QueueNotFoundException
+     * @throws \Cmobi\RabbitmqBundle\Connection\Exception\NotFoundAMQPConnectionFactoryException
      */
     public function publish($data, $expire = self::DEFAULT_TTL, $priority = self::PRIORITY_LOW)
     {
         $this->refreshChannel();
+
+        if (! $this->queueHasExists()) {
+            throw new QueueNotFoundException("Queue $this->queueName not declared.");
+        }
         $queueBag = new WorkerQueueBag($this->getQueueName());
         $this->getChannel()->queueDeclare($queueBag->getQueueDeclare());
         $msg = new CmobiAMQPMessage(
@@ -43,6 +50,20 @@ class Task implements QueueProducerInterface
 
         $this->getChannel()->close();
         $this->connectionManager->getConnection()->close();
+    }
+
+    /**
+     * @return bool
+     */
+    public function queueHasExists()
+    {
+        try {
+            $this->getChannel()->queue_declare($this->queueName, true);
+        } catch (\Exception $e) {
+            return false;
+        }
+
+        return true;
     }
 
     /**
