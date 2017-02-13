@@ -21,6 +21,7 @@
         "php-amqplib/php-amqplib": "2.6.3",
         "symfony/console": "^2.8",
         "monolog/monolog": "^1.19",
+        "ramsey/uuid": "^3.4",
         "symfony/options-resolver": "^2.8"
     },
     "require-dev": {

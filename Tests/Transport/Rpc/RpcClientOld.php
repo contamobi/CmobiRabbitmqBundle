@@ -13,21 +13,21 @@ class RpcClientTest extends BaseTestCase
 {
     public function testGetQueueName()
     {
-        $rpcClient = new RpcClient('test', $this->getConnectionManagerMock());
+        $rpcClient = new RpcClient('test', $this->getConnectionManagerMock(), 'test');
 
         $this->assertEquals('test', $rpcClient->getQueueName());
     }
 
     public function testRefreshChannel()
     {
-        $rpcClient = new RpcClient('test', $this->getConnectionManagerMock());
+        $rpcClient = new RpcClient('test', $this->getConnectionManagerMock(), 'test');
 
         $this->assertInstanceOf(CmobiAMQPChannel::class, $rpcClient->refreshChannel());
     }
 
     public function testGetChannel()
     {
-        $rpcClient = new RpcClient('test', $this->getConnectionManagerMock());
+        $rpcClient = new RpcClient('test', $this->getConnectionManagerMock(), 'test');
 
         $this->assertInstanceOf(CmobiAMQPChannel::class, $rpcClient->refreshChannel());
     }
@@ -43,10 +43,10 @@ class RpcClientTest extends BaseTestCase
     {
         $rpcClient = new RpcClient('test', $this->getConnectionManagerMock(), 'caller_test');
 
+        $rpcClient->publish('test');
         /* @Todo prevent infinite while - improve it */
         $rpcClient->setResponse('testGetResponse() - OK');
 
-        $rpcClient->publish('test');
         $rpcClient->onResponse(
             $this->getCmobiAMQPMessage('testGetResponse() - OK',
                 $rpcClient->getCurrentCorrelationId())

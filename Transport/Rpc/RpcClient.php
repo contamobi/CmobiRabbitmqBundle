@@ -8,6 +8,7 @@ use Cmobi\RabbitmqBundle\Queue\CmobiAMQPMessage;
 use Cmobi\RabbitmqBundle\Queue\QueueProducerInterface;
 use Cmobi\RabbitmqBundle\Transport\Exception\QueueNotFoundException;
 use PhpAmqpLib\Message\AMQPMessage;
+use Ramsey\Uuid\Uuid;
 
 class RpcClient implements QueueProducerInterface
 {
@@ -19,7 +20,7 @@ class RpcClient implements QueueProducerInterface
     private $correlationId;
     private $callbackQueue;
 
-    public function __construct($queueName, ConnectionManager $manager, $fromName = '')
+    public function __construct($queueName, ConnectionManager $manager, $fromName)
     {
         $this->queueName = $queueName;
         $this->fromName = $fromName;
@@ -62,6 +63,7 @@ class RpcClient implements QueueProducerInterface
      */
     public function publish($data, $expire = self::DEFAULT_TTL, $priority = self::PRIORITY_LOW)
     {
+        $this->response = null;
         $this->refreshChannel();
 
         if (! $this->queueHasExists()) {
@@ -69,7 +71,13 @@ class RpcClient implements QueueProducerInterface
         }
         $this->correlationId = $this->generateCorrelationId();
         $queueBag = new RpcQueueBag(
-            sprintf('callback_to_%s_from_%s_%s', $this->getQueueName(), $this->getFromName(), microtime())
+            sprintf(
+                'callback_to_%s_from_%s_%s',
+                $this->getQueueName(),
+                $this->getFromName(),
+                Uuid::uuid4()->toString()
+                . microtime()
+            )
         );
         $queueBag->setArguments([
             'x-expires' => ['I', $expire],
@@ -158,7 +166,7 @@ class RpcClient implements QueueProducerInterface
     /** @return string */
     public function generateCorrelationId()
     {
-        return uniqid($this->getQueueName()).microtime();
+        return uniqid($this->getQueueName()) . Uuid::uuid4()->toString() . microtime();
     }
 
     /**

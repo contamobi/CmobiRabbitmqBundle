@@ -16,7 +16,7 @@ class Task implements QueueProducerInterface
     private $fromName;
     private $queueName;
 
-    public function __construct($queueName, ConnectionManager $manager, $fromName = '')
+    public function __construct($queueName, ConnectionManager $manager, $fromName)
     {
         $this->queueName = $queueName;
         $this->fromName = $fromName;
