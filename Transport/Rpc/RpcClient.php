@@ -13,6 +13,7 @@ use Ramsey\Uuid\Uuid;
 class RpcClient implements QueueProducerInterface
 {
     private $connectionManager;
+    private $connection;
     private $channel;
     private $fromName;
     private $queueName;
@@ -25,6 +26,7 @@ class RpcClient implements QueueProducerInterface
         $this->queueName = $queueName;
         $this->fromName = $fromName;
         $this->connectionManager = $manager;
+        $this->connection = $this->connectionManager->getConnection();
     }
 
     /**
@@ -44,12 +46,10 @@ class RpcClient implements QueueProducerInterface
      */
     public function refreshChannel()
     {
-        $connection = $this->connectionManager->getConnection();
-
-        if (!$connection->isConnected()) {
-            $connection->reconnect();
+        if (! $this->connection->isConnected()) {
+            $this->connection->reconnect();
         }
-        $this->channel = $connection->channel();
+        $this->channel = $this->connection->channel();
 
         return $this->channel;
     }
