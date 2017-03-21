@@ -30,3 +30,7 @@ services:
 
     cmobi_rabbitmq.message.handler:
         class: Cmobi\RabbitmqBundle\Queue\BaseQueueService
+
+    cmobi_rabbitmq.healthcheck:
+        class: Cmobi\RabbitmqBundle\Domain\Service\HealthCheckService
+        arguments: ["@service_container"]

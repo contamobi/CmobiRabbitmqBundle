@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doctrine-mapping xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping http://doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
+    <entity repository-class="AppBundle\Infrastructure\Repository\BppBilletRepository"
+            name="Cmobi\RabbitmqBundle\CmobiRabbitmqBundle\Domain\Model\RpcQueueServer" table="rpc_queue_server">
+        <lifecycle-callbacks>
+            <lifecycle-callback type="prePersist" method="onPrePersist" />
+            <lifecycle-callback type="preUpdate" method="onPreUpdate" />
+        </lifecycle-callbacks>
+        <id name="id" type="integer" column="id">
+            <generator strategy="AUTO"/>
+        </id>
+        <field name="process" type="string" length="255" column="queue"/>
+        <field name="queue" type="string" length="255" column="queue"/>
+        <field name="busy" type="boolean"/>
+        <field name="createdAt" type="datetime" column="created_at"/>
+        <field name="updatedAt" type="datetime" column="updated_at" nullable="true"/>
+    </entity>
+</doctrine-mapping>

@@ -6,7 +6,9 @@ use Cmobi\RabbitmqBundle\Connection\CmobiAMQPChannel;
 use Cmobi\RabbitmqBundle\Connection\CmobiAMQPConnection;
 use Cmobi\RabbitmqBundle\Connection\ConnectionManager;
 use Cmobi\RabbitmqBundle\Connection\Exception\InvalidAMQPChannelException;
+use Cmobi\RabbitmqBundle\Domain\Model\RpcQueueServer;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class Queue implements QueueInterface
 {
@@ -17,6 +19,7 @@ class Queue implements QueueInterface
     private $queueBag;
     private $callback;
     private $logger;
+    private $container;
 
     public function __construct(
         ConnectionManager $connectionManager,
@@ -71,14 +74,24 @@ class Queue implements QueueInterface
 
     /**
      * Declare and start queue in broker.
+     * @param string|null $serviceName Service process name
      */
-    public function start()
+    public function start($serviceName=null)
     {
         $this->createQueue();
 
         while (count($this->getChannel()->callbacks)) {
             try {
-                $this->getChannel()->wait();
+                dump('Waitng...');
+
+                $rpcQueueServer = null;
+                if($this->getContainer() instanceof ContainerInterface) {
+                    $this->getChannel()->setHealthCheckService($this->getContainer()->get('cmobi_rabbitmq.healthcheck'));
+                    $rpcQueueServer = new RpcQueueServer();
+                    $rpcQueueServer->setProcess($serviceName)
+                                    ->setQueue($this->queueBag->getQueue());
+                }
+                $this->getChannel()->wait(null,null,null,$rpcQueueServer);
             } catch (\Exception $e) {
                 $this->logger->error($e->getMessage());
                 $this->forceReconnect();
@@ -157,5 +170,23 @@ class Queue implements QueueInterface
         $this->logger->warning('forceReconnect() - connected!');
 
         return $this->channel;
+    }
+
+    /**
+     * @return ContainerInterface
+     */
+    public function getContainer()
+    {
+        return $this->container;
+    }
+
+    /**
+     * @param ContainerInterface $container
+     * @return $this
+     */
+    public function setContainer(ContainerInterface $container)
+    {
+        $this->container = $container;
+        return $this;
     }
 }
