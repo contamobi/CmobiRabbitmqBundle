@@ -5,7 +5,6 @@ framework:
     secret: "Three can keep a secret, if two of them are dead."
 
 cmobi_rabbitmq:
-    log_path: "%kernel.root_dir%/logs/rabbitmq_service.log"
     connections:
         default:
             host: "%cmobi_rabbitmq_host%"

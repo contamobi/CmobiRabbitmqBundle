@@ -32,8 +32,6 @@ class WorkerPassTest extends BaseTestCase
             ->setPublic(false);
         $container->register('cmobi_rabbitmq.connection.default')
             ->setPublic(false);
-        $container->register('cmobi_rabbitmq.logger')
-            ->setPublic(false);
     }
 
     protected function process(ContainerBuilder $container)

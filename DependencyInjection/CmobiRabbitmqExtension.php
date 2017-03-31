@@ -2,7 +2,6 @@
 
 namespace Cmobi\RabbitmqBundle\DependencyInjection;
 
-use Cmobi\RabbitmqBundle\DependencyInjection\Compiler\LogDispatcherPass;
 use Cmobi\RabbitmqBundle\DependencyInjection\Compiler\RpcServerPass;
 use Cmobi\RabbitmqBundle\DependencyInjection\Compiler\SubscriberPass;
 use Cmobi\RabbitmqBundle\DependencyInjection\Compiler\WorkerPass;
@@ -22,7 +21,6 @@ class CmobiRabbitmqExtension extends Extension
 
         $configuration = $this->getConfiguration($configs, $container);
         $config = $this->processConfiguration($configuration, $configs);
-        $this->registerLogger($container, $configs[0]['log_path']);
         $this->loadConnections($container, $configs[0]);
         $this->loadRpcServers($container, $config);
         $this->loadWorkers($container, $config);
@@ -97,15 +95,5 @@ class CmobiRabbitmqExtension extends Extension
                 $subscriber['queue']['arguments']
             ));
         }
-    }
-
-    /**
-     * @param ContainerBuilder $container
-     * @param $path
-     */
-    public function registerLogger(ContainerBuilder $container, $path)
-    {
-        $logDispatcherPass = new LogDispatcherPass($path);
-        $container->addCompilerPass($logDispatcherPass);
     }
 }

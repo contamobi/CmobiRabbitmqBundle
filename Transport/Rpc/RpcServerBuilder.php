@@ -7,20 +7,17 @@ use Cmobi\RabbitmqBundle\Queue\Queue;
 use Cmobi\RabbitmqBundle\Queue\QueueBagInterface;
 use Cmobi\RabbitmqBundle\Queue\QueueBuilderInterface;
 use Cmobi\RabbitmqBundle\Queue\QueueServiceInterface;
-use Psr\Log\LoggerInterface;
 
 class RpcServerBuilder implements QueueBuilderInterface
 {
     private $queue;
     private $connectionManager;
     private $connectionName;
-    private $logger;
 
-    public function __construct(ConnectionManager $connManager, LoggerInterface $logger, $connectionName = 'default')
+    public function __construct(ConnectionManager $connManager, $connectionName = 'default')
     {
         $this->connectionManager = $connManager;
         $this->connectionName = $connectionName;
-        $this->logger = $logger;
         $this->channel = null;
     }
 
@@ -36,7 +33,7 @@ class RpcServerBuilder implements QueueBuilderInterface
         if (! $queueBag instanceof RpcQueueBag) {
             throw new \Exception('Unsupported QueueBag');
         }
-        $queue = new Queue($this->getConnectionManager(), $queueBag, $this->logger, $this->connectionName);
+        $queue = new Queue($this->getConnectionManager(), $queueBag, $this->connectionName);
         $queueCallback = new RpcQueueCallback($queueService);
         $queue->setCallback($queueCallback);
         $this->queue = $queue;

@@ -64,7 +64,6 @@ class SubscriberPass implements CompilerPassInterface
     protected function buildDefinition(ContainerBuilder $container)
     {
         $connection = $container->getDefinition('cmobi_rabbitmq.connection.manager');
-        $logger = $container->getDefinition('cmobi_rabbitmq.logger');
         $serviceDefinition = $container->getDefinition($this->serviceName);
         $queueBagDefinition = new Definition(
             SubscriberQueueBag::class,
@@ -87,7 +86,6 @@ class SubscriberPass implements CompilerPassInterface
             [
                 'connectionManager' => $connection,
                 'queueBag' => $queueBagDefinition,
-                'logger' => $logger,
                 'connectionName' => $this->connectionName,
                 'callback' => $queueCallbackDefinition
             ]

@@ -15,13 +15,12 @@ class Queue implements QueueInterface
     private $connectionName;
     private $channel;
     private $queueBag;
+    private $logOutput;
     private $callback;
-    private $logger;
 
     public function __construct(
         ConnectionManager $connectionManager,
         QueueBagInterface $queueBag,
-        LoggerInterface $logger,
         $connectionName = 'default',
         QueueCallbackInterface $callback = null
     )
@@ -30,7 +29,7 @@ class Queue implements QueueInterface
         $this->connectionName = $connectionName;
         $this->connection = $this->getConnectionManager()->getConnection($connectionName);
         $this->queueBag = $queueBag;
-        $this->logger = $logger;
+        $this->logOutput = fopen('php://stdout', 'w+');
         $this->callback = $callback;
     }
 
@@ -80,7 +79,7 @@ class Queue implements QueueInterface
             try {
                 $this->getChannel()->wait();
             } catch (\Exception $e) {
-                $this->logger->error($e->getMessage());
+                fwrite($this->logOutput, $e->getMessage());
                 $this->forceReconnect();
 
                 continue;
@@ -144,17 +143,17 @@ class Queue implements QueueInterface
         do {
             try {
                 $failed = false;
-                $this->logger->warning('forceReconnect() - trying connect...');
+                fwrite($this->logOutput, 'start forceReconnect() - trying connect...');
                 $this->connection = $this->getConnectionManager()->getConnection($this->connectionName);
                 $this->channel = $this->getConnection()->channel();
                 $this->createQueue();
             } catch (\Exception $e) {
                 $failed = true;
                 sleep(3);
-                $this->logger->error('forceReconnect() - '.$e->getMessage());
+                fwrite($this->logOutput, 'failed forceReconnect() - '.$e->getMessage());
             }
         } while ($failed);
-        $this->logger->warning('forceReconnect() - connected!');
+        fwrite($this->logOutput, 'forceReconnect() - connected!');
 
         return $this->channel;
     }

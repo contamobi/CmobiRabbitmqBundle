@@ -11,10 +11,6 @@ class Configuration implements ConfigurationInterface
     {
         $tree = new TreeBuilder();
         $rootNode = $tree->root('cmobi_rabbitmq');
-        $rootNode
-            ->children()
-                ->scalarNode('log_path')->end()
-            ->end();
         $rootNode->fixXmlConfig('connection')
             ->children()
                 ->arrayNode('connections')
