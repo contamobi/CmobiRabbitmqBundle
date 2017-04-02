@@ -89,6 +89,7 @@ class RpcClient implements QueueProducerInterface
         if (! $this->queueHasExists($channel)) {
             throw new QueueNotFoundException("Queue $this->queueName not declared.");
         }
+        $this->createCallbackQueue($channel, $expire);
         $msg = new CmobiAMQPMessage(
             (string) $data,
             [
