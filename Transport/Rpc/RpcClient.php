@@ -3,6 +3,7 @@
 namespace Cmobi\RabbitmqBundle\Transport\Rpc;
 
 use Cmobi\RabbitmqBundle\Connection\CmobiAMQPChannel;
+use Cmobi\RabbitmqBundle\Connection\CmobiAMQPConnection;
 use Cmobi\RabbitmqBundle\Connection\ConnectionManager;
 use Cmobi\RabbitmqBundle\Queue\CmobiAMQPMessage;
 use Cmobi\RabbitmqBundle\Queue\QueueProducerInterface;
@@ -12,21 +13,23 @@ use Ramsey\Uuid\Uuid;
 
 class RpcClient implements QueueProducerInterface
 {
+    private $connectionName;
     private $connectionManager;
-    private $connection;
-    private $channel;
     private $fromName;
     private $queueName;
     private $response;
+    private $logOutput;
     private $correlationId;
     private $callbackQueue;
 
-    public function __construct($queueName, ConnectionManager $manager, $fromName)
+    public function __construct($queueName, ConnectionManager $manager, $fromName, $connectionName = 'default')
     {
+        $this->connectionName = $connectionName;
         $this->queueName = $queueName;
         $this->fromName = $fromName;
         $this->connectionManager = $manager;
-        $this->connection = $this->connectionManager->getConnection();
+        $this->logOutput = fopen('php://stdout', 'a+');
+        //$this->connection = $this->connectionManager->getConnection();
     }
 
     /**
@@ -40,21 +43,6 @@ class RpcClient implements QueueProducerInterface
     }
 
     /**
-     * @return \PhpAmqpLib\Channel\AMQPChannel
-     *
-     * @throws \Cmobi\RabbitmqBundle\Connection\Exception\NotFoundAMQPConnectionFactoryException
-     */
-    public function refreshChannel()
-    {
-        if (! $this->connection->isConnected()) {
-            $this->connection->reconnect();
-        }
-        $this->channel = $this->connection->channel();
-
-        return $this->channel;
-    }
-
-    /**
      * @param $data
      * @param int $expire
      * @param int $priority
@@ -64,9 +52,10 @@ class RpcClient implements QueueProducerInterface
     public function publish($data, $expire = self::DEFAULT_TTL, $priority = self::PRIORITY_LOW)
     {
         $this->response = null;
-        $this->refreshChannel();
+        $connection = $this->connectionManager->getConnection($this->connectionName);
+        $channel = $connection->channel();
 
-        if (! $this->queueHasExists()) {
+        if (! $this->queueHasExists($channel)) {
             throw new QueueNotFoundException("Queue $this->queueName not declared.");
         }
         $this->correlationId = $this->generateCorrelationId();
@@ -82,11 +71,11 @@ class RpcClient implements QueueProducerInterface
         $queueBag->setArguments([
             'x-expires' => ['I', $expire],
         ]);
-        list($callbackQueue) = $this->getChannel()->queueDeclare($queueBag->getQueueDeclare());
+        list($callbackQueue) = $channel->queueDeclare($queueBag->getQueueDeclare());
         $this->callbackQueue = $callbackQueue;
         $consumeQueueBag = new RpcQueueBag($callbackQueue);
 
-        $this->getChannel()->basicConsume(
+        $channel->basicConsume(
             $consumeQueueBag->getQueueConsume(),
             [$this, 'onResponse']
         );
@@ -98,22 +87,26 @@ class RpcClient implements QueueProducerInterface
                 'priority' => $priority,
             ]
         );
-        $this->getChannel()->basic_publish($msg, '', $this->getQueueName());
+        $channel->basic_publish($msg, '', $this->getQueueName());
 
         while (! $this->response) {
-            $this->getChannel()->wait(null, 0, ($expire / 1000));
+            $channel->wait(null, 0, ($expire / 1000));
         }
-        $this->getChannel()->close();
-        $this->connectionManager->getConnection()->close();
+        $channel->close();
+        $connection->close();
     }
 
     /**
      * @return bool
      */
-    public function queueHasExists()
+    /**
+     * @param CmobiAMQPChannel $channel
+     * @return bool
+     */
+    public function queueHasExists(CmobiAMQPChannel $channel)
     {
         try {
-            $this->getChannel()->queue_declare($this->queueName, true);
+            $channel->queue_declare($this->queueName, true);
         } catch (\Exception $e) {
             return false;
         }
@@ -127,14 +120,6 @@ class RpcClient implements QueueProducerInterface
     public function getQueueName()
     {
         return $this->queueName;
-    }
-
-    /**
-     * @return CmobiAMQPChannel
-     */
-    public function getChannel()
-    {
-        return $this->channel;
     }
 
     /**
@@ -191,5 +176,13 @@ class RpcClient implements QueueProducerInterface
     public function getExchangeType()
     {
         return false;
+    }
+
+    /**
+     * @return ConnectionManager
+     */
+    public function getConnectionManager()
+    {
+        return $this->connectionManager;
     }
 }

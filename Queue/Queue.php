@@ -143,17 +143,17 @@ class Queue implements QueueInterface
         do {
             try {
                 $failed = false;
-                fwrite($this->logOutput, 'start forceReconnect() - trying connect...' . PHP_EOL);
+                fwrite($this->logOutput, 'start Queue::forceReconnect() - trying connect...' . PHP_EOL);
                 $this->connection = $this->getConnectionManager()->getConnection($this->connectionName);
                 $this->channel = $this->getConnection()->channel();
                 $this->createQueue();
             } catch (\Exception $e) {
                 $failed = true;
                 sleep(3);
-                fwrite($this->logOutput, 'failed forceReconnect() - ' . $e->getMessage() . PHP_EOL);
+                fwrite($this->logOutput, 'failed Queue::forceReconnect() - ' . $e->getMessage() . PHP_EOL);
             }
         } while ($failed);
-        fwrite($this->logOutput, 'forceReconnect() - connected!' . PHP_EOL);
+        fwrite($this->logOutput, 'Queue::forceReconnect() - connected!' . PHP_EOL);
 
         return $this->channel;
     }

@@ -2,8 +2,6 @@
 
 namespace Cmobi\RabbitmqBundle\Queue;
 
-use Cmobi\RabbitmqBundle\Connection\CmobiAMQPChannel;
-
 interface QueueProducerInterface
 {
     /** ttl in milliseconds */
@@ -19,16 +17,6 @@ interface QueueProducerInterface
      * @param $priority
      */
     public function publish($data, $expire = self::DEFAULT_TTL, $priority = self::PRIORITY_LOW);
-
-    /**
-     * @return CmobiAMQPChannel
-     */
-    public function refreshChannel();
-
-    /**
-     * @return CmobiAMQPChannel
-     */
-    public function getChannel();
 
     /**
      * @return string
