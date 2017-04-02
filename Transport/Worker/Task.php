@@ -12,7 +12,6 @@ use Cmobi\RabbitmqBundle\Transport\Exception\QueueNotFoundException;
 class Task implements QueueProducerInterface
 {
     private $connectionManager;
-    private $channel;
     private $fromName;
     private $queueName;
 
@@ -32,13 +31,15 @@ class Task implements QueueProducerInterface
      */
     public function publish($data, $expire = self::DEFAULT_TTL, $priority = self::PRIORITY_LOW)
     {
-        $this->refreshChannel();
+        /** @var CmobiAMQPConnectionInterface $connection */
+        $connection = $this->connectionManager->getConnection();
+        $channel = $connection->channel();
 
-        if (! $this->queueHasExists()) {
+        if (! $this->queueHasExists($channel)) {
             throw new QueueNotFoundException("Queue $this->queueName not declared.");
         }
         $queueBag = new WorkerQueueBag($this->getQueueName());
-        $this->getChannel()->queueDeclare($queueBag->getQueueDeclare());
+        $channel->queueDeclare($queueBag->getQueueDeclare());
         $msg = new CmobiAMQPMessage(
             (string) $data,
             [
@@ -46,19 +47,20 @@ class Task implements QueueProducerInterface
                 'priority' => $priority,
             ]
         );
-        $this->getChannel()->basic_publish($msg, '', $this->getQueueName());
+        $channel->basic_publish($msg, '', $this->getQueueName());
 
-        $this->getChannel()->close();
-        $this->connectionManager->getConnection()->close();
+        $channel->close();
+        $connection->close();
     }
 
     /**
+     * @param CmobiAMQPChannel $channel
      * @return bool
      */
-    public function queueHasExists()
+    public function queueHasExists(CmobiAMQPChannel $channel)
     {
         try {
-            $this->getChannel()->queue_declare($this->queueName, true);
+            $channel->queue_declare($this->queueName, true);
         } catch (\Exception $e) {
             return false;
         }
@@ -67,35 +69,11 @@ class Task implements QueueProducerInterface
     }
 
     /**
-     * @return CmobiAMQPChannel
-     */
-    public function refreshChannel()
-    {
-        /** @var CmobiAMQPConnectionInterface $connection */
-        $connection = $this->connectionManager->getConnection();
-
-        if (!$connection->isConnected()) {
-            $connection->reconnect();
-        }
-        $this->channel = $connection->channel();
-
-        return $this->channel;
-    }
-
-    /**
      * @return string
      */
     public function getQueueName()
     {
         return $this->queueName;
-    }
-
-    /**
-     * @return CmobiAMQPChannel
-     */
-    public function getChannel()
-    {
-        return $this->channel;
     }
 
     /**

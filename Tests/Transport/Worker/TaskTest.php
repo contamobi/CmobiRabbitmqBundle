@@ -18,20 +18,6 @@ class TaskTest extends BaseTestCase
         $this->assertEquals('test', $taskClient->getQueueName());
     }
 
-    public function testRefreshChannel()
-    {
-        $taskClient = new Task('test', $this->getConnectionManagerMock(), 'test');
-
-        $this->assertInstanceOf(CmobiAMQPChannel::class, $taskClient->refreshChannel());
-    }
-
-    public function testGetChannel()
-    {
-        $taskClient = new Task('test', $this->getConnectionManagerMock(), 'test');
-
-        $this->assertInstanceOf(CmobiAMQPChannel::class, $taskClient->refreshChannel());
-    }
-
     public function testGetFromName()
     {
         $taskClient = new Task('test', $this->getConnectionManagerMock(), 'caller_test');

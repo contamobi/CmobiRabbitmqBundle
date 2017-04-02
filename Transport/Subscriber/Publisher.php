@@ -11,7 +11,6 @@ use Cmobi\RabbitmqBundle\Queue\QueueProducerInterface;
 class Publisher implements QueueProducerInterface
 {
     private $connectionManager;
-    private $channel;
     private $fromName;
     private $queueName;
     private $exchange;
@@ -38,38 +37,17 @@ class Publisher implements QueueProducerInterface
      */
     public function publish($data, $expire = self::DEFAULT_TTL, $priority = self::PRIORITY_LOW)
     {
-        $this->refreshChannel();
-        $queueBag = new SubscriberQueueBag($this->getExchange(), $this->getExchangeType(), $this->getQueueName());
-        $this->getChannel()->exchangeDeclare($queueBag->getExchangeDeclare());
-        $msg = new CmobiAMQPMessage((string) $data);
-        $this->getChannel()->basic_publish($msg, $queueBag->getExchange());
 
-        $this->getChannel()->close();
-        $this->connectionManager->getConnection()->close();
-    }
-
-    /**
-     * @return CmobiAMQPChannel
-     */
-    public function refreshChannel()
-    {
         /** @var CmobiAMQPConnectionInterface $connection */
         $connection = $this->connectionManager->getConnection();
+        $channel = $connection->channel();
+        $queueBag = new SubscriberQueueBag($this->getExchange(), $this->getExchangeType(), $this->getQueueName());
+        $channel->exchangeDeclare($queueBag->getExchangeDeclare());
+        $msg = new CmobiAMQPMessage((string) $data);
+        $channel->basic_publish($msg, $queueBag->getExchange());
 
-        if (!$connection->isConnected()) {
-            $connection->reconnect();
-        }
-        $this->channel = $connection->channel();
-
-        return $this->channel;
-    }
-
-    /**
-     * @return CmobiAMQPChannel
-     */
-    public function getChannel()
-    {
-        return $this->channel;
+        $channel->close();
+        $connection->close();
     }
 
     /**

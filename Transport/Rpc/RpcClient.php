@@ -4,6 +4,7 @@ namespace Cmobi\RabbitmqBundle\Transport\Rpc;
 
 use Cmobi\RabbitmqBundle\Connection\CmobiAMQPChannel;
 use Cmobi\RabbitmqBundle\Connection\CmobiAMQPConnection;
+use Cmobi\RabbitmqBundle\Connection\CmobiAMQPConnectionInterface;
 use Cmobi\RabbitmqBundle\Connection\ConnectionManager;
 use Cmobi\RabbitmqBundle\Queue\CmobiAMQPMessage;
 use Cmobi\RabbitmqBundle\Queue\QueueProducerInterface;
@@ -19,6 +20,7 @@ class RpcClient implements QueueProducerInterface
     private $queueName;
     private $response;
     private $logOutput;
+    private $errOutput;
     private $correlationId;
     private $callbackQueue;
 
@@ -29,7 +31,7 @@ class RpcClient implements QueueProducerInterface
         $this->fromName = $fromName;
         $this->connectionManager = $manager;
         $this->logOutput = fopen('php://stdout', 'a+');
-        //$this->connection = $this->connectionManager->getConnection();
+        $this->errOutput = fopen('php://stderr', 'a+');
     }
 
     /**
@@ -40,6 +42,35 @@ class RpcClient implements QueueProducerInterface
         if ($rep->get('correlation_id') === $this->correlationId) {
             $this->response = $rep->getBody();
         }
+    }
+
+    public function createCallbackQueue(CmobiAMQPChannel $channel, $expire, $corralationId = null)
+    {
+        $this->correlationId = is_null($corralationId) ? $this->generateCorrelationId() : $corralationId;
+        $queueBag = new RpcQueueBag(
+            sprintf(
+                'callback_to_%s_from_%s_%s',
+                $this->getQueueName(),
+                $this->getFromName(),
+                Uuid::uuid4()->toString()
+                . microtime()
+            )
+        );
+        $queueBag->setArguments([
+            'x-expires' => ['I', $expire],
+        ]);
+        list($callbackQueue) = $channel->queueDeclare($queueBag->getQueueDeclare());
+        $this->callbackQueue = $callbackQueue;
+
+        $callbackQueue = $this->createCallbackQueue($channel, $expire);
+        $consumeQueueBag = new RpcQueueBag($callbackQueue);
+
+        $channel->basicConsume(
+            $consumeQueueBag->getQueueConsume(),
+            [$this, 'onResponse']
+        );
+
+        return $callbackQueue;
     }
 
     /**
@@ -58,27 +89,6 @@ class RpcClient implements QueueProducerInterface
         if (! $this->queueHasExists($channel)) {
             throw new QueueNotFoundException("Queue $this->queueName not declared.");
         }
-        $this->correlationId = $this->generateCorrelationId();
-        $queueBag = new RpcQueueBag(
-            sprintf(
-                'callback_to_%s_from_%s_%s',
-                $this->getQueueName(),
-                $this->getFromName(),
-                Uuid::uuid4()->toString()
-                . microtime()
-            )
-        );
-        $queueBag->setArguments([
-            'x-expires' => ['I', $expire],
-        ]);
-        list($callbackQueue) = $channel->queueDeclare($queueBag->getQueueDeclare());
-        $this->callbackQueue = $callbackQueue;
-        $consumeQueueBag = new RpcQueueBag($callbackQueue);
-
-        $channel->basicConsume(
-            $consumeQueueBag->getQueueConsume(),
-            [$this, 'onResponse']
-        );
         $msg = new CmobiAMQPMessage(
             (string) $data,
             [
@@ -90,7 +100,15 @@ class RpcClient implements QueueProducerInterface
         $channel->basic_publish($msg, '', $this->getQueueName());
 
         while (! $this->response) {
-            $channel->wait(null, 0, ($expire / 1000));
+            try {
+                $channel->wait(null, 0, ($expire / 1000));
+            } catch (\Exception $e) {
+                fwrite($this->errOutput, $e->getMessage());
+                $connection = $this->forceReconnect($connection, $expire, $this->correlationId);
+                $channel = $connection->channel();
+
+                continue;
+            }
         }
         $channel->close();
         $connection->close();
@@ -184,5 +202,32 @@ class RpcClient implements QueueProducerInterface
     public function getConnectionManager()
     {
         return $this->connectionManager;
+    }
+
+    /**
+     * @param CmobiAMQPConnectionInterface $connection
+     * @param $expire
+     * @param $corralationId
+     * @return CmobiAMQPConnectionInterface
+     */
+    public function forceReconnect(CmobiAMQPConnectionInterface $connection, $expire, $corralationId)
+    {
+        do {
+            try {
+                $connection->close();
+                $failed = false;
+                fwrite($this->logOutput, 'start RpcClient::forceReconnect() - trying connect...' . PHP_EOL);
+                $connection = $this->getConnectionManager()->getConnection($this->connectionName);
+                $channel = $connection->channel();
+                $this->createCallbackQueue($channel, $expire, $corralationId);
+            } catch (\Exception $e) {
+                $failed = true;
+                sleep(3);
+                fwrite($this->errOutput, 'failed RpcClient::forceReconnect() - ' . $e->getMessage() . PHP_EOL);
+            }
+        } while ($failed);
+        fwrite($this->logOutput, 'RpcClient::forceReconnect() - connected!' . PHP_EOL);
+
+        return $connection;
     }
 }
