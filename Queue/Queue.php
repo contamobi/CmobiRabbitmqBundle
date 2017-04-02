@@ -15,6 +15,7 @@ class Queue implements QueueInterface
     private $connectionName;
     private $channel;
     private $queueBag;
+    private $errOutput;
     private $logOutput;
     private $callback;
 
@@ -29,6 +30,7 @@ class Queue implements QueueInterface
         $this->connectionName = $connectionName;
         $this->connection = $this->getConnectionManager()->getConnection($connectionName);
         $this->queueBag = $queueBag;
+        $this->errOutput = fopen('php://stderr', 'a+');
         $this->logOutput = fopen('php://stdout', 'a+');
         $this->callback = $callback;
     }
@@ -79,7 +81,7 @@ class Queue implements QueueInterface
             try {
                 $this->getChannel()->wait();
             } catch (\Exception $e) {
-                fwrite($this->logOutput, $e->getMessage());
+                fwrite($this->errOutput, $e->getMessage());
                 $this->forceReconnect();
 
                 continue;
@@ -150,7 +152,7 @@ class Queue implements QueueInterface
             } catch (\Exception $e) {
                 $failed = true;
                 sleep(3);
-                fwrite($this->logOutput, 'failed Queue::forceReconnect() - ' . $e->getMessage() . PHP_EOL);
+                fwrite($this->errOutput, 'failed Queue::forceReconnect() - ' . $e->getMessage() . PHP_EOL);
             }
         } while ($failed);
         fwrite($this->logOutput, 'Queue::forceReconnect() - connected!' . PHP_EOL);
