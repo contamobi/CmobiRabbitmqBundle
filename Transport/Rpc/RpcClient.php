@@ -44,16 +44,16 @@ class RpcClient implements QueueProducerInterface
         }
     }
 
-    public function createCallbackQueue(CmobiAMQPChannel $channel, $expire, $corralationId = null)
+    public function createCallbackQueue(CmobiAMQPChannel $channel, $expire, $corralationId = null, $sufix = null)
     {
         $this->correlationId = is_null($corralationId) ? $this->generateCorrelationId() : $corralationId;
+        $sufix = is_null($sufix) ? Uuid::uuid4()->toString() . microtime() : $sufix;
         $queueBag = new RpcQueueBag(
             sprintf(
                 'callback_to_%s_from_%s_%s',
                 $this->getQueueName(),
                 $this->getFromName(),
-                Uuid::uuid4()->toString()
-                . microtime()
+                $sufix
             )
         );
         $queueBag->setArguments([
@@ -212,19 +212,22 @@ class RpcClient implements QueueProducerInterface
     public function forceReconnect(CmobiAMQPConnectionInterface $connection, $expire, $corralationId)
     {
         do {
+            $tries = 0;
             try {
                 $connection->close();
+                sleep(2);
                 $failed = false;
                 fwrite($this->logOutput, 'start RpcClient::forceReconnect() - trying connect...' . PHP_EOL);
                 $connection = $this->getConnectionManager()->getConnection($this->connectionName);
                 $channel = $connection->channel();
                 $this->createCallbackQueue($channel, $expire, $corralationId);
             } catch (\Exception $e) {
+                $tries++;
                 $failed = true;
                 sleep(3);
                 fwrite($this->errOutput, 'failed RpcClient::forceReconnect() - ' . $e->getMessage() . PHP_EOL);
             }
-        } while ($failed);
+        } while ($failed || $tries > 2);
         fwrite($this->logOutput, 'RpcClient::forceReconnect() - connected!' . PHP_EOL);
 
         return $connection;

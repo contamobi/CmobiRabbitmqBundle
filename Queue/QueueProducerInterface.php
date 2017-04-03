@@ -5,7 +5,7 @@ namespace Cmobi\RabbitmqBundle\Queue;
 interface QueueProducerInterface
 {
     /** ttl in milliseconds */
-    const DEFAULT_TTL = 30000;
+    const DEFAULT_TTL = 15000;
 
     const PRIORITY_MAX = 100;
     const PRIORITY_MIDDLE = 50;
