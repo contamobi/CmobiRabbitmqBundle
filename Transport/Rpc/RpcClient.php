@@ -61,8 +61,6 @@ class RpcClient implements QueueProducerInterface
         ]);
         list($callbackQueue) = $channel->queueDeclare($queueBag->getQueueDeclare());
         $this->callbackQueue = $callbackQueue;
-
-        $callbackQueue = $this->createCallbackQueue($channel, $expire);
         $consumeQueueBag = new RpcQueueBag($callbackQueue);
 
         $channel->basicConsume(

@@ -117,7 +117,7 @@ class WorkerQueueBag implements QueueBagInterface
      */
     public function getNoAck()
     {
-        return false;
+        return true;
     }
 
     /**
