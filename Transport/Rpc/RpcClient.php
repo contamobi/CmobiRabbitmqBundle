@@ -9,6 +9,7 @@ use Cmobi\RabbitmqBundle\Connection\ConnectionManager;
 use Cmobi\RabbitmqBundle\Queue\CmobiAMQPMessage;
 use Cmobi\RabbitmqBundle\Queue\QueueProducerInterface;
 use Cmobi\RabbitmqBundle\Transport\Exception\QueueNotFoundException;
+use PhpAmqpLib\Exception\AMQPTimeoutException;
 use PhpAmqpLib\Message\AMQPMessage;
 use Ramsey\Uuid\Uuid;
 
@@ -103,10 +104,7 @@ class RpcClient implements QueueProducerInterface
                 $channel->wait(null, 0, ($expire / 1000));
             } catch (\Exception $e) {
                 fwrite($this->errOutput, $e->getMessage());
-                $connection = $this->forceReconnect($connection, $expire, $sufix, $this->correlationId);
-                $channel = $connection->channel();
-
-                continue;
+                break;
             }
         }
         $channel->close();
