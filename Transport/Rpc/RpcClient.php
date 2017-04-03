@@ -44,10 +44,9 @@ class RpcClient implements QueueProducerInterface
         }
     }
 
-    public function createCallbackQueue(CmobiAMQPChannel $channel, $expire, $corralationId = null, $sufix = null)
+    public function createCallbackQueue(CmobiAMQPChannel $channel, $expire, $sufix, $corralationId = null)
     {
         $this->correlationId = is_null($corralationId) ? $this->generateCorrelationId() : $corralationId;
-        $sufix = is_null($sufix) ? Uuid::uuid4()->toString() . microtime() : $sufix;
         $queueBag = new RpcQueueBag(
             sprintf(
                 'callback_to_%s_from_%s_%s',
@@ -87,7 +86,8 @@ class RpcClient implements QueueProducerInterface
         if (! $this->queueHasExists($channel)) {
             throw new QueueNotFoundException("Queue $this->queueName not declared.");
         }
-        $this->createCallbackQueue($channel, $expire);
+        $sufix = Uuid::uuid4()->toString() . microtime();
+        $this->createCallbackQueue($channel, $expire, $sufix);
         $msg = new CmobiAMQPMessage(
             (string) $data,
             [
@@ -103,7 +103,7 @@ class RpcClient implements QueueProducerInterface
                 $channel->wait(null, 0, ($expire / 1000));
             } catch (\Exception $e) {
                 fwrite($this->errOutput, $e->getMessage());
-                $connection = $this->forceReconnect($connection, $expire, $this->correlationId);
+                $connection = $this->forceReconnect($connection, $expire, $sufix, $this->correlationId);
                 $channel = $connection->channel();
 
                 continue;
@@ -206,28 +206,24 @@ class RpcClient implements QueueProducerInterface
     /**
      * @param CmobiAMQPConnectionInterface $connection
      * @param $expire
+     * @param $sufix
      * @param $corralationId
      * @return CmobiAMQPConnectionInterface
      */
-    public function forceReconnect(CmobiAMQPConnectionInterface $connection, $expire, $corralationId)
+    public function forceReconnect(CmobiAMQPConnectionInterface $connection, $expire, $sufix, $corralationId)
     {
-        do {
-            $tries = 0;
-            try {
-                $connection->close();
-                sleep(2);
-                $failed = false;
-                fwrite($this->logOutput, 'start RpcClient::forceReconnect() - trying connect...' . PHP_EOL);
-                $connection = $this->getConnectionManager()->getConnection($this->connectionName);
-                $channel = $connection->channel();
-                $this->createCallbackQueue($channel, $expire, $corralationId);
-            } catch (\Exception $e) {
-                $tries++;
-                $failed = true;
-                sleep(3);
-                fwrite($this->errOutput, 'failed RpcClient::forceReconnect() - ' . $e->getMessage() . PHP_EOL);
-            }
-        } while ($failed || $tries > 2);
+        try {
+            $connection->close();
+            sleep(2);
+            fwrite($this->logOutput, 'start RpcClient::forceReconnect() - trying connect...' . PHP_EOL);
+            $connection = $this->getConnectionManager()->getConnection($this->connectionName);
+            $channel = $connection->channel();
+            $this->createCallbackQueue($channel, $expire, $sufix, $corralationId);
+        } catch (\Exception $e) {
+            fwrite($this->errOutput, 'failed RpcClient::forceReconnect() - ' . $e->getMessage() . PHP_EOL);
+
+            return $connection;
+        }
         fwrite($this->logOutput, 'RpcClient::forceReconnect() - connected!' . PHP_EOL);
 
         return $connection;
